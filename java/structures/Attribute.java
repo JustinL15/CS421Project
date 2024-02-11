@@ -9,4 +9,7 @@ public class Attribute {
     public Byte[] toBinary(){
         return null;
     };
+    public String getName(){
+        return null;
+    };
 }
