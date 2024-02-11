@@ -9,4 +9,7 @@ public class Table {
     public Byte[] toBinary(){
         return null;
     };
+    public Attribute[] getAttributes(){
+        return null;
+    }
 }
