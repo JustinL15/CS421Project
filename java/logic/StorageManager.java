@@ -18,5 +18,10 @@ public class StorageManager {
     public void updateRecord_primarykey(){
         
     }
+    public void createTable(Table new_Table) {
+    }
+    
+    public void dropTable(Table mytable){    
+    }
     
 }

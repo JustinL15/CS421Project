@@ -4,11 +4,14 @@ import java.util.Map;
 public class Parser {
     StorageManager sM = new StorageManager();
 
-    public void create_table(){
+    public void create_table(String name, Attribute[] TableAttr){
+        
+        int number = 10; //get next avaiable table number 
+        Table New_Table = new Table(name,number,TableAttr);
+        sM.createTable(New_Table);
 
     }
-    public void drop_table(){
-        
+    public void drop_table(String name){   
     }
     public void alter_table(){
         

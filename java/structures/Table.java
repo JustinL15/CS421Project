@@ -3,6 +3,13 @@ public class Table {
     private int number;
     private Attribute[] attributes;
     
+    
+    public Table(String name, int number, Attribute[] Attributes) {
+        this.name = name;
+        this.number = number;
+        this.attributes = Attributes;
+
+    }
     public String toString(){
         return null;
     }
