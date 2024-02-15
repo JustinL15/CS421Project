@@ -12,4 +12,10 @@ public class Attribute {
     public String getName(){
         return null;
     };
+    public String getDataType(){
+        return null;
+    }
+    public int getMaxLength(){
+        return 0;
+    }
 }
