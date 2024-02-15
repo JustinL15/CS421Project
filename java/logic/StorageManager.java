@@ -21,7 +21,7 @@ public class StorageManager {
     public void createTable(Table new_Table) {
     }
     
-    public void dropTable(Table mytable){    
+    public void dropTable(String name){    
     }
     
 }

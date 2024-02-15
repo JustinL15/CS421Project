@@ -11,7 +11,8 @@ public class Parser {
         sM.createTable(New_Table);
 
     }
-    public void drop_table(String name){   
+    public void drop_table(String name){
+        sM.dropTable(name);   
     }
     public void alter_table(){
         
@@ -38,8 +39,19 @@ public class Parser {
     public void print_display_schema(){
 
     }
-    public void print_display_info(){
+    public void print_display_info(String name){
+        Table TableSchema; //= Catalog.get_Table_Schema(name);
         
+        System.out.println("table name: "+ name);
+
+        System.out.println("table schema: "+ TableSchema.toString());
+        
+        System.out.println("number of pages: " + TableSchema.getPagecount());
+        System.out.println("number of records: " + TableSchema.getRecordcount());
+
+
+        
+
     }
     //select state
     public Table get_table(){
