@@ -8,5 +8,8 @@ public class Catalog {
     }
     public Byte[] toBinary(){
         return null;
-    };
+    }
+    public Table[] getTables(){
+        return tables;
+    }
 }
