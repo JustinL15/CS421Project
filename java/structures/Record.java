@@ -116,6 +116,7 @@ public class Record {
                     break;
             }
         }
+        this.data = buffer.array();
     }
 
     public List<Object> getValues() {
