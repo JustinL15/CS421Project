@@ -1,14 +1,20 @@
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 public class Catalog {
     private int buffer_size;
     private int page_size;
     private Table[] tables;
+    private HashMap<String, Integer> tableMap;
 
     public Catalog(int buffer_size, int page_size, Table[] tables) {
         this.buffer_size = buffer_size;
         this.page_size = page_size;
         this.tables = tables;
+        this.tableMap = new HashMap<>();
+        for (int i = 0; i < tables.length; i++) {
+            this.tableMap.put(tables[i].getName(), i);
+        }
     }
 
     // creates a Catalog by deserializing a ByteBuffer
@@ -19,6 +25,10 @@ public class Catalog {
         this.tables = new Table[tables_length];
         for (int i = 0; i < tables_length; i++) {
             this.tables[i] = new Table(buffer);
+        }
+        this.tableMap = new HashMap<>();
+        for (int i = 0; i < tables.length; i++) {
+            this.tableMap.put(tables[i].getName(), i);
         }
     }
 
@@ -59,6 +69,10 @@ public class Catalog {
 
     public Table[] getTables() {
         return tables;
+    }
+
+    public Table getTableByName(String name){
+        return tables[tableMap.get(name)];
     }
 
     public static void main(String[] args) {
