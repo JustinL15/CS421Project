@@ -23,6 +23,12 @@ public class Table {
     public Attribute[] getAttributes(){
         return null;
     }
+    public String getName(){
+        return name;
+    }
+    public int getNumber(){
+        return number;
+    }
     public int getPagecount(){
         return this.pagecount;
     }
