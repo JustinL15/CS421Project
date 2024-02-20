@@ -11,8 +11,30 @@ public class Table {
         this.attributes = attributes;
     }
 
+    // creates a Table by deserializing a ByteBuffer
+    public Table(ByteBuffer buffer) {
+        this.name = "";
+        int name_length = buffer.getInt();
+        for (int i = 0; i < name_length; i++) {
+            this.name += buffer.getChar();
+        }
+        this.number = buffer.getInt();
+        int attributes_length = buffer.getInt();
+        this.attributes = new Attribute[attributes_length];
+        for (int i = 0; i < attributes_length; i++) {
+            this.attributes[i] = new Attribute(buffer);
+        }
+    }
+
     public String toString() {
-        return null;
+        String string = "";
+        string += "\ttable name: " + this.name + "\n";
+        string += "\ttable number: " + this.number + "\n";
+        string += "\tattributes:\n";
+        for (Attribute attribute : this.attributes) {
+            string += attribute.toString();
+        }
+        return string;
     }
 
     public int totalBytes(){
@@ -25,15 +47,15 @@ public class Table {
         return size;
     }
 
-    public void fillBytes(ByteBuffer buffer){
-        buffer.putInt(name.length() * 2);
+    public void writeBytes(ByteBuffer buffer){
+        buffer.putInt(name.length());
         for (char c : name.toCharArray()) {
             buffer.putChar(c);
         }
         buffer.putInt(number);
         buffer.putInt(attributes.length);
         for (Attribute attribute : attributes) {
-            attribute.fillBytes(buffer);
+            attribute.writeBytes(buffer);
         }
     }
 

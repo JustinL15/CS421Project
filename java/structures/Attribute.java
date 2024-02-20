@@ -17,6 +17,33 @@ public class Attribute {
         this.unique = unique;
     }
 
+    // creates an Attribute by deserializing a ByteBuffer
+    public Attribute(ByteBuffer buffer) {
+        this.data_type = Type.values()[buffer.getInt()];
+        this.max_length = buffer.getInt();
+        this.nullable = buffer.get() == 1;
+        this.key = buffer.get() == 1;
+        this.unique = buffer.get() == 1;
+        this.name = "";
+        int name_length = buffer.getInt();
+        for (int i = 0; i < name_length; i++) {
+            this.name += buffer.getChar();
+        }
+    }
+
+    public String toString() {
+        String string = "";
+        string += "\t\tattribute name: " + this.name + "\n";
+        string += "\t\tdata type: " + this.data_type.name() + "\n";
+        if (this.data_type == Type.Char || this.data_type == Type.Varchar) {
+            string += "\t\tmax length: " + this.max_length + "\n";
+        }
+        string += "\t\tnullable: " + this.nullable + "\n";
+        string += "\t\tkey: " + this.key + "\n";
+        string += "\t\tunique: " + this.unique + "\n";
+        return string;
+    }
+
     public int totalBytes() {
         int size = 0; // total bytes for binary representation
         size += Integer.BYTES + name.length() * 2; // name string w/ string length
@@ -25,13 +52,13 @@ public class Attribute {
         return size;
     }
 
-    public void fillBytes(ByteBuffer buffer) {
+    public void writeBytes(ByteBuffer buffer) {
         buffer.putInt(data_type.ordinal());
         buffer.putInt(max_length);
         buffer.put(nullable ? (byte) 1 : (byte) 0);
         buffer.put(key ? (byte) 1 : (byte) 0);
         buffer.put(unique ? (byte) 1 : (byte) 0);
-        buffer.putInt(name.length() * 2);
+        buffer.putInt(name.length());
         for (char c : name.toCharArray()) {
             buffer.putChar(c);
         }

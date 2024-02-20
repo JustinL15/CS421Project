@@ -11,8 +11,26 @@ public class Catalog {
         this.tables = tables;
     }
 
+    // creates a Catalog by deserializing a ByteBuffer
+    public Catalog(ByteBuffer buffer, int buffer_size) {
+        this.buffer_size = buffer_size;
+        this.page_size = buffer.getInt();
+        int tables_length = buffer.getInt();
+        this.tables = new Table[tables_length];
+        for (int i = 0; i < tables_length; i++) {
+            this.tables[i] = new Table(buffer);
+        }
+    }
+
     public String toString() {
-        return null;
+        String string = "";
+        string += "buffer size: " + this.buffer_size + "\n";
+        string += "page size: " + this.page_size + "\n";
+        string += "tables:\n";
+        for (Table table : tables) {
+            string += table.toString();
+        }
+        return string;
     }
 
     private int totalBytes() {
@@ -24,18 +42,18 @@ public class Catalog {
         return size;
     }
 
-    private void fillBytes(ByteBuffer buffer) {
+    private void writeBytes(ByteBuffer buffer) {
         buffer.putInt(page_size);
         buffer.putInt(tables.length);
         for (Table table : tables) {
-            table.fillBytes(buffer);
+            table.writeBytes(buffer);
         }
     }
 
     public byte[] toBinary() {
         int size = totalBytes();
         ByteBuffer buffer = ByteBuffer.allocate(size);
-        fillBytes(buffer);
+        writeBytes(buffer);
         return buffer.array();
     }
 
@@ -48,7 +66,11 @@ public class Catalog {
                 new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1, true, true, true) }),
                 new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1, true, true, true) })
         });
+        System.out.println(catalog);
         byte[] bytes = catalog.toBinary();
         System.out.println(bytes);
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        Catalog catalogTheseus = new Catalog(buffer, 1);
+        System.out.println(catalogTheseus);
     }
 }
