@@ -4,11 +4,9 @@ import java.util.List;
 
 public class Record {
     private List<Object> values;
-    private byte[] data;
 
     public Record(Table template, byte[] data) {
         this.values = new ArrayList<Object>();
-        this.data = data;
 
         ByteBuffer buffer = ByteBuffer.wrap(data);
         Attribute[] attrs = template.getAttributes();
@@ -53,7 +51,7 @@ public class Record {
         }
     }
 
-    public Record(Table template, List<Object> values) {
+    public byte[] toByte(Table template, List<Object> values) {
         int totalcap = values.size();
         Attribute[] attrs = template.getAttributes();
         byte[] nullbitmap = new byte[values.size()];
@@ -116,14 +114,11 @@ public class Record {
                     break;
             }
         }
-        this.data = buffer.array();
+        return buffer.array();
     }
 
     public List<Object> getValues() {
         return this.values;
     }
 
-    public byte[] getData() {
-        return this.data;
-    }
 }
