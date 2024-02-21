@@ -134,27 +134,22 @@ public class StorageManager {
         }
 
         else{
-            int v = 0;
-            int l = 
+            int b = 0;
+            Attribute[] attributes = table.getAttributes();
             while(true){
-                File myObj = new File(String.valueOf(table.getNumber()));
-                FileInputStream File_Input_Stream = new FileInputStream(myObj);
-
-                // Create a byte array to store pages
-                byte[] All_File_Info = new byte[(int) myObj.length()];
-
-                // Read file content to byte array
-                File_Input_Stream.read(All_File_Info, v, l);
-
-                File_Input_Stream.close();
-                while(/* Current record is not last record */){
-                    if(/* New record exists before curr record, insert it */){
+                Page page = buffer.read(table.getName(), b);
+                List<Record> cur_Records = page.getRecords();
+                int a = 0;
+                while(true){
+                    Record latest = cur_Records.get(a);
+                    if(latest.){
 
                     }
                 }
                     if(/* Page becomes overfull */){
                         // Split the page, then end the function
                     }
+                b += 1;
             }
         }
         if(/* Record is not inserted */){
