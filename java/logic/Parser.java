@@ -4,14 +4,14 @@ import java.util.Map;
 public class Parser {
     StorageManager sM = new StorageManager();
 
-    public void create_table(String name, Attribute[] TableAttr){
+    public void create_table(String name, int number, Attribute[] TableAttr){
         
-        int number = 10; //get next avaiable table number 
         Table New_Table = new Table(name,number,TableAttr);
         sM.createTable(New_Table);
 
     }
-    public void drop_table(String name){   
+    public void drop_table(String name){
+        sM.dropTable(name);   
     }
     public void alter_table(){
         
@@ -33,16 +33,25 @@ public class Parser {
             correctedVals[orderNum] = values[i];
         }
         // convert data into this function
-        sM.insertRecord_table();
+        sM.insertRecord_table(table);
     }
     public void print_display_schema(){
 
     }
-    public void print_display_info(){
+
+    public void print_display_info(Table table){
+      
+        System.out.println("table name: "+ table.getName());
+        System.out.println("table schema: "+ table.toString());    
+        System.out.println("number of pages: " + table.getPagecount());
+        System.out.println("number of records: " + table.getRecordcount());
         
+
     }
-    //select state
-    public Table get_table(){
-        return null;
+    public void select_statment(Table table){
+        
+        sM.getRecords_tablenumber(table.getNumber());
+        //prints strings
     }
+
 }
