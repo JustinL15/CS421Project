@@ -75,6 +75,10 @@ public class Catalog {
         return tables[tableMap.get(name)];
     }
 
+    public int getPage_size(){
+        return page_size;
+    }
+
     public static void main(String[] args) {
         Catalog catalog = new Catalog(1, 1, new Table[] {
                 new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1, true, true, true) }),

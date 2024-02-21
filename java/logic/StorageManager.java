@@ -1,5 +1,10 @@
+import java.io.BufferedReader;
 import java.io.File;  // Import the File class
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;  // Import the IOException class to handle errors
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,8 +13,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.print.DocFlavor.BYTE_ARRAY;
+
 public class StorageManager {
     private Connection connection;
+    private Buffer buffer = new Buffer();
 
     public Record getRecordByPrimaryKey(String tableName, String primaryKeyColumn, int primaryKeyValue, Table template) throws SQLException {
         PreparedStatement statement = null;
@@ -111,37 +119,42 @@ public class StorageManager {
         return records;
     }
 
-    public void insertRecord_table (Table table){
-        /*
-         * First check for existing pages
-         * 
-         * Then read each table page in order from the table file
-         * 
-         * If the record is not inserted, insert it into the last page
-         * 
-         * If needed split the page
-         */
-        int pagetest = getPage_table(); // Checks the pages of a table to detemine if any pages already exist
-
-        if(pagetest == 0){
+    public void insertRecord_table (Table table, List<Record> record){
+        if(table.getPagecount() == 0){
             String fileName = table.getNumber() + ".txt"; // Checks the table object  to determine its number and 
                                                           // creates a new file name with that number 
             File myObj = new File(fileName);
-            // Creates a new page
-            // Add record to page
-            // Inserts the page into the file
-            // Ends the function
+            Page page = new Page(table, record, 1);
+            
+            try (FileOutputStream fos = new FileOutputStream(myObj);
+                    ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+                    oos.writeObject(page);
+                    oos.flush();
+                    }
         }
+
         else{
-            while(/* Current page is not last page */){
+            int v = 0;
+            int l = 
+            while(true){
+                File myObj = new File(String.valueOf(table.getNumber()));
+                FileInputStream File_Input_Stream = new FileInputStream(myObj);
+
+                // Create a byte array to store pages
+                byte[] All_File_Info = new byte[(int) myObj.length()];
+
+                // Read file content to byte array
+                File_Input_Stream.read(All_File_Info, v, l);
+
+                File_Input_Stream.close();
                 while(/* Current record is not last record */){
                     if(/* New record exists before curr record, insert it */){
 
                     }
                 }
-                if(/* Page becomes overfull */){
-                    // Split the page, then end the function
-                }
+                    if(/* Page becomes overfull */){
+                        // Split the page, then end the function
+                    }
             }
         }
         if(/* Record is not inserted */){
