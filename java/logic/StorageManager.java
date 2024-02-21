@@ -136,13 +136,21 @@ public class StorageManager {
         else{
             int b = 0;
             Attribute[] attributes = table.getAttributes();
+            Boolean key;
+            for (int i = 0; i < attributes.length; i++) {
+                Attribute holding = attributes[i];
+                if (holding.isKey()) {
+                    key = holding.isKey();
+                    break;
+                }
+            }
             while(true){
                 Page page = buffer.read(table.getName(), b);
                 List<Record> cur_Records = page.getRecords();
                 int a = 0;
                 while(true){
                     Record latest = cur_Records.get(a);
-                    if(latest.){
+                    if(){
 
                     }
                 }
