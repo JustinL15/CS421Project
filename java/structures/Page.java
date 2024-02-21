@@ -5,15 +5,18 @@ import java.util.List;
 public class Page {
     private List<Record> records;
     private Table template;
+    private int pageNumber;
 
-    public Page(Table template, List<Record> records) {
+    public Page(Table template, List<Record> records, int pageNumber) {
         this.records = records;
         this.template = template;
+        this.pageNumber = pageNumber;
     }
 
-    public Page(Table template, byte[] data) {
+    public Page(Table template, byte[] data, int pageNumber) {
         this.records = new ArrayList<Record>();
         this.template = template;
+        this.pageNumber = pageNumber;
 
         ByteBuffer buffer = ByteBuffer.wrap(data);
         int numRecords = buffer.getInt();
@@ -38,6 +41,10 @@ public class Page {
 
     public Table getTemplate() {
         return template;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
     }
 
     public static void main(String[] args) 
