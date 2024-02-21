@@ -11,7 +11,7 @@ public class StorageManager {
     public void getRecords_tablenumber(){
         
     }
-    public void insertRecord_table (Table table){
+    public void insertRecord_table (Table table){ //Anthony Hren
         /*
          * First check for existing pages
          * 
