@@ -4,9 +4,8 @@ import java.util.Map;
 public class Parser {
     StorageManager sM = new StorageManager();
 
-    public void create_table(String name, Attribute[] TableAttr){
+    public void create_table(String name, int number, Attribute[] TableAttr){
         
-        int number = 10; //get next avaiable table number 
         Table New_Table = new Table(name,number,TableAttr);
         sM.createTable(New_Table);
 
@@ -39,22 +38,20 @@ public class Parser {
     public void print_display_schema(){
 
     }
-    public void print_display_info(String name){
-        Table TableSchema; //= Catalog.get_Table_Schema(name);
-        
-        System.out.println("table name: "+ name);
 
-        System.out.println("table schema: "+ TableSchema.toString());
-        
-        System.out.println("number of pages: " + TableSchema.getPagecount());
-        System.out.println("number of records: " + TableSchema.getRecordcount());
-
-
+    public void print_display_info(Table table){
+      
+        System.out.println("table name: "+ table.getName());
+        System.out.println("table schema: "+ table.toString());    
+        System.out.println("number of pages: " + table.getPagecount());
+        System.out.println("number of records: " + table.getRecordcount());
         
 
     }
-    //select state
-    public Table get_table(){
-        return null;
+    public void select_statment(Table table){
+        
+        sM.getRecords_tablenumber(table.getNumber());
+        //prints strings
     }
+
 }

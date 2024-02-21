@@ -5,10 +5,10 @@ public class StorageManager {
     public void getRecord_primarykey(){
 
     }
-    public void getPage_table(){
-        
+    public int getPage_table(){
+        return 0;
     }
-    public void getRecords_tablenumber(){
+    public void getRecords_tablenumber(int number){
         
     }
     public void insertRecord_table (Table table){
