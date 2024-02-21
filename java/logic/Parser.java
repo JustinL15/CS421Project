@@ -33,7 +33,7 @@ public class Parser {
             correctedVals[orderNum] = values[i];
         }
         // convert data into this function
-        sM.insertRecord_table();
+        sM.insertRecord_table(table);
     }
     public void print_display_schema(){
 

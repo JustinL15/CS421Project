@@ -4,13 +4,17 @@ import java.util.List;
 
 public class Record {
     private List<Object> values;
-    private byte[] data;
+    private Table template;
 
-    public Record(Table template, byte[] data) {
+    public Record(Table template, List<Object> values) {
+        this.values = values;
+        this.template = template;
+    }
+
+    public Record(Table template, ByteBuffer buffer) {
+        this.template = template;
         this.values = new ArrayList<Object>();
-        this.data = data;
 
-        ByteBuffer buffer = ByteBuffer.wrap(data);
         Attribute[] attrs = template.getAttributes();
         byte[] nullbitmap = new byte[attrs.length];
         for (int i = 0; i < attrs.length; i++) {
@@ -53,13 +57,13 @@ public class Record {
         }
     }
 
-    public Record(Table template, List<Object> values) {
-        int totalcap = values.size();
-        Attribute[] attrs = template.getAttributes();
-        byte[] nullbitmap = new byte[values.size()];
+    public byte[] toByte() {
+        int totalcap = this.values.size();
+        Attribute[] attrs = this.template.getAttributes();
+        byte[] nullbitmap = new byte[this.values.size()];
         
-        for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) == null) {
+        for (int i = 0; i < this.values.size(); i++) {
+            if (this.values.get(i) == null) {
                 nullbitmap[i] = 1;
                 continue;
             }
@@ -74,11 +78,11 @@ public class Record {
                     totalcap += 1;
                     break;
                 case Char:
-                    char[] cl = (char[]) values.get(i);
+                    char[] cl = (char[]) this.values.get(i);
                     totalcap += (2 * cl.length);
                     break;
                 case Varchar:
-                    char[] vl = (char[]) values.get(i);
+                    char[] vl = (char[]) this.values.get(i);
                     totalcap += (2 * vl.length);
                     break;
             }
@@ -87,28 +91,28 @@ public class Record {
         ByteBuffer buffer = ByteBuffer.allocate(totalcap);
         buffer.put(nullbitmap);
         
-        for (int i = 0; i < values.size(); i++) {
+        for (int i = 0; i < this.values.size(); i++) {
             switch (attrs[i].getDataType()) {
                 case Integer:
-                    buffer.putInt((int) values.get(i));
+                    buffer.putInt((int) this.values.get(i));
                     break;
                 case Double:
-                    buffer.putDouble((double) values.get(i));
+                    buffer.putDouble((double) this.values.get(i));
                     break;
                 case Boolean:
-                    if ((boolean) values.get(i)) {
+                    if ((boolean) this.values.get(i)) {
                         buffer.put((byte) 1);
                     } else {
                         buffer.put((byte) 0);
                     }
                     break;
                 case Char:
-                    for (char c: (char[]) values.get(i)) {
+                    for (char c: (char[]) this.values.get(i)) {
                         buffer.putChar(c);
                     }
                     break;
                 case Varchar:
-                    char[] vchar = (char[]) values.get(i);
+                    char[] vchar = (char[]) this.values.get(i);
                     buffer.putInt(vchar.length);
                     for (char c: vchar) {
                         buffer.putChar(c);
@@ -116,14 +120,15 @@ public class Record {
                     break;
             }
         }
-        this.data = buffer.array();
+        return buffer.array();
     }
 
     public List<Object> getValues() {
         return this.values;
     }
 
-    public byte[] getData() {
-        return this.data;
+    public Table getTemplate() {
+        return this.template;
     }
+
 }
