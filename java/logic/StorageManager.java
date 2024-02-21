@@ -17,7 +17,7 @@ import javax.print.DocFlavor.BYTE_ARRAY;
 
 public class StorageManager {
     private Connection connection;
-    private Buffer buffer = new Buffer();
+    private Buffer buffer = new Buffer(); // Buffer requires the Catalog and databaseLocation. consider creating Buffer in Main and passing it to a constructor.
 
     public Record getRecordByPrimaryKey(String tableName, String primaryKeyColumn, int primaryKeyValue, Table template) throws SQLException {
         PreparedStatement statement = null;
