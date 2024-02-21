@@ -2,14 +2,14 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public class Catalog {
-    private int buffer_size;
-    private int page_size;
+    private int bufferSize;
+    private int pageSize;
     private Table[] tables;
     private HashMap<String, Integer> tableMap;
 
-    public Catalog(int buffer_size, int page_size, Table[] tables) {
-        this.buffer_size = buffer_size;
-        this.page_size = page_size;
+    public Catalog(int bufferSize, int pageSize, Table[] tables) {
+        this.bufferSize = bufferSize;
+        this.pageSize = pageSize;
         this.tables = tables;
         this.tableMap = new HashMap<>();
         for (int i = 0; i < tables.length; i++) {
@@ -18,9 +18,9 @@ public class Catalog {
     }
 
     // creates a Catalog by deserializing a ByteBuffer
-    public Catalog(ByteBuffer buffer, int buffer_size) {
-        this.buffer_size = buffer_size;
-        this.page_size = buffer.getInt();
+    public Catalog(ByteBuffer buffer, int bufferSize) {
+        this.bufferSize = bufferSize;
+        this.pageSize = buffer.getInt();
         int tables_length = buffer.getInt();
         this.tables = new Table[tables_length];
         for (int i = 0; i < tables_length; i++) {
@@ -34,8 +34,8 @@ public class Catalog {
 
     public String toString() {
         String string = "";
-        string += "buffer size: " + this.buffer_size + "\n";
-        string += "page size: " + this.page_size + "\n";
+        string += "buffer size: " + this.bufferSize + "\n";
+        string += "page size: " + this.pageSize + "\n";
         string += "tables:\n";
         for (Table table : tables) {
             string += table.toString();
@@ -45,7 +45,7 @@ public class Catalog {
 
     private int totalBytes() {
         int size = 0;
-        size += Integer.BYTES * 2; // int page_size and length of tables
+        size += Integer.BYTES * 2; // int pageSize and length of tables
         for (Table table : tables) {
             size += table.totalBytes();
         }
@@ -53,7 +53,7 @@ public class Catalog {
     }
 
     private void writeBytes(ByteBuffer buffer) {
-        buffer.putInt(page_size);
+        buffer.putInt(pageSize);
         buffer.putInt(tables.length);
         for (Table table : tables) {
             table.writeBytes(buffer);
@@ -71,12 +71,16 @@ public class Catalog {
         return tables;
     }
 
-    public Table getTableByName(String name){
+    public Table getTableByName(String name) {
         return tables[tableMap.get(name)];
     }
 
-    public int getPage_size(){
-        return page_size;
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
     }
 
     public static void main(String[] args) {
