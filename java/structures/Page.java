@@ -71,9 +71,9 @@ public class Page {
         List<Record> records = new ArrayList<Record>();
         records.add(record1);
         records.add(record1t);
-        Page np = new Page(table, records);
+        Page np = new Page(table, records, 0);
         byte[] data1 = np.toByte(50);
-        Page npt = new Page(table, data1);
+        Page npt = new Page(table, data1, 1);
         byte[] data2 = npt.toByte(50);
         for (byte b: data1) {
             System.out.print(b);

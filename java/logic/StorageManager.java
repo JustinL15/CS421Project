@@ -10,6 +10,7 @@ import java.util.List;
 
 public class StorageManager {
     private Connection connection;
+    private Buffer buffer = new Buffer();
 
     public Record getRecordByPrimaryKey(String tableName, String primaryKeyColumn, int primaryKeyValue, Table template) throws SQLException {
         PreparedStatement statement = null;
