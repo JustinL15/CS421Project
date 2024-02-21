@@ -160,7 +160,7 @@ public class StorageManager {
     public void deleteRecord_primarykey(){
 
     }
-    public void updateRecord_primarykey(){
+    public void updateRecord_primarykey(Table template, Object pKey, Record record){
         
     }
     public void createTable(Table new_Table) {
