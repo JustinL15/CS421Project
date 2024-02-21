@@ -75,4 +75,8 @@ public class Attribute {
     public int getMaxLength() {
         return this.max_length;
     }
+
+    public boolean isKey() {
+        return this.key;
+    }
 }
