@@ -40,5 +40,42 @@ public class Page {
         return template;
     }
 
+    public static void main(String[] args) 
+    {
+        Attribute[] attr = new Attribute[2];
+        attr[0] = new Attribute("yes/no", Type.Integer, 0, false, false, false);
+        attr[1] = new Attribute("name", Type.Varchar, 3, false, false, false);
+        Table table = new Table("test", 0, attr);
+        List<Object> vals = new ArrayList<Object>();
+        vals.add(1);
+        char[] c = new char[] {'a', 'b', 'c'};
+        vals.add(c);
+        Record record1 = new Record(table, vals);
+        System.out.println(record1.getValues());
+        for (char ch: (char[]) record1.getValues().get(1)) {
+            System.out.println(ch);
+        }
+        System.out.println(record1.toByte());
+        Record record1t = new Record(table, ByteBuffer.wrap(record1.toByte()));
+        System.out.println(record1t.getValues());   
+        for (char ch: (char[]) record1t.getValues().get(1)) {
+            System.out.println(ch);
+        }
+        List<Record> records = new ArrayList<Record>();
+        records.add(record1);
+        records.add(record1t);
+        Page np = new Page(table, records);
+        byte[] data1 = np.toByte(50);
+        Page npt = new Page(table, data1);
+        byte[] data2 = npt.toByte(50);
+        for (byte b: data1) {
+            System.out.print(b);
+        }
+        System.out.println();
+        for (byte b: data2) {
+            System.out.print(b);
+        }
+        
+    }
 
 }

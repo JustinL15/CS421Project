@@ -83,7 +83,7 @@ public class Record {
                     break;
                 case Varchar:
                     char[] vl = (char[]) this.values.get(i);
-                    totalcap += (2 * vl.length);
+                    totalcap += (2 * vl.length) + 4;
                     break;
             }
         }
