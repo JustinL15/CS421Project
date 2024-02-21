@@ -25,6 +25,7 @@ public class Main {
             //create catalog
 
         }
+        //create buffer, parser, storage manager
 
         System.out.println("----------------Starting Database Console---------------------");
         boolean breakflag = false;
