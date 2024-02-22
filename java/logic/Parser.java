@@ -119,8 +119,11 @@ public class Parser {
         // convert data into this function
         sM.insertRecord_table(table, records);
     }
-    public void print_display_schema(){
-
+    public void print_display_schema(Catalog curr_cat,String file_loc){
+        System.out.println("database location: "+ file_loc);
+        System.out.println("page size: "+ curr_cat.getPageSize());
+        System.out.println("buffer size: "+curr_cat.getBufferSize());
+        System.out.println("table schema: "+);
     }
 
     public void print_display_info(Table table){
