@@ -78,4 +78,8 @@ public class Table {
     public int getRecordcount(){
         return this.recordcount;
     }
+
+    public void setAttributes(Attribute[] newAttributes) {
+        this.attributes = newAttributes;
+    }
 }
