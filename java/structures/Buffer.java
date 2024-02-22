@@ -46,6 +46,7 @@ public class Buffer {
             System.out.println("IOException when reading from table " + tableNumber);
             return null;
         }
+
         Page page = new Page(table, bytes, pageNumber);
         pages.add(page);
         if (pages.size() > catalog.getBufferSize()) {
@@ -56,8 +57,33 @@ public class Buffer {
     }
 
     private void write(Page page) {
+        byte[] bytes = page.toByte(catalog.getPageSize());
+        Table table = page.getTemplate();
+        int tableNumber = table.getNumber();
+        String tableLocation = databaseLocation + File.pathSeparator + tableNumber;
+        File tableFile = new File(tableLocation);
+        RandomAccessFile tableAccessFile;
+        try {
+            tableAccessFile = new RandomAccessFile(tableFile, "rw");
+        } catch (FileNotFoundException e) {
+            System.out.println("No file at " + tableLocation);
+            return;
+        }
+
+        int pageSize = catalog.getPageSize();
+        try {
+            tableAccessFile.write(bytes, page.getPageNumber() * pageSize, pageSize);
+            tableAccessFile.close();
+        } catch (IOException e) {
+            System.out.println("IOException when writing to table " + tableNumber);
+            return;
+        }
     }
 
-    private void purge() {
+    public void purge() {
+        for (Page page : pages){
+            write(page);
+        }
+        pages = new LinkedList<Page>();
     }
 }
