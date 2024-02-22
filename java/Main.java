@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
 import java.nio.ByteBuffer;
@@ -32,10 +33,16 @@ public class Main {
                 return;
             }
 
-            byte[] bytes = new byte[(int)catalogAccessFile.length()];
-            catalogAccessFile.read(bytes);
-            ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-            myCatalog = new Catalog(Integer.parseInt(args[2]), byteBuffer);
+            try {
+                byte[] bytes = new byte[(int)catalogAccessFile.length()];
+                catalogAccessFile.read(bytes);
+                catalogAccessFile.close();
+                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+                myCatalog = new Catalog(Integer.parseInt(args[2]), byteBuffer);
+            } catch (IOException e) {
+                System.out.println("IO Exception when reading catalog file at " + catalogLocation);
+                return;
+            }
         }
         else{
             if(args.length != 3){
@@ -49,8 +56,13 @@ public class Main {
             ArrayList<Table> tablelist = new ArrayList<Table>();
             myCatalog = new Catalog(Integer.parseInt(args[2]),Integer.parseInt(args[1]),tablelist);
 
-            Files.createFile(Path.of(path + File.pathSeparator + "catalog"));
-            Files.createDirectory(Path.of(path + File.pathSeparator + "tables"));
+            try {
+                Files.createFile(Path.of(path + File.pathSeparator + "catalog"));
+                Files.createDirectory(Path.of(path + File.pathSeparator + "tables"));
+            } catch (IOException e) {
+                System.out.println("IO Exception when creating catalog file and tables directory at " + path);
+                return;
+            }
 
             System.out.println("New db created successfully");
             System.out.print("Page size: "+args[1]);
@@ -89,10 +101,16 @@ public class Main {
                     break;
                 case "alter":
                     //implement 
-                    myParser.alter_table();
-                case "drop":
-                    myParser.drop_table(arguments[1]);
+                    if(arguments[1] == "table"){
+                        myParser.alter_table();
+                    }
                     break;
+                case "drop":
+                    if(arguments[1] == "table"){
+                        myParser.drop_table(arguments[1]);
+                    }
+                    break;
+
                 case "insert":
                     myParser.insert_values(null, args, arguments);
                     break;
@@ -101,7 +119,7 @@ public class Main {
                         myParser.print_display_info(myCatalog.getTableByName(arguments[2]));
                     }
                     if(arguments[1] ==  "schema"){
-                        myParser.print_display_schema();
+                        myParser.print_display_schema(myCatalog,tableLocation);
                     }
                     break;
                 
@@ -115,6 +133,13 @@ public class Main {
     }
     public static void help_message(){
         System.out.println("all functions");
+        System.out.println("select table >> gets table");
+        System.out.println("create table() >> creates table with attributes");
+        System.out.println("drop (table) >> drops table");
+        System.out.println("alter (table) --- >> alters table based on values given");
+        System.out.println("insert values --- >> insert values");
+        System.out.println("display info table >> display values in table");
+        System.out.println("display schema >> display schema");
 
     }
     
