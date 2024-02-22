@@ -35,7 +35,7 @@ public class StorageManager {
             List<Record> records = page.getRecords();
     
             for (Record record : records) {
-                List<Attribute> attributes = Arrays.asList(table.getAttributes());
+                List<Attribute> attributes = table.getAttributes();
                
                 int primaryKeyIndex = -1;
                 for (int j = 0; j < attributes.size(); j++) {
@@ -109,7 +109,7 @@ public class StorageManager {
                 List<Record> records = page.getRecords();
     
                 for (Record record : records) {
-                    List<Attribute> attributes = Arrays.asList(table.getAttributes());
+                    List<Attribute> attributes = table.getAttributes();
                
                     int primaryKeyIndex = -1;
                     for (int j = 0; j < attributes.size(); j++) {
@@ -143,7 +143,7 @@ public class StorageManager {
             List<Record> records = page.getRecords();
     
             for (Record record : records) {
-                List<Attribute> attributes = Arrays.asList(table.getAttributes());
+                List<Attribute> attributes = table.getAttributes();
                
                 int primaryKeyIndex = -1;
                 for (int j = 0; j < attributes.size(); j++) {
@@ -166,7 +166,7 @@ public class StorageManager {
     public void updateRecord_primarykey(Table template, Object pKey, Record record){
         
     }
-    public Table createTable(String name, int number, Attribute[] TableAttr) {
+    public Table createTable(String name, int number, ArrayList<Attribute> TableAttr) {
         Table New_Table = new Table(name,number,TableAttr);
         return New_Table;
     }

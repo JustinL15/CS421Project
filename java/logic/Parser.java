@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Attr;
+// import org.w3c.dom.Attr;
 
 public class Parser {
     StorageManager sM;
@@ -14,7 +14,7 @@ public class Parser {
     public void create_table(String name, int number, String TableAttr){
         
         String[] Tablevals = TableAttr.split(",");
-        Attribute[] AttrList = new Attribute[Tablevals.length];
+        ArrayList<Attribute> AttrList = new ArrayList<Attribute>();
         int k = 0;
         for(String i : Tablevals){
             String[] attribute_values = i.split(",");
@@ -66,7 +66,7 @@ public class Parser {
                 attrtype1 = Type.Boolean;
             }
             Attribute new_attr = new Attribute(ATTRname, attrtype1, length,decimal, nullable, primkey, unquie);
-            AttrList[k] = new_attr;
+            AttrList.set(k, new_attr);
             k = k +1;
 
         }
@@ -81,12 +81,12 @@ public class Parser {
     }
     public void insert_values(Table table, String[] order, String[] values){
         Map<String, Integer> columnOrder = new HashMap<>();
-        Attribute[] tableCol = table.getAttributes();
+        ArrayList<Attribute> tableCol = table.getAttributes();
         List<Object> cVals = new ArrayList<Object>();
 
 
-        for (int i = 0; i < tableCol.length; i++) {
-            columnOrder.put(tableCol[i].getName(), i);
+        for (int i = 0; i < tableCol.size(); i++) {
+            columnOrder.put(tableCol.get(i).getName(), i);
             cVals.add(null);
         }
 
@@ -96,7 +96,7 @@ public class Parser {
                 // return an error
                 return;
             }
-            switch (tableCol[i].getDataType()) {
+            switch (tableCol.get(i).getDataType()) {
                 case Integer:
                     cVals.set(orderNum, Integer.parseInt(values[i]));
                     break;
