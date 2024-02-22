@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Attr;
+
 
 public class Parser {
     StorageManager sM;
@@ -123,7 +123,10 @@ public class Parser {
         System.out.println("database location: "+ file_loc);
         System.out.println("page size: "+ curr_cat.getPageSize());
         System.out.println("buffer size: "+curr_cat.getBufferSize());
-        System.out.println("table schema: "+);
+        for(Table i : curr_cat.getTables()){
+            table_schema_display(i);
+        }
+        
     }
 
     public void print_display_info(Table table){
@@ -132,8 +135,29 @@ public class Parser {
         System.out.println("table schema: "+ table.toString());    
         System.out.println("number of pages: " + table.getPagecount());
         System.out.println("number of records: " + table.getRecordcount());
-        
+        table_schema_display(table);
 
+    }
+    private void table_schema_display(Table table){
+        
+        System.out.println("Table name:"+table.getName());
+        System.out.println("Table schema");
+        for(Attribute i : table.getAttributes()){
+            System.out.print("    "+i.getName()+":"+i.getDataType());
+            if(i.getDataType() == Type.Varchar || i.getDataType() == Type.Char){
+                System.out.print("("+i.getMaxLength()+")");
+            }
+            if(i.isKey()){
+                System.out.print(" primarykey");
+            }
+            System.out.println("\n");
+
+        }
+        System.out.println("Pages:"+table.getPagecount());
+        System.out.println("Records:"+table.getRecordcount());
+
+        
+        
     }
     public void select_statment(Table table){
         
