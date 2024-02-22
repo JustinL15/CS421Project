@@ -53,10 +53,8 @@ public class Parser {
                 length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Char;
             }
-            if(ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")) == "DOUBLE"){
-                String[] lengths = ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")).split(",");
-                length = Integer.parseInt(lengths[0]);
-                decimal = Integer.parseInt(lengths[1]); 
+            if(ATTRTYPE == "DOUBLE"){
+                
                 attrtype1 = Type.Double;
             }
             if(ATTRTYPE == "INT"){
@@ -65,7 +63,7 @@ public class Parser {
             if(ATTRTYPE == "BOOLEAN"){
                 attrtype1 = Type.Boolean;
             }
-            Attribute new_attr = new Attribute(ATTRname, attrtype1, length,decimal, nullable, primkey, unquie);
+            Attribute new_attr = new Attribute(ATTRname, attrtype1, length, nullable, primkey, unquie);
             AttrList.set(k, new_attr);
             k = k +1;
 

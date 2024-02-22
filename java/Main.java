@@ -75,6 +75,7 @@ public class Main {
         Parser myParser = new Parser(sM);
 
         System.out.println("----------------Starting Database Console---------------------");
+        System.out.println("   Please enter commands, enter <quit> to shutdown the db");
         boolean breakflag = false;
         Scanner scanner = new Scanner(System.in);
         while (!breakflag) { //program loop
@@ -85,12 +86,14 @@ public class Main {
                 case ("help"):
                     help_message(); //usage
                     break;
-                case "end", "stop", "quit":
+                case "quit":
                     breakflag = true;
                     break;
                 case "select":
-                    myParser.select_statment(myCatalog.getTableByName(arguments[2]));
-                    ;
+                    if(args[1] == "*" && args[2] == "from"){
+                        myParser.select_statment(myCatalog.getTableByName(arguments[2]));
+                    }
+                    break;
                 case "create":
                     if(arguments[1] == "table"){
                         int lastindex = input.lastIndexOf(")");
@@ -100,7 +103,6 @@ public class Main {
                     }
                     break;
                 case "alter":
-                    //implement 
                     if(arguments[1] == "table"){
                         myParser.alter_table();
                     }
@@ -119,7 +121,7 @@ public class Main {
                         myParser.print_display_info(myCatalog.getTableByName(arguments[2]));
                     }
                     if(arguments[1] ==  "schema"){
-                        myParser.print_display_schema(myCatalog,tableLocation);
+                        myParser.print_display_schema(myCatalog,path.toString());
                     }
                     break;
                 

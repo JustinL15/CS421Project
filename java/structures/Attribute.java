@@ -8,7 +8,7 @@ public class Attribute {
     private boolean key;
     private boolean unique;
 
-    public Attribute(String name, Type data_type, int max_length,int decimal, boolean nullable, boolean key, boolean unique) {
+    public Attribute(String name, Type data_type, int max_length, boolean nullable, boolean key, boolean unique) {
         this.name = name;
         this.data_type = data_type;
         this.max_length = max_length;
