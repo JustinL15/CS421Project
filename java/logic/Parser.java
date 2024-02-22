@@ -79,7 +79,7 @@ public class Parser {
     }
     public void insert_values(Table table, String[] order, String[] values){
         Map<String, Integer> columnOrder = new HashMap<>();
-        ArrayList<Attribute> tableCol = table.getAttributes();
+        List<Attribute> tableCol = table.getAttributes();
         List<Object> cVals = new ArrayList<Object>();
 
 

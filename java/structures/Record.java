@@ -15,7 +15,7 @@ public class Record {
         this.template = template;
         this.values = new ArrayList<Object>();
 
-        ArrayList<Attribute> attrs = template.getAttributes();
+        List<Attribute> attrs = template.getAttributes();
         byte[] nullbitmap = new byte[attrs.size()];
         for (int i = 0; i < attrs.size(); i++) {
             nullbitmap[i] = buffer.get();
@@ -59,7 +59,7 @@ public class Record {
 
     public byte[] toByte() {
         int totalcap = this.values.size();
-        ArrayList<Attribute> attrs = this.template.getAttributes();
+        List<Attribute> attrs = this.template.getAttributes();
         byte[] nullbitmap = new byte[this.values.size()];
         
         for (int i = 0; i < this.values.size(); i++) {
