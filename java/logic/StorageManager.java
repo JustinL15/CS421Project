@@ -16,8 +16,13 @@ import java.util.List;
 import javax.print.DocFlavor.BYTE_ARRAY;
 
 public class StorageManager {
-    private Connection connection;
-    private Buffer buffer = new Buffer(); // Buffer requires the Catalog and databaseLocation. consider creating Buffer in Main and passing it to a constructor.
+    public Buffer buffer;
+
+    public StorageManager(Buffer buffer){
+        this.buffer = buffer;
+
+    }
+    // Buffer requires the Catalog and databaseLocation. consider creating Buffer in Main and passing it to a constructor.
 
     public Record getRecordByPrimaryKey(Table table, Object primaryKey) {
         int pageCount = table.getPagecount();
@@ -39,38 +44,8 @@ public class StorageManager {
         return null;
     }
     
-    public Page getPage(String tableName, int pageNumber, Attribute[] attributes, int pageSize) throws SQLException {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        Page page = null;
-    
-        try {
-            String sql = "SELECT page_data FROM " + tableName + " WHERE page_number = ?";
-    
-            statement = connection.prepareStatement(sql);
-            statement.setInt(1, pageNumber);
-    
-            resultSet = statement.executeQuery();
-    
-            if (resultSet.next()) {
-                byte[] pageData = resultSet.getBytes("page_data"); 
-                
-                page = new Page(new Table("tableName", 0, attributes), pageData); // Assuming table number is not used here
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-    
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (statement != null) {
-                statement.close();
-            }
-        }
-    
-        return page;
+    public Page getPage(String tableName, int pageNumber) {
+        return buffer.read(tableName, pageNumber);
     }
 
     public List<Record> getRecords_tablenumber(int tableNumber, Attribute[] attributes) throws SQLException {
