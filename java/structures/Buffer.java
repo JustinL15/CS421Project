@@ -2,11 +2,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-<<<<<<< HEAD
 import java.nio.file.Files;
 import java.nio.file.Path;
-=======
->>>>>>> dd458a45e295028c9d3cb291e1458561716110be
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,19 +31,15 @@ public class Buffer {
         }
 
         int tableNumber = table.getNumber();
-        String tableLocation = databaseLocation + File.pathSeparator + "tables" + File.pathSeparator + tableNumber;
+        String tableLocation = databaseLocation + File.separator + "tables" + File.separator + tableNumber;
         File tableFile = new File(tableLocation);
         RandomAccessFile tableAccessFile;
         try {
             tableAccessFile = new RandomAccessFile(tableFile, "r");
         } catch (FileNotFoundException e) {
-            try {
-                Files.createFile(tableFile.toPath());
-                return new Page(table, new ArrayList<Record>(), pageNumber);
-            } catch (IOException io) {
-                System.err.println(io);
-                return null;
-            }
+            Page np = new Page(table, new ArrayList<Record>(), pageNumber);
+            pages.add(np);
+            return np;
         }
 
         int pageSize = catalog.getPageSize();
@@ -72,7 +65,7 @@ public class Buffer {
         byte[] bytes = page.toByte(catalog.getPageSize());
         Table table = page.getTemplate();
         int tableNumber = table.getNumber();
-        String tableLocation = databaseLocation + File.pathSeparator + "tables" + File.pathSeparator + tableNumber;
+        String tableLocation = databaseLocation + File.separator + "tables" + File.separator + tableNumber;
         File tableFile = new File(tableLocation);
         RandomAccessFile tableAccessFile;
         try {
@@ -108,13 +101,14 @@ public class Buffer {
         Attribute a1 = new Attribute("name", Type.Varchar, 10, false, false, false);
         Attribute a2 = new Attribute("number", Type.Integer, 0, false, false, false);
         Attribute[] as = new Attribute[2];
-        as[1] = a1;
-        as[2] = a2;
+        as[0] = a1;
+        as[1] = a2;
 
         Table table = new Table("test", 0, as);
 
         Table[] tables = new Table[1];
-        Catalog cat = new Catalog(1, 0, tables);
+        tables[0] = table;
+        Catalog cat = new Catalog(1, 500, tables);
 
         Buffer buffer = new Buffer(cat, "Database-System-Implementation-Project\\resources");
         Page page0 = buffer.read(table.getName(), 0);
@@ -126,8 +120,9 @@ public class Buffer {
         Page page1 = buffer.read(table.getName(), 0);
         char[] got = (char[]) page1.getRecords().get(0).getValues().get(0);
         for (char c : got) {
-            System.out.println(c);
+            System.out.print(c);
         }
+        System.out.println();
         System.out.println((int) page1.getRecords().get(0).getValues().get(1));
     }
 }

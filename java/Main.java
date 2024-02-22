@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
-=======
 import java.util.*; 
->>>>>>> dd458a45e295028c9d3cb291e1458561716110be
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
