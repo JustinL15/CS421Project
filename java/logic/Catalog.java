@@ -1,14 +1,15 @@
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Catalog {
     private int bufferSize;
     private int pageSize;
-    private ArrayList<Table> tables;
+    private List<Table> tables;
     private HashMap<String, Integer> tableMap;
 
-    public Catalog(int bufferSize, int pageSize, ArrayList<Table> tables) {
+    public Catalog(int bufferSize, int pageSize, List<Table> tables) {
         this.bufferSize = bufferSize;
         this.pageSize = pageSize;
         this.tables = tables;
@@ -68,7 +69,7 @@ public class Catalog {
         return buffer.array();
     }
 
-    public ArrayList<Table> getTables() {
+    public List<Table> getTables() {
         return tables;
     }
 
@@ -85,15 +86,17 @@ public class Catalog {
     }
 
     public static void main(String[] args) {
-        // Catalog catalog = new Catalog(1, 1, new Table[] {
-        //         new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1,0, true, true, true) }),
-        //         new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1,0, true, true, true) })
-        // });
-        // System.out.println(catalog);
-        // byte[] bytes = catalog.toBinary();
-        // System.out.println(bytes);
-        // ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        // Catalog catalogTheseus = new Catalog(1, buffer);
-        // System.out.println(catalogTheseus);
+        Attribute[] atts = new Attribute[2];
+        atts[0] = new Attribute("name", Type.Boolean, 1,0, true, true, true);
+        atts[1] = new Attribute("id", Type.Integer, 0, 0, false, false, false);
+        List<Table> tables = new ArrayList<>();
+        tables.add(new Table("test", 0, atts));
+        Catalog catalog = new Catalog(1, 1, tables);
+        System.out.println(catalog);
+        byte[] bytes = catalog.toBinary();
+        System.out.println(bytes);
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        Catalog catalogTheseus = new Catalog(1, buffer);
+        System.out.println(catalogTheseus);
     }
 }
