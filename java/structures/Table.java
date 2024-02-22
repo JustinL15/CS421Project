@@ -1,13 +1,14 @@
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 public class Table {
     private String name;
     private int number;
-    private Attribute[] attributes;
+    private ArrayList<Attribute> attributes;
     private int pagecount;
     private int recordcount;
 
-    public Table(String name, int number, Attribute[] attributes) {
+    public Table(String name, int number, ArrayList<Attribute> attributes) {
         this.name = name;
         this.number = number;
         this.attributes = attributes;
@@ -22,9 +23,9 @@ public class Table {
         }
         this.number = buffer.getInt();
         int attributes_length = buffer.getInt();
-        this.attributes = new Attribute[attributes_length];
+        this.attributes = new ArrayList<Attribute>();
         for (int i = 0; i < attributes_length; i++) {
-            this.attributes[i] = new Attribute(buffer);
+            this.attributes.set(i, new Attribute(buffer));
         }
     }
 
@@ -55,13 +56,13 @@ public class Table {
             buffer.putChar(c);
         }
         buffer.putInt(number);
-        buffer.putInt(attributes.length);
+        buffer.putInt(attributes.size());
         for (Attribute attribute : attributes) {
             attribute.writeBytes(buffer);
         }
     }
 
-    public Attribute[] getAttributes() {
+    public ArrayList<Attribute> getAttributes() {
         return attributes;
     }
 

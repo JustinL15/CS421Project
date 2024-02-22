@@ -15,17 +15,17 @@ public class Record {
         this.template = template;
         this.values = new ArrayList<Object>();
 
-        Attribute[] attrs = template.getAttributes();
-        byte[] nullbitmap = new byte[attrs.length];
-        for (int i = 0; i < attrs.length; i++) {
+        ArrayList<Attribute> attrs = template.getAttributes();
+        byte[] nullbitmap = new byte[attrs.size()];
+        for (int i = 0; i < attrs.size(); i++) {
             nullbitmap[i] = buffer.get();
         }
 
-        for (int i = 0; i < attrs.length; i++) {
+        for (int i = 0; i < attrs.size(); i++) {
             if (nullbitmap[i] == 1) {
                 continue;
             }
-            switch (attrs[i].getDataType()) {
+            switch (attrs.get(i).getDataType()) {
                 case Integer:
                     this.values.add(buffer.getInt());
                     break;
@@ -36,7 +36,7 @@ public class Record {
                     this.values.add(buffer.get() == 1);
                     break;
                 case Char:
-                    int clength = attrs[i].getMaxLength();
+                    int clength = attrs.get(i).getMaxLength();
                     char[] charArr = new char[clength];
 
                     for (int j = 0; j < clength; j++) {
@@ -59,7 +59,7 @@ public class Record {
 
     public byte[] toByte() {
         int totalcap = this.values.size();
-        Attribute[] attrs = this.template.getAttributes();
+        ArrayList<Attribute> attrs = this.template.getAttributes();
         byte[] nullbitmap = new byte[this.values.size()];
         
         for (int i = 0; i < this.values.size(); i++) {
@@ -67,7 +67,7 @@ public class Record {
                 nullbitmap[i] = 1;
                 continue;
             }
-            switch (attrs[i].getDataType()) {
+            switch (attrs.get(i).getDataType()) {
                 case Integer:
                     totalcap += 4;
                     break;
@@ -92,7 +92,7 @@ public class Record {
         buffer.put(nullbitmap);
         
         for (int i = 0; i < this.values.size(); i++) {
-            switch (attrs[i].getDataType()) {
+            switch (attrs.get(i).getDataType()) {
                 case Integer:
                     buffer.putInt((int) this.values.get(i));
                     break;
