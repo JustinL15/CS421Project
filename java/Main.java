@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
 import java.nio.ByteBuffer;
@@ -32,10 +33,16 @@ public class Main {
                 return;
             }
 
-            byte[] bytes = new byte[(int)catalogAccessFile.length()];
-            catalogAccessFile.read(bytes);
-            ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-            myCatalog = new Catalog(Integer.parseInt(args[2]), byteBuffer);
+            try {
+                byte[] bytes = new byte[(int)catalogAccessFile.length()];
+                catalogAccessFile.read(bytes);
+                catalogAccessFile.close();
+                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+                myCatalog = new Catalog(Integer.parseInt(args[2]), byteBuffer);
+            } catch (IOException e) {
+                System.out.println("IO Exception when reading catalog file at " + catalogLocation);
+                return;
+            }
         }
         else{
             if(args.length != 3){
@@ -49,8 +56,13 @@ public class Main {
             ArrayList<Table> tablelist = new ArrayList<Table>();
             myCatalog = new Catalog(Integer.parseInt(args[2]),Integer.parseInt(args[1]),tablelist);
 
-            Files.createFile(Path.of(path + File.pathSeparator + "catalog"));
-            Files.createDirectory(Path.of(path + File.pathSeparator + "tables"));
+            try {
+                Files.createFile(Path.of(path + File.pathSeparator + "catalog"));
+                Files.createDirectory(Path.of(path + File.pathSeparator + "tables"));
+            } catch (IOException e) {
+                System.out.println("IO Exception when creating catalog file and tables directory at " + path);
+                return;
+            }
 
             System.out.println("New db created successfully");
             System.out.print("Page size: "+args[1]);
