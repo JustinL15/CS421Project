@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Parser {
-    StorageManager sM = new StorageManager();
+    StorageManager sM;
+    public Parser(StorageManager StorageMan){
+        sM = StorageMan;
+    }
 
     public void create_table(String name, int number, Attribute[] TableAttr){
         
