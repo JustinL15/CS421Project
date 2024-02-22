@@ -180,8 +180,12 @@ public class StorageManager {
     }
     }
 
-    public void alterTable(Table table, Attribute[] newAttributes) {
-        
+    public void alterTable(String tableName, Attribute[] newAttributes) {
+        for (Table table : tables) {
+            if (table.getName().equals(tableName)) {
+                table.setAttributes(newAttributes);
+            }
+        }
     }
 
     
