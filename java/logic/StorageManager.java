@@ -19,6 +19,7 @@ import javax.print.DocFlavor.BYTE_ARRAY;
 public class StorageManager {
     public Buffer buffer;
     public Catalog catalog;
+    public List<Table> tables;
 
     public StorageManager(){
         this.buffer = buffer;
@@ -171,7 +172,13 @@ public class StorageManager {
         return New_Table;
     }
     
-    public void dropTable(String name){    
+    public void dropTable(String tablenamePassed){  
+        for (int i = 0; i < tables.size(); i++) {
+            Table tableSelected = tables.get(i);
+            if (tableSelected.getName().equals(tablenamePassed)) {
+                tables.remove(i);
+            }  
     }
+}
     
 }
