@@ -101,10 +101,16 @@ public class Main {
                     break;
                 case "alter":
                     //implement 
-                    myParser.alter_table();
-                case "drop":
-                    myParser.drop_table(arguments[1]);
+                    if(arguments[1] == "table"){
+                        myParser.alter_table();
+                    }
                     break;
+                case "drop":
+                    if(arguments[1] == "table"){
+                        myParser.drop_table(arguments[1]);
+                    }
+                    break;
+
                 case "insert":
                     myParser.insert_values(null, args, arguments);
                     break;
@@ -113,7 +119,7 @@ public class Main {
                         myParser.print_display_info(myCatalog.getTableByName(arguments[2]));
                     }
                     if(arguments[1] ==  "schema"){
-                        myParser.print_display_schema();
+                        myParser.print_display_schema(myCatalog,tableLocation);
                     }
                     break;
                 
@@ -127,6 +133,13 @@ public class Main {
     }
     public static void help_message(){
         System.out.println("all functions");
+        System.out.println("select table >> gets table");
+        System.out.println("create table() >> creates table with attributes");
+        System.out.println("drop (table) >> drops table");
+        System.out.println("alter (table) --- >> alters table based on values given");
+        System.out.println("insert values --- >> insert values");
+        System.out.println("display info table >> display values in table");
+        System.out.println("display schema >> display schema");
 
     }
     
