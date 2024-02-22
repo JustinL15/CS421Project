@@ -3,15 +3,66 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Attr;
+
 public class Parser {
     StorageManager sM;
     public Parser(StorageManager StorageMan){
         sM = StorageMan;
     }
 
-    public void create_table(String name, int number, Attribute[] TableAttr){
+    public void create_table(String name, int number, String TableAttr){
         
-        Table New_Table = new Table(name,number,TableAttr);
+        String[] Tablevals = TableAttr.split(",");
+        Attribute[] AttrList = new Attribute[Tablevals.length];
+        int k = 0;
+        for(String i : Tablevals){
+            String[] attribute_values = i.split(",");
+            String ATTRname = attribute_values[0];
+            String ATTRTYPE = attribute_values[1];
+            boolean unquie = false;
+            boolean nullable = true;
+            boolean primkey = false;
+            int length = 0;
+            for( int j = 2; j <= attribute_values.length - 1; j++){
+                if(attribute_values[j] == "UNQUIE"){
+                    unquie = true;
+                }
+                if(attribute_values[j] == "NOT"){
+                    if(j +1 <= attribute_values.length+1){
+                        if(attribute_values[j] == "NULL"){
+                            nullable = false;
+                        }
+                    }
+                }
+                if(attribute_values[j] == "PRIMARY"){
+                    if(j +1 <= attribute_values.length+1){
+                        if(attribute_values[j] == "KEY"){
+                            primkey = true;
+                        }
+                    }
+                }
+            }
+            Type attrtype1 = null;
+            if(ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")) == "VARCHAR"){
+                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
+                attrtype1 = Type.Varchar;
+            }
+            if(ATTRTYPE == "CHAR"){
+                attrtype1 = Type.Char;
+            }
+            if(ATTRTYPE == "INT"){
+                attrtype1 = Type.Integer;
+            }
+            if(ATTRTYPE == "BOOLEAN"){
+                attrtype1 = Type.Boolean;
+            }
+            Attribute new_attr = new Attribute(ATTRname, attrtype1, length, nullable, primkey, unquie);
+            AttrList[k] = new_attr;
+            k = k +1;
+
+        }
+        Table New_Table = new Table(name,number,AttrList);
         sM.createTable(name,number,TableAttr);
 
     }
