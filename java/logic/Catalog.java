@@ -85,8 +85,8 @@ public class Catalog {
 
     public static void main(String[] args) {
         Catalog catalog = new Catalog(1, 1, new Table[] {
-                new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1, true, true, true) }),
-                new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1, true, true, true) })
+                new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1,0, true, true, true) }),
+                new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1,0, true, true, true) })
         });
         System.out.println(catalog);
         byte[] bytes = catalog.toBinary();

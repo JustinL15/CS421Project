@@ -98,8 +98,8 @@ public class Buffer {
     }
     public static void main(String[] args) 
     {
-        Attribute a1 = new Attribute("name", Type.Varchar, 10, false, false, false);
-        Attribute a2 = new Attribute("number", Type.Integer, 0, false, false, false);
+        Attribute a1 = new Attribute("name", Type.Varchar, 10,0, false, false, false);
+        Attribute a2 = new Attribute("number", Type.Integer, 0,0, false, false, false);
         Attribute[] as = new Attribute[2];
         as[0] = a1;
         as[1] = a2;

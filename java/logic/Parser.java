@@ -24,6 +24,7 @@ public class Parser {
             boolean nullable = true;
             boolean primkey = false;
             int length = 0;
+            int decimal = 0;
             for( int j = 2; j <= attribute_values.length - 1; j++){
                 if(attribute_values[j] == "UNQUIE"){
                     unquie = true;
@@ -48,8 +49,15 @@ public class Parser {
                 length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Varchar;
             }
-            if(ATTRTYPE == "CHAR"){
+            if(ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")) == "CHAR"){
+                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Char;
+            }
+            if(ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")) == "DOUBLE"){
+                String[] lengths = ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")).split(",");
+                length = Integer.parseInt(lengths[0]);
+                decimal = Integer.parseInt(lengths[1]); 
+                attrtype1 = Type.Double;
             }
             if(ATTRTYPE == "INT"){
                 attrtype1 = Type.Integer;
@@ -57,13 +65,12 @@ public class Parser {
             if(ATTRTYPE == "BOOLEAN"){
                 attrtype1 = Type.Boolean;
             }
-            Attribute new_attr = new Attribute(ATTRname, attrtype1, length, nullable, primkey, unquie);
+            Attribute new_attr = new Attribute(ATTRname, attrtype1, length,decimal, nullable, primkey, unquie);
             AttrList[k] = new_attr;
             k = k +1;
 
         }
-        Table New_Table = new Table(name,number,AttrList);
-        sM.createTable(name,number,TableAttr);
+        sM.createTable(name,number,AttrList);
 
     }
     public void drop_table(String name){

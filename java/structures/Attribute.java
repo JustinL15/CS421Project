@@ -4,14 +4,16 @@ public class Attribute {
     private String name;
     private Type data_type;
     private int max_length;
+    private int decimal;
     private boolean nullable;
     private boolean key;
     private boolean unique;
 
-    public Attribute(String name, Type data_type, int max_length, boolean nullable, boolean key, boolean unique) {
+    public Attribute(String name, Type data_type, int max_length,int decimal, boolean nullable, boolean key, boolean unique) {
         this.name = name;
         this.data_type = data_type;
         this.max_length = max_length;
+        this.decimal = decimal;
         this.nullable = nullable;
         this.key = key;
         this.unique = unique;
@@ -38,6 +40,10 @@ public class Attribute {
         if (this.data_type == Type.Char || this.data_type == Type.Varchar) {
             string += "\t\tmax length: " + this.max_length + "\n";
         }
+        if (this.data_type == Type.Double) {
+            string += "\t\tmax length: " + this.max_length + "\n";
+            string += "\t\tdecimal length: " + this.decimal + "\n";
+        }
         string += "\t\tnullable: " + this.nullable + "\n";
         string += "\t\tkey: " + this.key + "\n";
         string += "\t\tunique: " + this.unique + "\n";
@@ -55,6 +61,7 @@ public class Attribute {
     public void writeBytes(ByteBuffer buffer) {
         buffer.putInt(data_type.ordinal());
         buffer.putInt(max_length);
+        buffer.putInt(decimal);
         buffer.put(nullable ? (byte) 1 : (byte) 0);
         buffer.put(key ? (byte) 1 : (byte) 0);
         buffer.put(unique ? (byte) 1 : (byte) 0);
