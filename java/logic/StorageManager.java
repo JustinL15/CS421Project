@@ -18,6 +18,7 @@ import javax.print.DocFlavor.BYTE_ARRAY;
 
 public class StorageManager {
     public Buffer buffer;
+    public Catalog catalog;
 
     public StorageManager(Buffer buffer){
         this.buffer = buffer;
@@ -60,19 +61,29 @@ public class StorageManager {
     }
 
     public List<Record> getRecords_tablenumber(int tableNumber) {
-        Table[] tables = buffer.getCatalog().getTables();
-        Table table = null;
-        for (Table t : tables) {
-            if (t.getNumber() == tableNumber) {
-                table = t;
-                break;
+        List<Record> allRecords = new ArrayList<>();
+
+        Table table = catalog.getTables()[tableNumber]; 
+
+        if (table == null) {
+            return allRecords;
+        }
+
+        int pageCount = table.getPagecount();
+
+        for (int i = 0; i < pageCount; i++) {
+            Page page = buffer.read(table.getName(), i);
+
+            if (page == null) {
+                continue;
             }
+
+            allRecords.addAll(page.getRecords());
         }
-        if (table != null) {
-            return buffer.getRecordsByTableNumber(tableNumber);
-        }
-        return null; // Table not found
+
+        return allRecords;
     }
+
 
     public void insertRecord_table (Table table, List<Record> record){
         if(table.getPagecount() == 0){
