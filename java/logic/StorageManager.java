@@ -131,8 +131,33 @@ public class StorageManager {
         }
     }
     
-    public void deleteRecord_primarykey(){
+    public void deleteRecord_primarykey(Table table, Object primaryKey) {
+        int pageCount = table.getPagecount();
 
+        for (int i = 0; i < pageCount; i++) {
+            Page page = buffer.read(table.getName(), i);
+            List<Record> records = page.getRecords();
+    
+            for (Record record : records) {
+                List<Attribute> attributes = Arrays.asList(table.getAttributes());
+               
+                int primaryKeyIndex = -1;
+                for (int j = 0; j < attributes.size(); j++) {
+                    Attribute attribute = attributes.get(j);
+                    if (attribute.isKey()) {
+                        primaryKeyIndex = j;
+                    }
+                }
+    
+                if (primaryKeyIndex != -1) {
+                    List<Object> values = record.getValues();
+                    if (values.get(primaryKeyIndex).equals(primaryKey)) {
+                        records.remove(record);
+                        return;
+                    }
+                }
+            }
+        }
     }
     public void updateRecord_primarykey(Table template, Object pKey, Record record){
         
