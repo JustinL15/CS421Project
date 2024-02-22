@@ -20,7 +20,7 @@ public class StorageManager {
     public Buffer buffer;
     public Catalog catalog;
 
-    public StorageManager(Buffer buffer){
+    public StorageManager(){
         this.buffer = buffer;
 
     }
