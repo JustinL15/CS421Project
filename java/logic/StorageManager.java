@@ -20,7 +20,7 @@ public class StorageManager {
     public Buffer buffer;
     public Catalog catalog;
 
-    public StorageManager(Buffer buffer){
+    public StorageManager(){
         this.buffer = buffer;
 
     }
@@ -116,8 +116,12 @@ public class StorageManager {
                 int a = 0;
                 while(true){
                     Record latest = cur_Records.get(a);
-                    if(){
-
+                    List<Object> values = latest.getValues();
+                    for (int i = 0; i < values.size(); i++) {
+                        Object check = values.get(i);
+                        if (check == key) {
+                            
+                        }
                     }
                 }
                     if(/* Page becomes overfull */){
@@ -162,7 +166,9 @@ public class StorageManager {
     public void updateRecord_primarykey(Table template, Object pKey, Record record){
         
     }
-    public void createTable(Table new_Table) {
+    public Table createTable(String name, int number, Attribute[] TableAttr) {
+        Table New_Table = new Table(name,number,TableAttr);
+        return New_Table;
     }
     
     public void dropTable(String name){    

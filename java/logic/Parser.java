@@ -12,7 +12,7 @@ public class Parser {
     public void create_table(String name, int number, Attribute[] TableAttr){
         
         Table New_Table = new Table(name,number,TableAttr);
-        sM.createTable(New_Table);
+        sM.createTable(name,number,TableAttr);
 
     }
     public void drop_table(String name){
