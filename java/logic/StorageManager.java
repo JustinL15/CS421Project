@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.print.DocFlavor.BYTE_ARRAY;
@@ -26,18 +27,28 @@ public class StorageManager {
 
     public Record getRecordByPrimaryKey(Table table, Object primaryKey) {
         int pageCount = table.getPagecount();
-
+    
         for (int i = 0; i < pageCount; i++) {
             Page page = buffer.read(table.getName(), i);
             List<Record> records = page.getRecords();
-
+    
             for (Record record : records) {
-                
-                int primaryKeyIndex =  /* index of the primary key in the values list */;
-                List<Object> values = record.getValues();
-
-                if (values.get(primaryKeyIndex).equals(primaryKey)) {
-                    return record;
+                List<Attribute> attributes = Arrays.asList(table.getAttributes());
+               
+                int primaryKeyIndex = -1;
+                for (int j = 0; j < attributes.size(); j++) {
+                    Attribute attribute = attributes.get(j);
+                    if (attribute.isKey()) {
+                        primaryKeyIndex = j;
+                        break;
+                    }
+                }
+    
+                if (primaryKeyIndex != -1) {
+                    List<Object> values = record.getValues();
+                    if (values.get(primaryKeyIndex).equals(primaryKey)) {
+                        return record;
+                    }
                 }
             }
         }
@@ -48,36 +59,19 @@ public class StorageManager {
         return buffer.read(tableName, pageNumber);
     }
 
-    public List<Record> getRecords_tablenumber(int tableNumber, Attribute[] attributes) throws SQLException {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        List<Record> records = new ArrayList<>();
-
-        try {
-            String sql = "SELECT record_data FROM table_" + tableNumber;
-
-            statement = connection.prepareStatement(sql);
-
-            resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-
-                byte[] recordData = resultSet.getBytes("record_data"); // 
-
-                records.add(new Record(new Table("tableName", tableNumber, attributes), ByteBuffer.wrap(recordData)));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (statement != null) {
-                statement.close();
+    public List<Record> getRecords_tablenumber(int tableNumber) {
+        Table[] tables = buffer.getCatalog().getTables();
+        Table table = null;
+        for (Table t : tables) {
+            if (t.getNumber() == tableNumber) {
+                table = t;
+                break;
             }
         }
-        return records;
+        if (table != null) {
+            return buffer.getRecordsByTableNumber(tableNumber);
+        }
+        return null; // Table not found
     }
 
     public void insertRecord_table (Table table, List<Record> record){
