@@ -1,14 +1,15 @@
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Table {
     private String name;
     private int number;
-    private ArrayList<Attribute> attributes;
+    private List<Attribute> attributes;
     private int pagecount;
     private int recordcount;
 
-    public Table(String name, int number, ArrayList<Attribute> attributes) {
+    public Table(String name, int number, List<Attribute> attributes) {
         this.name = name;
         this.number = number;
         this.attributes = attributes;
@@ -62,7 +63,7 @@ public class Table {
         }
     }
 
-    public ArrayList<Attribute> getAttributes() {
+    public List<Attribute> getAttributes() {
         return attributes;
     }
 

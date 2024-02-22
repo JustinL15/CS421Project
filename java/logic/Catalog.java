@@ -86,9 +86,9 @@ public class Catalog {
     }
 
     public static void main(String[] args) {
-        Attribute[] atts = new Attribute[2];
-        atts[0] = new Attribute("name", Type.Boolean, 1,0, true, true, true);
-        atts[1] = new Attribute("id", Type.Integer, 0, 0, false, false, false);
+        List<Attribute> atts = new ArrayList<>();
+        atts.add(new Attribute("name", Type.Boolean, 1,0, true, true, true));
+        atts.add(new Attribute("id", Type.Integer, 0, 0, false, false, false));
         List<Table> tables = new ArrayList<>();
         tables.add(new Table("test", 0, atts));
         Catalog catalog = new Catalog(1, 1, tables);
