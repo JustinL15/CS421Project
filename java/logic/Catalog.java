@@ -1,34 +1,35 @@
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Catalog {
     private int bufferSize;
     private int pageSize;
-    private Table[] tables;
+    private ArrayList<Table> tables;
     private HashMap<String, Integer> tableMap;
 
-    public Catalog(int bufferSize, int pageSize, Table[] tables) {
+    public Catalog(int bufferSize, int pageSize, ArrayList<Table> tables) {
         this.bufferSize = bufferSize;
         this.pageSize = pageSize;
         this.tables = tables;
         this.tableMap = new HashMap<>();
-        for (int i = 0; i < tables.length; i++) {
-            this.tableMap.put(tables[i].getName(), i);
+        for (int i = 0; i < tables.size(); i++) {
+            this.tableMap.put(tables.get(i).getName(), i);
         }
     }
 
     // creates a Catalog by deserializing a ByteBuffer
-    public Catalog(ByteBuffer buffer, int bufferSize) {
+    public Catalog(int bufferSize, ByteBuffer buffer) {
         this.bufferSize = bufferSize;
         this.pageSize = buffer.getInt();
         int tables_length = buffer.getInt();
-        this.tables = new Table[tables_length];
+        this.tables = new ArrayList<Table>();
         for (int i = 0; i < tables_length; i++) {
-            this.tables[i] = new Table(buffer);
+            this.tables.set(i, new Table(buffer));
         }
         this.tableMap = new HashMap<>();
-        for (int i = 0; i < tables.length; i++) {
-            this.tableMap.put(tables[i].getName(), i);
+        for (int i = 0; i < tables.size(); i++) {
+            this.tableMap.put(tables.get(i).getName(), i);
         }
     }
 
@@ -54,7 +55,7 @@ public class Catalog {
 
     private void writeBytes(ByteBuffer buffer) {
         buffer.putInt(pageSize);
-        buffer.putInt(tables.length);
+        buffer.putInt(tables.size());
         for (Table table : tables) {
             table.writeBytes(buffer);
         }
@@ -67,12 +68,12 @@ public class Catalog {
         return buffer.array();
     }
 
-    public Table[] getTables() {
+    public ArrayList<Table> getTables() {
         return tables;
     }
 
     public Table getTableByName(String name) {
-        return tables[tableMap.get(name)];
+        return tables.get(tableMap.get(name));
     }
 
     public int getPageSize() {
@@ -84,15 +85,15 @@ public class Catalog {
     }
 
     public static void main(String[] args) {
-        Catalog catalog = new Catalog(1, 1, new Table[] {
-                new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1,0, true, true, true) }),
-                new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1,0, true, true, true) })
-        });
-        System.out.println(catalog);
-        byte[] bytes = catalog.toBinary();
-        System.out.println(bytes);
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        Catalog catalogTheseus = new Catalog(buffer, 1);
-        System.out.println(catalogTheseus);
+        // Catalog catalog = new Catalog(1, 1, new Table[] {
+        //         new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1,0, true, true, true) }),
+        //         new Table("name", 0, new Attribute[] { new Attribute("name", Type.Boolean, 1,0, true, true, true) })
+        // });
+        // System.out.println(catalog);
+        // byte[] bytes = catalog.toBinary();
+        // System.out.println(bytes);
+        // ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        // Catalog catalogTheseus = new Catalog(1, buffer);
+        // System.out.println(catalogTheseus);
     }
 }

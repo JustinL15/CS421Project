@@ -64,7 +64,7 @@ public class StorageManager {
     public List<Record> getRecords_tablenumber(int tableNumber) {
         List<Record> allRecords = new ArrayList<>();
 
-        Table table = catalog.getTables()[tableNumber]; 
+        Table table = catalog.getTables().get(tableNumber); 
 
         if (table == null) {
             return allRecords;

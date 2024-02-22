@@ -106,8 +106,8 @@ public class Buffer {
 
         Table table = new Table("test", 0, as);
 
-        Table[] tables = new Table[1];
-        tables[0] = table;
+        ArrayList<Table> tables = new ArrayList<Table>();
+        tables.add(table);
         Catalog cat = new Catalog(1, 500, tables);
 
         Buffer buffer = new Buffer(cat, "Database-System-Implementation-Project\\resources");
