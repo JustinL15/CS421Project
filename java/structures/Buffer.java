@@ -2,7 +2,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public class Buffer {
@@ -27,14 +31,15 @@ public class Buffer {
         }
 
         int tableNumber = table.getNumber();
-        String tableLocation = databaseLocation + File.pathSeparator + tableNumber;
+        String tableLocation = databaseLocation + File.separator + "tables" + File.separator + tableNumber;
         File tableFile = new File(tableLocation);
         RandomAccessFile tableAccessFile;
         try {
             tableAccessFile = new RandomAccessFile(tableFile, "r");
         } catch (FileNotFoundException e) {
-            System.out.println("No file at " + tableLocation);
-            return null;
+            Page np = new Page(table, new ArrayList<Record>(), pageNumber);
+            pages.add(np);
+            return np;
         }
 
         int pageSize = catalog.getPageSize();
@@ -60,14 +65,19 @@ public class Buffer {
         byte[] bytes = page.toByte(catalog.getPageSize());
         Table table = page.getTemplate();
         int tableNumber = table.getNumber();
-        String tableLocation = databaseLocation + File.pathSeparator + tableNumber;
+        String tableLocation = databaseLocation + File.separator + "tables" + File.separator + tableNumber;
         File tableFile = new File(tableLocation);
         RandomAccessFile tableAccessFile;
         try {
             tableAccessFile = new RandomAccessFile(tableFile, "rw");
         } catch (FileNotFoundException e) {
-            System.out.println("No file at " + tableLocation);
-            return;
+            try {
+                Path tablePath = Files.createFile(tableFile.toPath());
+                tableAccessFile = new RandomAccessFile(tablePath.toString(), "rw");
+            } catch (IOException io) {
+                System.err.println(io);
+                return;
+            }
         }
 
         int pageSize = catalog.getPageSize();
@@ -85,5 +95,34 @@ public class Buffer {
             write(page);
         }
         pages = new LinkedList<Page>();
+    }
+    public static void main(String[] args) 
+    {
+        Attribute a1 = new Attribute("name", Type.Varchar, 10, false, false, false);
+        Attribute a2 = new Attribute("number", Type.Integer, 0, false, false, false);
+        Attribute[] as = new Attribute[2];
+        as[0] = a1;
+        as[1] = a2;
+
+        Table table = new Table("test", 0, as);
+
+        Table[] tables = new Table[1];
+        tables[0] = table;
+        Catalog cat = new Catalog(1, 500, tables);
+
+        Buffer buffer = new Buffer(cat, "Database-System-Implementation-Project\\resources");
+        Page page0 = buffer.read(table.getName(), 0);
+        List<Object> lst = new ArrayList<Object>();
+        lst.add("john".toCharArray());
+        lst.add(7);
+        page0.getRecords().add(new Record(table, lst));
+        buffer.purge();
+        Page page1 = buffer.read(table.getName(), 0);
+        char[] got = (char[]) page1.getRecords().get(0).getValues().get(0);
+        for (char c : got) {
+            System.out.print(c);
+        }
+        System.out.println();
+        System.out.println((int) page1.getRecords().get(0).getValues().get(1));
     }
 }
