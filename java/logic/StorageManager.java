@@ -178,6 +178,11 @@ public class StorageManager {
                 tables.remove(i);
             }  
     }
-}
+    }
+
+    public void alterTable(Table table, Attribute[] newAttributes) {
+        
+    }
+
     
 }
