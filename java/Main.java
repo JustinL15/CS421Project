@@ -1,7 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
-import java.util.*; 
+import java.util.*;
+import java.nio.ByteBuffer;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,24 +16,26 @@ public class Main {
         System.out.println(path.toString());
         boolean dbfound = Files.exists(path);
         
-        List<Table> tablelist = new ArrayList<Table>();
-        Catalog myCatalog = new Catalog(Integer.parseInt(args[2]),Integer.parseInt(args[1]),tablelist);
-        Buffer mybuffer = new Buffer(myCatalog,args[2]);
-        StorageManager sM = new StorageManager(mybuffer);
-        Parser myParser = new Parser(sM);
+        Catalog myCatalog;
 
         if(dbfound){
             System.out.println("Database Found\n");
             //get db catalog (unfinished)
-            String tableLocation = databaseLocation + File.pathSeparator + "tables" + File.pathSeparator + tableNumber;
-            File tableFile = new File(tableLocation);
-            RandomAccessFile tableAccessFile;
+            String catalogLocation = path + File.pathSeparator + "catalog";
+            File catalogFile = new File(catalogLocation);
+            RandomAccessFile catalogAccessFile;
+
             try {
-                tableAccessFile = new RandomAccessFile(tableFile, "r");
+                catalogAccessFile = new RandomAccessFile(catalogFile, "r");
             } catch (FileNotFoundException e) {
-                System.out.println("No file at " + tableLocation);
-                return null;
+                System.out.println("No file at " + catalogLocation);
+                return;
             }
+
+            byte[] bytes = new byte[(int)catalogAccessFile.length()];
+            catalogAccessFile.read(bytes);
+            ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+            myCatalog = new Catalog(Integer.parseInt(args[2]), byteBuffer);
         }
         else{
             if(args.length != 3){
@@ -41,13 +44,23 @@ public class Main {
                 System.exit(0);
             }
             System.out.println("Creating database");
-            System.out.println("New db created successfully");  
+            //create catalog
+
+            ArrayList<Table> tablelist = new ArrayList<Table>();
+            myCatalog = new Catalog(Integer.parseInt(args[2]),Integer.parseInt(args[1]),tablelist);
+
+            Files.createFile(Path.of(path + File.pathSeparator + "catalog"));
+            Files.createDirectory(Path.of(path + File.pathSeparator + "tables"));
+
+            System.out.println("New db created successfully");
             System.out.print("Page size: "+args[1]);
             System.out.println("Buffer size: "+args[2]);
-            //create catalog
 
         }
         //create buffer, storage manager, parser
+        Buffer mybuffer = new Buffer(myCatalog,args[2]);
+        StorageManager sM = new StorageManager(mybuffer);
+        Parser myParser = new Parser(sM);
 
         System.out.println("----------------Starting Database Console---------------------");
         boolean breakflag = false;
