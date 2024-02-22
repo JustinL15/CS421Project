@@ -19,6 +19,7 @@ import javax.print.DocFlavor.BYTE_ARRAY;
 public class StorageManager {
     public Buffer buffer;
     public Catalog catalog;
+    public List<Table> tables;
 
     public StorageManager(){
         this.buffer = buffer;
@@ -85,12 +86,13 @@ public class StorageManager {
     }
 
 
-    public void insertRecord_table (Table table, List<Record> record){
+    public void insertRecord_table (Table table, List<Record> recordInsert){
         if(table.getPagecount() == 0){
             String fileName = table.getNumber() + ".txt"; // Checks the table object  to determine its number and 
                                                           // creates a new file name with that number 
             File myObj = new File(fileName);
-            Page page = new Page(table, record, 1);
+            
+            Page page = new Page(table, recordInsert, 0);
             
             try (FileOutputStream fos = new FileOutputStream(myObj);
                     ObjectOutputStream oos = new ObjectOutputStream(fos)) {
@@ -100,34 +102,36 @@ public class StorageManager {
         }
 
         else{
-            int b = 0;
-            Attribute[] attributes = table.getAttributes();
-            Boolean key;
-            for (int i = 0; i < attributes.length; i++) {
-                Attribute holding = attributes[i];
-                if (holding.isKey()) {
-                    key = holding.isKey();
-                    break;
-                }
-            }
-            while(true){
-                Page page = buffer.read(table.getName(), b);
-                List<Record> cur_Records = page.getRecords();
-                int a = 0;
-                while(true){
-                    Record latest = cur_Records.get(a);
-                    if(){
-
+            int pageCount = table.getPagecount();
+    
+            for (int i = 0; i < pageCount; i++) {
+                Page page = buffer.read(table.getName(), i);
+                List<Record> records = page.getRecords();
+    
+                for (Record record : records) {
+                    List<Attribute> attributes = Arrays.asList(table.getAttributes());
+               
+                    int primaryKeyIndex = -1;
+                    for (int j = 0; j < attributes.size(); j++) {
+                        Attribute attribute = attributes.get(j);
+                        if (attribute.isKey()) {
+                            primaryKeyIndex = j;
+                            break;
+                        }
                     }
+    
+                    if (primaryKeyIndex != -1) {
+                        List<Object> values = record.getValues();
+                        List<Object> value = ((Record) recordInsert).getValues();
+                        if (values.get(primaryKeyIndex).equals(value.get(primaryKeyIndex))) {
+                            records.add((Record) recordInsert);
+                        }
                 }
-                    if(/* Page becomes overfull */){
-                        // Split the page, then end the function
-                    }
-                b += 1;
+                if(i == (pageCount - 1)){
+                    records.add((Record)recordInsert);
+                }
             }
         }
-        if(/* Record is not inserted */){
-            //Insert into last page, if overfull split and end the function
         }
     }
     
@@ -162,10 +166,18 @@ public class StorageManager {
     public void updateRecord_primarykey(Table template, Object pKey, Record record){
         
     }
-    public void createTable(Table new_Table) {
+    public Table createTable(String name, int number, Attribute[] TableAttr) {
+        Table New_Table = new Table(name,number,TableAttr);
+        return New_Table;
     }
     
-    public void dropTable(String name){    
+    public void dropTable(String tablenamePassed){  
+        for (int i = 0; i < tables.size(); i++) {
+            Table tableSelected = tables.get(i);
+            if (tableSelected.getName().equals(tablenamePassed)) {
+                tables.remove(i);
+            }  
     }
+}
     
 }
