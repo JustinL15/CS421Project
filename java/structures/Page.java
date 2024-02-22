@@ -50,8 +50,8 @@ public class Page {
     public static void main(String[] args) 
     {
         ArrayList<Attribute> attr = new ArrayList<Attribute>();
-        attr.set(0, new Attribute("yes/no", Type.Integer, 0,0, false, false, false));
-        attr.set(1, new Attribute("name", Type.Varchar, 3,0, false, false, false));
+        attr.set(0, new Attribute("yes/no", Type.Integer, 0, false, false, false));
+        attr.set(1, new Attribute("name", Type.Varchar, 3, false, false, false));
         Table table = new Table("test", 0, attr);
         List<Object> vals = new ArrayList<Object>();
         vals.add(1);
