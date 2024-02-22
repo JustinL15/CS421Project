@@ -19,38 +19,24 @@ public class StorageManager {
     private Connection connection;
     private Buffer buffer = new Buffer(); // Buffer requires the Catalog and databaseLocation. consider creating Buffer in Main and passing it to a constructor.
 
-    public Record getRecordByPrimaryKey(String tableName, String primaryKeyColumn, int primaryKeyValue, Table template) throws SQLException {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        Record record = null;
+    public Record getRecordByPrimaryKey(Table table, Object primaryKey) {
+        int pageCount = table.getPagecount();
 
-        try {
-            String sql = "SELECT * FROM " + tableName + " WHERE " + primaryKeyColumn + " = ?";
+        for (int i = 0; i < pageCount; i++) {
+            Page page = buffer.read(table.getName(), i);
+            List<Record> records = page.getRecords();
 
-            statement = connection.prepareStatement(sql);
-            statement.setInt(1, primaryKeyValue);
+            for (Record record : records) {
+                
+                int primaryKeyIndex =  /* index of the primary key in the values list */;
+                List<Object> values = record.getValues();
 
-            resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                ByteBuffer buffer = ByteBuffer.wrap(resultSet.getBytes("record_data"));
-             
-                record = new Record(template, buffer);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (statement != null) {
-                statement.close();
+                if (values.get(primaryKeyIndex).equals(primaryKey)) {
+                    return record;
+                }
             }
         }
-
-        return record;
+        return null;
     }
     
     public Page getPage(String tableName, int pageNumber, Attribute[] attributes, int pageSize) throws SQLException {
