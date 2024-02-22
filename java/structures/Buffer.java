@@ -2,6 +2,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+<<<<<<< HEAD
+import java.nio.file.Files;
+import java.nio.file.Path;
+=======
+>>>>>>> dd458a45e295028c9d3cb291e1458561716110be
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,14 +34,19 @@ public class Buffer {
         }
 
         int tableNumber = table.getNumber();
-        String tableLocation = databaseLocation + File.pathSeparator + tableNumber;
+        String tableLocation = databaseLocation + File.pathSeparator + "tables" + File.pathSeparator + tableNumber;
         File tableFile = new File(tableLocation);
         RandomAccessFile tableAccessFile;
         try {
             tableAccessFile = new RandomAccessFile(tableFile, "r");
         } catch (FileNotFoundException e) {
-            System.out.println("No file at " + tableLocation);
-            return null;
+            try {
+                Files.createFile(tableFile.toPath());
+                return new Page(table, new ArrayList<Record>(), pageNumber);
+            } catch (IOException io) {
+                System.err.println(io);
+                return null;
+            }
         }
 
         int pageSize = catalog.getPageSize();
@@ -62,14 +72,19 @@ public class Buffer {
         byte[] bytes = page.toByte(catalog.getPageSize());
         Table table = page.getTemplate();
         int tableNumber = table.getNumber();
-        String tableLocation = databaseLocation + File.pathSeparator + tableNumber;
+        String tableLocation = databaseLocation + File.pathSeparator + "tables" + File.pathSeparator + tableNumber;
         File tableFile = new File(tableLocation);
         RandomAccessFile tableAccessFile;
         try {
             tableAccessFile = new RandomAccessFile(tableFile, "rw");
         } catch (FileNotFoundException e) {
-            System.out.println("No file at " + tableLocation);
-            return;
+            try {
+                Path tablePath = Files.createFile(tableFile.toPath());
+                tableAccessFile = new RandomAccessFile(tablePath.toString(), "rw");
+            } catch (IOException io) {
+                System.err.println(io);
+                return;
+            }
         }
 
         int pageSize = catalog.getPageSize();

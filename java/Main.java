@@ -1,4 +1,10 @@
+<<<<<<< HEAD
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
+=======
 import java.util.*; 
+>>>>>>> dd458a45e295028c9d3cb291e1458561716110be
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,8 +27,16 @@ public class Main {
 
         if(dbfound){
             System.out.println("Database Found\n");
-            //get db catalog
-            //myCatalog = Catalog(args[2]);
+            //get db catalog (unfinished)
+            String tableLocation = databaseLocation + File.pathSeparator + "tables" + File.pathSeparator + tableNumber;
+            File tableFile = new File(tableLocation);
+            RandomAccessFile tableAccessFile;
+            try {
+                tableAccessFile = new RandomAccessFile(tableFile, "r");
+            } catch (FileNotFoundException e) {
+                System.out.println("No file at " + tableLocation);
+                return null;
+            }
         }
         else{
             if(args.length != 3){
