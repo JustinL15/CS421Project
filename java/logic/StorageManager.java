@@ -199,6 +199,15 @@ public class StorageManager {
 
     public void add_table_column(Table table, Attribute newAttr, String defaultval) {
         List<Attribute> attrlist =  table.getAttributes();
+        for(Attribute i : attrlist){
+            if(i.getName() == newAttr.getName()){
+                //error exit
+                return;
+            }
+        }
+        attrlist.add(newAttr);
+        table.setAttributes(attrlist);
+        
     }
 
     public void delete_table_column(Table table, String deleteAttribute) {
