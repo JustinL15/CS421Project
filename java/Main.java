@@ -170,10 +170,14 @@ public class Main {
                             String insertvals = i.substring(firstindex+1,lastindex);
                             String[] insertvalsarray = insertvals.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                             try {
+                                try {
                                 myParser.insert_values(arguments[2], Arrays.asList(insertvalsarray));
                             } catch (Exception e) {
                                 System.out.println(e);
                                 break;
+                            }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
                     }
