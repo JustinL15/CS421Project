@@ -93,14 +93,79 @@ public class Parser {
     public void drop_table(String name){
         sM.dropTable(name);   
     }
-    public void add_table_column(Table table, Attribute newAttr,String defaultval){
+    public void add_table_column(Table table, Attribute newAttr,String defaulttoken){
         
+        Object defaultval = null; 
+        try{
+            switch (newAttr.getDataType()) {
+                case Integer:
+                    defaultval = Integer.parseInt(defaulttoken);
+                    break;
+                case Double:
+                    defaultval = Double.parseDouble(defaulttoken);
+                    break;
+                case Boolean:
+                    if (defaulttoken == "true") {
+                        defaultval = true;
+                    }
+                    else if(defaulttoken == "false") {
+                        defaultval = true;
+                    }
+                    else{
+                        System.out.println("Error incorrect value for Attribute type");
+                        return;
+                    }
+                    break;
+                case Char:
+                    char[] defaultchar = new char[defaulttoken.length()];
+ 
+                    for (int i = 0; i < defaulttoken.length(); i++) {
+                        defaultchar[i] = defaulttoken.charAt(i);
+                    }
+                    defaultval = defaultchar;
+                    break;
+                case Varchar:
+                    char[] defaultvchar = new char[defaulttoken.length()];
+ 
+                    for (int i = 0; i < defaulttoken.length(); i++) {
+                        defaultvchar[i] = defaulttoken.charAt(i);
+                     }
+                    defaultval = defaultvchar;
+                    break;
+            }
+        }
+        catch (NumberFormatException e){
+            System.out.println("Error incorrect value for Attribute type");
+            return;
+        }
+        List<Attribute> attrlist =  table.getAttributes();
+        for(Attribute i : attrlist){
+            if(i.getName() == newAttr.getName()){
+                System.out.println("Attribute name already in use");
+                System.out.println(newAttr.getName()+" != "+defaulttoken);
+                return;
+            }
+        }
         sM.add_table_column(table, newAttr,defaultval);
         
     }
     public void delete_table_column(Table table, String deleteAttribute){
-        
-        sM.delete_table_column(table, deleteAttribute);
+        List<Attribute> attrlist =  table.getAttributes();
+        //Attribute deleteAttrval = null;
+        int found = -1;
+
+        for (int i = 0; i < attrlist.size(); i++) {
+            if(attrlist.get(i).getName() == deleteAttribute ){
+                //deleteAttrval = attrlist.get(i);
+                attrlist.remove(i);
+                //exit loop
+            }
+        }
+        if(found == -1){
+            System.out.println("Attribute was not found in table");
+            return;
+        }
+        sM.delete_table_column(table, deleteAttribute, found);
         
     }
     public void insert_values(String tableName, List<String> values) throws Exception {

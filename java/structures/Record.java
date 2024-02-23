@@ -130,5 +130,8 @@ public class Record {
     public Table getTemplate() {
         return this.template;
     }
+    public void setTemplate(Table template){
+        this.template = template;
+    }
 
 }

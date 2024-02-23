@@ -111,6 +111,7 @@ public class Main {
                         if(arguments[3] == "add"){
                             int datalength =0;
                             Type attrtype1 = null;
+                            String defaultval = null;
                             if(arguments[5].substring(0, arguments[5].indexOf("(")) == "VARCHAR"){
                                 datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("("),arguments[5].indexOf(")")) );
                                 attrtype1 = Type.Varchar;
@@ -130,8 +131,10 @@ public class Main {
                                 attrtype1 = Type.Boolean;
                             }
                             Attribute addattr = new Attribute(arguments[5],attrtype1,datalength,true,false,false);
-
-                            myParser.add_table_column(myCatalog.getTableByName(arguments[2]), addattr,null);
+                            if (arguments.length == 7) {
+                                defaultval = args[6];
+                            }
+                            myParser.add_table_column(myCatalog.getTableByName(arguments[2]), addattr,defaultval);
 
                             
                         }
