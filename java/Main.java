@@ -90,7 +90,7 @@ public class Main {
                     breakflag = true;
                     break;
                 case "select":
-                    if(args[1] == "*" && args[2] == "from"){
+                    if(arguments[1] == "*" && arguments[2] == "from"){
                         Table table = myCatalog.getTableByName(arguments[2]);
                         if (table == null){
                             System.out.println("No such table " + arguments[2]);
@@ -132,7 +132,7 @@ public class Main {
                             }
                             Attribute addattr = new Attribute(arguments[5],attrtype1,datalength,true,false,false);
                             if (arguments.length == 7) {
-                                defaultval = args[6];
+                                defaultval = arguments[6];
                             }
                             myParser.add_table_column(myCatalog.getTableByName(arguments[2]), addattr,defaultval);
 
@@ -161,7 +161,7 @@ public class Main {
                             String[] insertvalsarray = insertvals.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                             try {
                                 try {
-                                myParser.insert_values(args[2], Arrays.asList(insertvalsarray));
+                                myParser.insert_values(arguments[2], Arrays.asList(insertvalsarray));
                             } catch (Exception e) {
                                 System.out.println(e);
                                 break;

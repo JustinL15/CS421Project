@@ -309,16 +309,20 @@ public class StorageManager {
     
 
     public void add_table_column(Table table, Attribute newAttr, Object defaultval) {
-        
         List<Attribute> attrlist =  table.getAttributes();
         attrlist.add(newAttr);
         table.setAttributes(attrlist);
         int pageCount = table.getPagecount();
+        int mysize = newAttr.getbytesize(defaultval);
+
 
         for (int i = 0; i < pageCount; i++) {
             Page page = buffer.read(table.getName(), i);
             List<Record> records = page.getRecords();
-            for (Record record : records) {
+            if(page.bytesUsed() + (records.size() * mysize) > catalog.getPageSize()){
+                //buffer.write() split
+            }
+            for (Record record : records) {  
                 List<Object> recordvals = record.getValues();
                 recordvals.add(defaultval);
                 record.setTemplate(table);
