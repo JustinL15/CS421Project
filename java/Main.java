@@ -70,8 +70,8 @@ public class Main {
 
         }
         //create buffer, storage manager, parser
-        Buffer mybuffer = new Buffer(myCatalog,args[2]);
-        StorageManager sM = new StorageManager(mybuffer);
+        //Buffer mybuffer = new Buffer(myCatalog,args[2]);
+        StorageManager sM = new StorageManager(myCatalog,path.toString());
         Parser myParser = new Parser(sM);
 
         System.out.println("----------------Starting Database Console---------------------");
@@ -103,7 +103,36 @@ public class Main {
                     break;
                 case "alter":
                     if(arguments[1] == "table"){
-                        
+                        if(arguments[3] == "add"){
+                            int datalength =0;
+                            Type attrtype1 = null;
+                            if(arguments[5].substring(0, arguments[5].indexOf("(")) == "VARCHAR"){
+                                datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("("),arguments[5].indexOf(")")) );
+                                attrtype1 = Type.Varchar;
+                            }
+                            if(arguments[5].substring(0, arguments[5].indexOf("(")) == "CHAR"){
+                                datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("("),arguments[5].indexOf(")")) );
+                                attrtype1 = Type.Char;
+                            }
+                            if(arguments[5] == "DOUBLE"){
+                                
+                                attrtype1 = Type.Double;
+                            }
+                            if(arguments[5] == "INT"){
+                                attrtype1 = Type.Integer;
+                            }
+                            if(arguments[5] == "BOOLEAN"){
+                                attrtype1 = Type.Boolean;
+                            }
+                            Attribute addattr = new Attribute(arguments[5],attrtype1,datalength,true,false,false);
+
+                            myParser.add_table_column(myCatalog.getTableByName(arguments[2]), addattr,null);
+
+                            
+                        }
+                        if(arguments[3] == "drop"){
+                            myParser.delete_table_column(myCatalog.getTableByName(arguments[2]), arguments[4]);
+                        }
                         //myParser.alter_table();
                     }
                     break;
