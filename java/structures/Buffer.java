@@ -90,7 +90,7 @@ public class Buffer {
         }
     }
 
-    public Page splitPage(String tableName, int pageNumber) {
+    public Page[] splitPage(String tableName, int pageNumber) {
         Page pageToSplit = read(tableName, pageNumber);
         int pageCount = catalog.getTableByName(tableName).getPagecount(); 
         List<Record> newVals = new ArrayList<>();
@@ -103,7 +103,7 @@ public class Buffer {
         }
         Page newPage = new Page(catalog.getTableByName(tableName), newVals, pageNumber + 1);
         write(newPage);
-        return read(tableName, pageNumber + 1);
+        return new Page[] {read(tableName, pageNumber), read(tableName, pageNumber + 1)};
     }
 
     public void purge() {
