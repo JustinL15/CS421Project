@@ -23,7 +23,7 @@ public class Record {
 
         for (int i = 0; i < attrs.size(); i++) {
             if (nullbitmap[i] == 1) {
-                continue;
+                this.values.add(null);
             }
             switch (attrs.get(i).getDataType()) {
                 case Integer:

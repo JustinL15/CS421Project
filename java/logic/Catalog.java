@@ -74,7 +74,11 @@ public class Catalog {
     }
 
     public Table getTableByName(String name) {
-        return tables.get(tableMap.get(name));
+        Integer tableNumber = tableMap.get(name);
+        if (tableNumber == null){
+            return null;
+        }
+        return tables.get(tableNumber);
     }
 
     public int getPageSize() {

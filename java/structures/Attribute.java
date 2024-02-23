@@ -4,15 +4,15 @@ public class Attribute {
     private String name;
     private Type data_type;
     private int max_length;
-    private boolean nullable;
+    private boolean not_null;
     private boolean key;
     private boolean unique;
 
-    public Attribute(String name, Type data_type, int max_length, boolean nullable, boolean key, boolean unique) {
+    public Attribute(String name, Type data_type, int max_length, boolean not_null, boolean key, boolean unique) {
         this.name = name;
         this.data_type = data_type;
         this.max_length = max_length;
-        this.nullable = nullable;
+        this.not_null = not_null;
         this.key = key;
         this.unique = unique;
     }
@@ -21,7 +21,7 @@ public class Attribute {
     public Attribute(ByteBuffer buffer) {
         this.data_type = Type.values()[buffer.getInt()];
         this.max_length = buffer.getInt();
-        this.nullable = buffer.get() == 1;
+        this.not_null = buffer.get() == 1;
         this.key = buffer.get() == 1;
         this.unique = buffer.get() == 1;
         this.name = "";
@@ -38,7 +38,7 @@ public class Attribute {
         if (this.data_type == Type.Char || this.data_type == Type.Varchar) {
             string += "\t\tmax length: " + this.max_length + "\n";
         }
-        string += "\t\tnullable: " + this.nullable + "\n";
+        string += "\t\tnot null: " + this.not_null + "\n";
         string += "\t\tkey: " + this.key + "\n";
         string += "\t\tunique: " + this.unique + "\n";
         return string;
@@ -55,7 +55,7 @@ public class Attribute {
     public void writeBytes(ByteBuffer buffer) {
         buffer.putInt(data_type.ordinal());
         buffer.putInt(max_length);
-        buffer.put(nullable ? (byte) 1 : (byte) 0);
+        buffer.put(not_null ? (byte) 1 : (byte) 0);
         buffer.put(key ? (byte) 1 : (byte) 0);
         buffer.put(unique ? (byte) 1 : (byte) 0);
         buffer.putInt(name.length());
@@ -78,5 +78,13 @@ public class Attribute {
 
     public boolean isKey() {
         return this.key;
+    }
+
+    public boolean isUnique() {
+        return this.unique;
+    }
+
+    public boolean isNotNull() {
+        return this.not_null;
     }
 }

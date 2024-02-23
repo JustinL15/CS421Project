@@ -91,7 +91,12 @@ public class Main {
                     break;
                 case "select":
                     if(args[1] == "*" && args[2] == "from"){
-                        myParser.select_statment(myCatalog.getTableByName(arguments[2]));
+                        Table table = myCatalog.getTableByName(arguments[2]);
+                        if (table == null){
+                            System.out.println("No such table " + arguments[2]);
+                            break;
+                        }
+                        myParser.select_statment(table);
                     }
                     break;
                 case "create":
@@ -157,7 +162,12 @@ public class Main {
                     break;
                 case "display":
                     if (arguments[1] == "info"){
-                        myParser.print_display_info(myCatalog.getTableByName(arguments[2]));
+                        Table table = myCatalog.getTableByName(arguments[2]);
+                        if (table == null){
+                            System.out.println("No such table " + arguments[2]);
+                            break;
+                        }
+                        myParser.print_display_info(table);
                     }
                     if(arguments[1] ==  "schema"){
                         myParser.print_display_schema(myCatalog,path.toString());

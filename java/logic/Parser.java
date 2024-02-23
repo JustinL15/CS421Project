@@ -16,6 +16,7 @@ public class Parser {
         String[] Tablevals = TableAttr.split(",");
         ArrayList<Attribute> AttrList = new ArrayList<Attribute>();
         int k = 0;
+        Boolean primaryKeyPresent = false;
         for(String i : Tablevals){
             String[] attribute_values = i.split(",");
             String ATTRname = attribute_values[0];
@@ -39,6 +40,12 @@ public class Parser {
                     if(j +1 <= attribute_values.length+1){
                         if(attribute_values[j] == "KEY"){
                             primkey = true;
+                            if (primaryKeyPresent == true) {
+                                System.out.println("More than one primary key");
+                                return;
+                            } else {
+                                primaryKeyPresent = true;
+                            }
                         }
                     }
                 }
@@ -67,6 +74,10 @@ public class Parser {
             k = k +1;
 
         }
+        if (primaryKeyPresent == false){
+            System.out.println("No primary key defined");
+            return;
+        }
         sM.createTable(name,number,AttrList);
 
     }
@@ -83,10 +94,17 @@ public class Parser {
         sM.delete_table_column(table, deleteAttribute);
         
     }
-    public void insert_values(Table table, String[] order, String[] values){
+    public void insert_values(Table table, String[] order, String[] values) throws Exception {
         Map<String, Integer> columnOrder = new HashMap<>();
         List<Attribute> tableCol = table.getAttributes();
         List<Object> cVals = new ArrayList<Object>();
+
+        if (order == null) {
+            order = new String[tableCol.size()];
+            for (int i = 0; i < tableCol.size(); i++) {
+                order[i] = tableCol.get(i).getName();
+            }
+        }
 
 
         for (int i = 0; i < tableCol.size(); i++) {
@@ -94,11 +112,10 @@ public class Parser {
             cVals.add(null);
         }
 
-        for (int i = 0; i < order.length; i++) {
+        for (int i = 0; i < values.length; i++) {
             Integer orderNum = columnOrder.get(order[i]);
             if (orderNum == null) {
-                // return an error
-                return;
+                throw new Exception("Attribute names from order do not match table");
             }
             switch (tableCol.get(i).getDataType()) {
                 case Integer:
@@ -116,6 +133,12 @@ public class Parser {
                     break;
             }
         }
+        for (int i = 0; i < cVals.size(); i++) {
+            if (tableCol.get(i).isNotNull() && cVals.get(i) == null) {
+                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' cannot be null.");
+            }
+            if (tableCol.get(i).isUnique())
+        }
         Record record = new Record(table, cVals);
         ArrayList<Record> records = new ArrayList<>();
         records.add(record);
@@ -123,12 +146,17 @@ public class Parser {
         // convert data into this function
         sM.insertRecord_table(table, records);
     }
+
+
     public void print_display_schema(Catalog curr_cat,String file_loc){
         System.out.println("database location: "+ file_loc);
         System.out.println("page size: "+ curr_cat.getPageSize());
         System.out.println("buffer size: "+curr_cat.getBufferSize());
         for(Table i : curr_cat.getTables()){
             table_schema_display(i);
+        }
+        if(curr_cat.getTables().size() == 0){
+            System.out.println("No tables to display");
         }
         
     }
