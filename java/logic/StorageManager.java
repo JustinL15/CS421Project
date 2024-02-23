@@ -19,10 +19,12 @@ import javax.print.DocFlavor.BYTE_ARRAY;
 public class StorageManager {
     public Buffer buffer;
     public Catalog catalog;
-    public List<Table> tables;
+    public String databaseLocation;
 
-    public StorageManager(Buffer buffer){
-        this.buffer = buffer;
+    public StorageManager(Catalog catalog, String databaseLocation){
+        this.catalog = catalog;
+        this.databaseLocation = databaseLocation;
+        this.buffer = new Buffer(catalog, databaseLocation);
 
     }
     // Buffer requires the Catalog and databaseLocation. consider creating Buffer in Main and passing it to a constructor.
@@ -171,16 +173,22 @@ public class StorageManager {
         return New_Table;
     }
     
-    public void dropTable(String tablenamePassed){  
-        for (int i = 0; i < tables.size(); i++) {
-            Table tableSelected = tables.get(i);
-            if (tableSelected.getName().equals(tablenamePassed)) {
-                tables.remove(i);
-            }  
-    }
+    public void dropTable(String tablenamePassed) { 
+        int droptableNum = catalog.getTableByName(tablenamePassed).getNumber();
+        int moveTableNum = catalog.getTables().size() - 1;
+        File fileToDelete = new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum);
+        File fileToRename = new File(databaseLocation + File.separator + "tables" + File.separator + moveTableNum);
+        if (fileToDelete.exists() && fileToRename.exists() && fileToDelete.delete()) {
+            catalog.dropTable(tablenamePassed);
+            fileToRename.renameTo(new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum));
+        } else {
+            System.err.println("Deletion error for file: " + tablenamePassed);
+        }
+
     }
 
     public void alterTable(String tableName, ArrayList<Attribute> newAttributes) {
+        List<Table> tables = catalog.getTables();
         for (Table table : tables) {
             if (table.getName().equals(tableName)) {
                 table.setAttributes(newAttributes);
