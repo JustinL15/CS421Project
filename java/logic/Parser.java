@@ -24,7 +24,6 @@ public class Parser {
             boolean nullable = true;
             boolean primkey = false;
             int length = 0;
-            int decimal = 0;
             for( int j = 2; j <= attribute_values.length - 1; j++){
                 if(attribute_values[j] == "UNQUIE"){
                     unquie = true;

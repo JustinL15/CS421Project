@@ -98,11 +98,12 @@ public class Main {
                     if(arguments[1] == "table"){
                         int lastindex = input.lastIndexOf(")");
                         int firstindex = input.indexOf("(");
-                        myParser.create_table(arguments[2], 0, input.substring(firstindex+1,lastindex));
+                        myParser.create_table(arguments[2], myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
                     }
                     break;
                 case "alter":
                     if(arguments[1] == "table"){
+                        
                         //myParser.alter_table();
                     }
                     break;
@@ -114,10 +115,16 @@ public class Main {
 
                 case "insert":
                     if(arguments[1] == "into" && arguments[3] == "values"){
-
-                        myParser.drop_table(arguments[2]);
+                        
+                        String[] tupleArray = input.substring(input.indexOf("(")).split(",");
+                        for(String i : tupleArray){
+                            int lastindex = i.lastIndexOf(")");
+                            int firstindex = i.indexOf("(");
+                            String insertvals = i.substring(firstindex+1,lastindex);
+                            String[] insertvalsarray = insertvals.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                            myParser.insert_values(myCatalog.getTableByName(args[2]), null,insertvalsarray );
+                        }
                     }
-                    myParser.insert_values(myCatalog.getTableByName(arguments[2]), args, arguments);
                     break;
                 case "display":
                     if (arguments[1] == "info"){
