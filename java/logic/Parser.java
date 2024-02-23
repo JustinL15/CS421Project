@@ -11,17 +11,16 @@ public class Parser {
 
     public void create_table(String name, int number, String TableAttr){
         for (Table table : sM.catalog.getTables()) {
-            if (name == table.getName()){
+            if (name.compareTo(table.getName()) == 0){
                 System.out.println("Table of name " + name + " already exists");
                 return;
             }
         }
         String[] Tablevals = TableAttr.split(",");
         ArrayList<Attribute> AttrList = new ArrayList<Attribute>();
-        int k = 0;
         Boolean primaryKeyPresent = false;
         for(String i : Tablevals){
-            String[] attribute_values = i.split(",");
+            String[] attribute_values = i.split(" ");
             String ATTRname = attribute_values[0];
             String ATTRTYPE = attribute_values[1];
             boolean unquie = false;
@@ -29,19 +28,19 @@ public class Parser {
             boolean primkey = false;
             int length = 0;
             for( int j = 2; j <= attribute_values.length - 1; j++){
-                if(attribute_values[j] == "UNQUIE"){
+                if(attribute_values[j].compareTo("UNIQUE") == 0) {
                     unquie = true;
                 }
-                if(attribute_values[j] == "NOT"){
-                    if(j +1 <= attribute_values.length+1){
-                        if(attribute_values[j] == "NULL"){
+                if(attribute_values[j].compareTo("NOT") == 0) {
+                    if(j +1 <= attribute_values.length-1){
+                        if(attribute_values[j+1].compareTo("NULL") == 0) {
                             nullable = false;
                         }
                     }
                 }
-                if(attribute_values[j] == "PRIMARY"){
-                    if(j +1 <= attribute_values.length+1){
-                        if(attribute_values[j] == "KEY"){
+                if(attribute_values[j].compareTo("PRIMARY") == 0) {
+                    if(j +1 <= attribute_values.length-1){
+                        if(attribute_values[j+1].compareTo("KEY") == 0) {
                             primkey = true;
                             if (primaryKeyPresent == true) {
                                 System.out.println("More than one primary key");
@@ -54,22 +53,22 @@ public class Parser {
                 }
             }
             Type attrtype1 = null;
-            if(ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")) == "VARCHAR"){
+            if(ATTRTYPE.contains("(") && ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")).compareTo("VARCHAR") == 0){
                 length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Varchar;
             }
-            else if(ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")) == "CHAR"){
+            else if(ATTRTYPE.contains("(") && ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")).compareTo("CHAR") == 0){
                 length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Char;
             }
-            else if(ATTRTYPE == "DOUBLE"){
+            else if(ATTRTYPE.compareTo("DOUBLE") == 0){
                 
                 attrtype1 = Type.Double;
             }
-            else if(ATTRTYPE == "INT"){
+            else if(ATTRTYPE.compareTo("INT") == 0){
                 attrtype1 = Type.Integer;
             }
-            else if(ATTRTYPE == "BOOLEAN"){
+            else if(ATTRTYPE.compareTo("BOOLEAN") == 0){
                 attrtype1 = Type.Boolean;
             }
             else {
@@ -77,8 +76,7 @@ public class Parser {
                 return;
             }
             Attribute new_attr = new Attribute(ATTRname, attrtype1, length, nullable, primkey, unquie);
-            AttrList.set(k, new_attr);
-            k = k +1;
+            AttrList.add(new_attr);
 
         }
         if (primaryKeyPresent == false){
@@ -103,10 +101,10 @@ public class Parser {
                     defaultval = Double.parseDouble(defaulttoken);
                     break;
                 case Boolean:
-                    if (defaulttoken == "true") {
+                    if (defaulttoken.compareTo("true") == 0) {
                         defaultval = true;
                     }
-                    else if(defaulttoken == "false") {
+                    else if(defaulttoken.compareTo("false") == 0) {
                         defaultval = true;
                     }
                     else{
@@ -153,7 +151,7 @@ public class Parser {
         int found = -1;
 
         for (int i = 0; i < attrlist.size(); i++) {
-            if(attrlist.get(i).getName() == deleteAttribute ){
+            if(attrlist.get(i).getName().compareTo(deleteAttribute) == 0){
                 //deleteAttrval = attrlist.get(i);
                 attrlist.remove(i);
                 //exit loop

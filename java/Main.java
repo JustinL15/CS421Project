@@ -216,7 +216,6 @@ public class Main {
                     }
                     break;
                 case "display":
-                    System.out.println(arguments[1]);
                     if (arguments[1].compareTo("info") == 0){
                         Table table = myCatalog.getTableByName(arguments[2]);
                         if (table == null){

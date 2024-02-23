@@ -89,6 +89,11 @@ public class Catalog {
         return bufferSize;
     }
 
+    public void createTable(Table table) {
+        tables.add(table);
+        tableMap.put(table.getName(), table.getNumber());
+    }
+
     public void dropTable(String tableName) {
         Table droppedTable = tables.get(tableMap.get(tableName));
         Table movedTable = tables.get(tables.size() - 1);
