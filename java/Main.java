@@ -91,18 +91,24 @@ public class Main {
                     break;
                 case "select":
                     if(args[1] == "*" && args[2] == "from"){
-                        myParser.select_statment(myCatalog.getTableByName(arguments[2]));
+                        Table table = myCatalog.getTableByName(arguments[2]);
+                        if (table == null){
+                            System.out.println("No such table " + arguments[2]);
+                            break;
+                        }
+                        myParser.select_statment(table);
                     }
                     break;
                 case "create":
                     if(arguments[1] == "table"){
                         int lastindex = input.lastIndexOf(")");
                         int firstindex = input.indexOf("(");
-                        myParser.create_table(arguments[2], 0, input.substring(firstindex+1,lastindex));
+                        myParser.create_table(arguments[2], myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
                     }
                     break;
                 case "alter":
                     if(arguments[1] == "table"){
+                        
                         //myParser.alter_table();
                     }
                     break;
@@ -114,14 +120,25 @@ public class Main {
 
                 case "insert":
                     if(arguments[1] == "into" && arguments[3] == "values"){
-
-                        myParser.drop_table(arguments[2]);
+                        
+                        String[] tupleArray = input.substring(input.indexOf("(")).split(",");
+                        for(String i : tupleArray){
+                            int lastindex = i.lastIndexOf(")");
+                            int firstindex = i.indexOf("(");
+                            String insertvals = i.substring(firstindex+1,lastindex);
+                            String[] insertvalsarray = insertvals.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                            myParser.insert_values(myCatalog.getTableByName(args[2]), null,insertvalsarray );
+                        }
                     }
-                    myParser.insert_values(myCatalog.getTableByName(arguments[2]), args, arguments);
                     break;
                 case "display":
                     if (arguments[1] == "info"){
-                        myParser.print_display_info(myCatalog.getTableByName(arguments[2]));
+                        Table table = myCatalog.getTableByName(arguments[2]);
+                        if (table == null){
+                            System.out.println("No such table " + arguments[2]);
+                            break;
+                        }
+                        myParser.print_display_info(table);
                     }
                     if(arguments[1] ==  "schema"){
                         myParser.print_display_schema(myCatalog,path.toString());
