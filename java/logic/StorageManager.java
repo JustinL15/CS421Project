@@ -106,7 +106,7 @@ public class StorageManager {
                 }
                 break;
             case "Boolean":
-                if (value.get(primaryKeyIndex).compare(newValues.get(primaryKeyIndex))) {
+                if (((boolean) value.get(primaryKeyIndex)) == (boolean)(newValues.get(primaryKeyIndex))) {
                     return true;
                 }
                 else{
@@ -179,12 +179,12 @@ public class StorageManager {
                             System.out.println("Duplicate primary key " + newValues);
                             return;
                         }
-                        insertRecord_table_helper(values, newValues, primaryKeyIndex);
-                        if ((values.get(primaryKeyIndex)).compare(newValues.get(primaryKeyIndex))) {
+                        if (insertRecord_table_helper(values, newValues, primaryKeyIndex)) {
                             // somehow compare the values of the primary keys
                             // maybe a helper function with cases for each data type
                             // if value is greater than newValue, insert newValue before value
                             // might be worth using linked list for records to insert more easily
+                            records.add(newRecord);
                         }
                         if(i == (pageCount - 1)){ // this condition isn't right
                             records.add(newRecord);
@@ -309,16 +309,20 @@ public class StorageManager {
     
 
     public void add_table_column(Table table, Attribute newAttr, Object defaultval) {
-        
         List<Attribute> attrlist =  table.getAttributes();
         attrlist.add(newAttr);
         table.setAttributes(attrlist);
         int pageCount = table.getPagecount();
+        int mysize = newAttr.getbytesize(defaultval);
+
 
         for (int i = 0; i < pageCount; i++) {
             Page page = buffer.read(table.getName(), i);
             List<Record> records = page.getRecords();
-            for (Record record : records) {
+            if(page.bytesUsed() + (records.size() * mysize) > catalog.getPageSize()){
+                //buffer.write() split
+            }
+            for (Record record : records) {  
                 List<Object> recordvals = record.getValues();
                 recordvals.add(defaultval);
                 record.setTemplate(table);

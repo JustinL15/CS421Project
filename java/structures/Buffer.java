@@ -90,6 +90,22 @@ public class Buffer {
         }
     }
 
+    public Page[] splitPage(String tableName, int pageNumber) {
+        Page pageToSplit = read(tableName, pageNumber);
+        int pageCount = catalog.getTableByName(tableName).getPagecount(); 
+        List<Record> newVals = new ArrayList<>();
+        for (int i = 0; i < pageToSplit.getRecords().size()/2; i++) {
+            newVals.add(pageToSplit.getRecords().removeLast());
+        }
+        for (int i = pageNumber + 1; i < pageCount; i++) {
+            Page next = read(tableName, i);
+            next.setPageNumber(i + 1);
+        }
+        Page newPage = new Page(catalog.getTableByName(tableName), newVals, pageNumber + 1);
+        write(newPage);
+        return new Page[] {read(tableName, pageNumber), read(tableName, pageNumber + 1)};
+    }
+
     public void purge() {
         for (Page page : pages){
             write(page);
