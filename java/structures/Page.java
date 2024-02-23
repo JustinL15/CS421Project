@@ -52,7 +52,7 @@ public class Page {
         ArrayList<Attribute> attr = new ArrayList<Attribute>();
         attr.set(0, new Attribute("yes/no", Type.Integer, 0, false, false, false));
         attr.set(1, new Attribute("name", Type.Varchar, 3, false, false, false));
-        Table table = new Table("test", 0, attr);
+        Table table = new Table("test", 0, attr,0);
         List<Object> vals = new ArrayList<Object>();
         vals.add(1);
         char[] c = new char[] {'a', 'b', 'c'};
