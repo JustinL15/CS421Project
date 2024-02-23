@@ -134,4 +134,37 @@ public class Record {
         this.template = template;
     }
 
+    public int spacedUsed() {
+        int totalcap = this.values.size();
+        List<Attribute> attrs = this.template.getAttributes();
+        byte[] nullbitmap = new byte[this.values.size()];
+        
+        for (int i = 0; i < this.values.size(); i++) {
+            if (this.values.get(i) == null) {
+                nullbitmap[i] = 1;
+                continue;
+            }
+            switch (attrs.get(i).getDataType()) {
+                case Integer:
+                    totalcap += 4;
+                    break;
+                case Double:
+                    totalcap += 8;
+                    break;
+                case Boolean:
+                    totalcap += 1;
+                    break;
+                case Char:
+                    char[] cl = (char[]) this.values.get(i);
+                    totalcap += (2 * cl.length);
+                    break;
+                case Varchar:
+                    char[] vl = (char[]) this.values.get(i);
+                    totalcap += (2 * vl.length) + 4;
+                    break;
+            }
+        }
+        return totalcap;
+    }
+
 }

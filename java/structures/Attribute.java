@@ -87,4 +87,26 @@ public class Attribute {
     public boolean isNotNull() {
         return this.not_null;
     }
+    public int getbytesize(Object val){
+        if(data_type == Type.Boolean){
+            return 1;
+        }
+        else if(data_type == Type.Char){
+            char[] cl = (char[]) val;
+            return (2 * cl.length);
+        }
+        else if(data_type == Type.Varchar){
+            char[] vl = (char[]) val;
+            return (2 * vl.length) + 4;
+        }
+        else if(data_type == Type.Integer){
+            return 4;
+        }
+        else if(data_type == Type.Double){
+            return 8;
+        }
+        else{
+            return 0;
+        }
+    }
 }
