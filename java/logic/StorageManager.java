@@ -218,8 +218,9 @@ public class StorageManager {
     public void updateRecord_primarykey(Table template, Object pKey, Record record){
         
     }
-    public Table createTable(String name, int number, ArrayList<Attribute> TableAttr) {
+    public Table createTable(String name, int number, List<Attribute> TableAttr) {
         Table New_Table = new Table(name,number,TableAttr, 0);
+        catalog.getTables().add(New_Table);
         return New_Table;
     }
     
@@ -339,5 +340,24 @@ public class StorageManager {
                 record.setTemplate(table);
             }
         }
+ 
+ 
+    }
+
+    public static void main(String[] args) {
+        Catalog catalog = new Catalog(4, 1000, new ArrayList<Table>());
+        StorageManager sM = new StorageManager(catalog, "resources");
+        Attribute name = new Attribute("name", Type.Varchar, 10, false, false, false);
+        Attribute age = new Attribute("age", Type.Integer, 0, false, false, false);
+        Attribute netWorth = new Attribute("newWorth", Type.Double, 0, false, false, false);
+        Attribute Id = new Attribute("id", Type.Integer, 0, false, true, false);
+        List<Attribute> attributes = new ArrayList<>();
+        attributes.add(name);
+        attributes.add(age);
+        attributes.add(netWorth);
+        attributes.add(0, Id);
+        sM.createTable("test", 0, attributes);
+        System.out.println(catalog.getTables().get(0).getName());
+        sM.insertRecord_table(null, null);
     }
 }
