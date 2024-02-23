@@ -164,7 +164,6 @@ public class StorageManager {
                             return;
                         }
                         if (insertRecord_table_helper(values, newValues, primaryKeyIndex)) {
-                            records.add(newRecord);
                             if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
@@ -174,9 +173,14 @@ public class StorageManager {
                             }
                         }
                         if(i == (pageCount - 1)){ // this condition isn't right
-                            records.add(newRecord);
+                            if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
+                                buffer.splitPage(databaseLocation, i);
+                                records.add(newRecord);
+                            }
+                            else{
+                                records.add(newRecord);
+                            }
                         }
-
                     }
                 }
             }
