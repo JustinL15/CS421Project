@@ -93,9 +93,14 @@ public class Parser {
     public void drop_table(String name){
         sM.dropTable(name);   
     }
-    public void alter_table(Table table, ArrayList<Attribute> attrlist){
+    public void add_table_column(Table table, Attribute newAttr,String defaultval){
         
-        sM.alterTable(table.getName(), attrlist);
+        sM.add_table_column(table, newAttr,defaultval);
+        
+    }
+    public void delete_table_column(Table table, String deleteAttribute){
+        
+        sM.delete_table_column(table, deleteAttribute);
         
     }
     public void insert_values(Table table, String[] order, String[] values) throws Exception {

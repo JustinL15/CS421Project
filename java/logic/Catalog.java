@@ -107,7 +107,7 @@ public class Catalog {
         atts.add(new Attribute("name", Type.Boolean, 1, true, true, true));
         atts.add(new Attribute("id", Type.Integer, 1, false, false, false));
         List<Table> tables = new ArrayList<>();
-        tables.add(new Table("test", 0, atts));
+        tables.add(new Table("test", 0, atts,0));
         Catalog catalog = new Catalog(1, 1, tables);
         System.out.println(catalog);
         byte[] bytes = catalog.toBinary();
