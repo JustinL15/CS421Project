@@ -87,53 +87,112 @@ public class StorageManager {
         return allRecords;
     }
 
+    public boolean insertRecord_table_helper(List<Object> value, List<Object> newValues, int primaryKeyIndex){
+        switch ((value.get(primaryKeyIndex)).getClass().getSimpleName()){
+            case "Int":
+                if ((int) value.get(primaryKeyIndex) >= (int) newValues.get(primaryKeyIndex)) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+            case "Double":
+                if ((double) value.get(primaryKeyIndex) >= (double) newValues.get(primaryKeyIndex)) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+            case "Boolean":
+                if (value.get(primaryKeyIndex).compare(newValues.get(primaryKeyIndex))) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+            case "Char":
+                if (Character.compare(value.get(primaryKeyIndex), newValues.get(primaryKeyIndex))) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+            case "Varchar":
+                if () {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+        }
+        
+    }
 
-    public void insertRecord_table (Table table, List<Record> recordInsert){
+
+    public void insertRecord_table (Table table, List<Record> newRecords){
         if(table.getPagecount() == 0){
-            String fileName = table.getNumber() + ".txt"; // Checks the table object  to determine its number and 
-                                                          // creates a new file name with that number 
-            File myObj = new File(fileName);
+            // String fileName = table.getNumber() + ".txt"; // Checks the table object  to determine its number and 
+            //                                               // creates a new file name with that number 
+            // File myObj = new File(fileName);
             
-            Page page = new Page(table, recordInsert, 0);
+            // Page page = new Page(table, newRecords, 0);
             
-            try (FileOutputStream fos = new FileOutputStream(myObj);
-                    ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                    oos.writeObject(page);
-                    oos.flush();
-                    }
+            // try (FileOutputStream fos = new FileOutputStream(myObj);
+            //         ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            //         oos.writeObject(page);
+            //         oos.flush();
+            //         }
+
+            Page page = buffer.read(table.getName(), 0);
+            page.getRecords().addAll(newRecords);
         }
 
         else{
             int pageCount = table.getPagecount();
     
-            for (int i = 0; i < pageCount; i++) {
-                Page page = buffer.read(table.getName(), i);
-                List<Record> records = page.getRecords();
-    
-                for (Record record : records) {
-                    List<Attribute> attributes = table.getAttributes();
-               
-                    int primaryKeyIndex = -1;
-                    for (int j = 0; j < attributes.size(); j++) {
-                        Attribute attribute = attributes.get(j);
-                        if (attribute.isKey()) {
-                            primaryKeyIndex = j;
-                            break;
-                        }
-                    }
-    
-                    if (primaryKeyIndex != -1) {
-                        List<Object> values = record.getValues();
-                        List<Object> value = ((Record) recordInsert).getValues();
-                        if (values.get(primaryKeyIndex).equals(value.get(primaryKeyIndex))) {
-                            records.add((Record) recordInsert);
-                        }
-                }
-                if(i == (pageCount - 1)){
-                    records.add((Record)recordInsert);
+            List<Attribute> attributes = table.getAttributes();
+       
+            int primaryKeyIndex = -1;
+            for (int j = 0; j < attributes.size(); j++) {
+                Attribute attribute = attributes.get(j);
+                if (attribute.isKey()) {
+                    primaryKeyIndex = j;
+                    break;
                 }
             }
-        }
+
+            for (Record newRecord : newRecords) {
+                for (int i = 0; i < pageCount; i++) {
+                    Page page = buffer.read(table.getName(), i);
+                    List<Record> records = page.getRecords();
+        
+                    for (Record record : records) {
+
+                        List<Object> values = record.getValues();
+                        List<Object> newValues = newRecord.getValues();
+                        if (values.get(primaryKeyIndex).equals(newValues.get(primaryKeyIndex))) {
+                            System.out.println("Duplicate primary key " + newValues);
+                            return;
+                        }
+                        insertRecord_table_helper(values, newValues, primaryKeyIndex);
+                        if ((values.get(primaryKeyIndex)).compare(newValues.get(primaryKeyIndex))) {
+                            // somehow compare the values of the primary keys
+                            // maybe a helper function with cases for each data type
+                            // if value is greater than newValue, insert newValue before value
+                            // might be worth using linked list for records to insert more easily
+                        }
+                        if(i == (pageCount - 1)){ // this condition isn't right
+                            records.add(newRecord);
+                        }
+
+                    }
+                }
+            }
         }
     }
     
@@ -249,11 +308,39 @@ public class StorageManager {
     }
     
 
-    public void add_table_column(Table table, Attribute newAttr, String defaultval) {
+    public void add_table_column(Table table, Attribute newAttr, Object defaultval) {
+        
         List<Attribute> attrlist =  table.getAttributes();
+        attrlist.add(newAttr);
+        table.setAttributes(attrlist);
+        int pageCount = table.getPagecount();
+
+        for (int i = 0; i < pageCount; i++) {
+            Page page = buffer.read(table.getName(), i);
+            List<Record> records = page.getRecords();
+            for (Record record : records) {
+                List<Object> recordvals = record.getValues();
+                recordvals.add(defaultval);
+                record.setTemplate(table);
+            }
+        }
+        
     }
 
-    public void delete_table_column(Table table, String deleteAttribute) {
+    public void delete_table_column(Table table, String deleteAttribute, int index) {
+        List<Attribute> attrlist =  table.getAttributes();
         
+        table.setAttributes(attrlist);
+        int pageCount = table.getPagecount();
+
+        for (int i = 0; i < pageCount; i++) {
+            Page page = buffer.read(table.getName(), i);
+            List<Record> records = page.getRecords();
+            for (Record record : records) {
+                List<Object> recordvals = record.getValues();
+                recordvals.remove(index);
+                record.setTemplate(table);
+            }
+        }
     }
 }

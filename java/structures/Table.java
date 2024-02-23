@@ -87,7 +87,7 @@ public class Table {
         return this.recordcount;
     }
 
-    public void setAttributes(ArrayList<Attribute> newAttributes) {
-        this.attributes = newAttributes;
+    public void setAttributes(List<Attribute> attrlist) {
+        this.attributes = attrlist;
     }
 }

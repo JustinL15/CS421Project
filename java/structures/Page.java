@@ -35,6 +35,14 @@ public class Page {
         return buffer.array();
     }
 
+    public int bytesUsed() {
+        int used = 4;
+        for (Record record: records) {
+            used += record.spacedUsed();
+        }
+        return used;
+    }
+
     public List<Record> getRecords() {
         return records;
     }
