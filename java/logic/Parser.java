@@ -21,6 +21,7 @@ public class Parser {
         Boolean primaryKeyPresent = false;
         for(String i : Tablevals){
             String[] attribute_values = i.split(" ");
+            System.out.println(attribute_values[0] + " " + attribute_values[1]);
             String ATTRname = attribute_values[0];
             String ATTRTYPE = attribute_values[1];
             boolean unique = false;
@@ -54,11 +55,11 @@ public class Parser {
             }
             Type attrtype1 = null;
             if(ATTRTYPE.contains("(") && ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")).compareTo("VARCHAR") == 0){
-                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
+                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("(")+1,ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Varchar;
             }
             else if(ATTRTYPE.contains("(") && ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")).compareTo("CHAR") == 0){
-                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
+                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("(")+1,ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Char;
             }
             else if(ATTRTYPE.compareTo("DOUBLE") == 0){
