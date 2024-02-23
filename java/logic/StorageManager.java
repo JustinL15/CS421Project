@@ -132,18 +132,6 @@ public class StorageManager {
 
     public void insertRecord_table (Table table, List<Record> newRecords){
         if(table.getPagecount() == 0){
-            // String fileName = table.getNumber() + ".txt"; // Checks the table object  to determine its number and 
-            //                                               // creates a new file name with that number 
-            // File myObj = new File(fileName);
-            
-            // Page page = new Page(table, newRecords, 0);
-            
-            // try (FileOutputStream fos = new FileOutputStream(myObj);
-            //         ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            //         oos.writeObject(page);
-            //         oos.flush();
-            //         }
-
             Page page = buffer.read(table.getName(), 0);
             page.getRecords().addAll(newRecords);
         }
@@ -176,10 +164,6 @@ public class StorageManager {
                             return;
                         }
                         if (insertRecord_table_helper(values, newValues, primaryKeyIndex)) {
-                            // somehow compare the values of the primary keys
-                            // maybe a helper function with cases for each data type
-                            // if value is greater than newValue, insert newValue before value
-                            // might be worth using linked list for records to insert more easily
                             records.add(newRecord);
                             if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
                                 buffer.splitPage(databaseLocation, i);
