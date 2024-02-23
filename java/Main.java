@@ -156,7 +156,12 @@ public class Main {
                             int firstindex = i.indexOf("(");
                             String insertvals = i.substring(firstindex+1,lastindex);
                             String[] insertvalsarray = insertvals.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-                            myParser.insert_values(myCatalog.getTableByName(args[2]), null,insertvalsarray );
+                            try {
+                                myParser.insert_values(args[2], Arrays.asList(insertvalsarray));
+                            } catch (Exception e) {
+                                System.out.println(e);
+                                break;
+                            }
                         }
                     }
                     break;
