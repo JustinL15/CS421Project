@@ -74,7 +74,9 @@ public class Parser {
     public void drop_table(String name){
         sM.dropTable(name);   
     }
-    public void alter_table(){
+    public void alter_table(Table table, ArrayList<Attribute> attrlist){
+        
+        sM.alterTable(table.getName(), attrlist);
         
     }
     public void insert_values(Table table, String[] order, String[] values){

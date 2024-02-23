@@ -103,7 +103,7 @@ public class Main {
                     break;
                 case "alter":
                     if(arguments[1] == "table"){
-                        myParser.alter_table();
+                        //myParser.alter_table();
                     }
                     break;
                 case "drop":
