@@ -103,51 +103,73 @@ public class Parser {
         sM.delete_table_column(table, deleteAttribute);
         
     }
-    public void insert_values(Table table, String[] order, String[] values) throws Exception {
-        Map<String, Integer> columnOrder = new HashMap<>();
+    public void insert_values(String tableName, List<String> values) throws Exception {
+        Table table = sM.catalog.getTableByName(tableName);
         List<Attribute> tableCol = table.getAttributes();
         List<Object> cVals = new ArrayList<Object>();
-
-        if (order == null) {
-            order = new String[tableCol.size()];
-            for (int i = 0; i < tableCol.size(); i++) {
-                order[i] = tableCol.get(i).getName();
-            }
-        }
-
-
+        
         for (int i = 0; i < tableCol.size(); i++) {
-            columnOrder.put(tableCol.get(i).getName(), i);
-            cVals.add(null);
-        }
-
-        for (int i = 0; i < values.length; i++) {
-            Integer orderNum = columnOrder.get(order[i]);
-            if (orderNum == null) {
-                throw new Exception("Attribute names from order do not match table");
-            }
-            switch (tableCol.get(i).getDataType()) {
-                case Integer:
-                    cVals.set(orderNum, Integer.parseInt(values[i]));
-                    break;
-                case Double:
-                    cVals.set(orderNum, Double.parseDouble(values[i]));
-                    break;
-                case Boolean:
-                    cVals.set(orderNum, Boolean.parseBoolean(values[i]));
-                    break;
-                case Char:
-                case Varchar:
-                    cVals.set(orderNum, values[i].toCharArray());
-                    break;
+            try {
+                String val = values.get(i);
+                if (val.equals("null")) {
+                    if (tableCol.get(i).isNotNull()) {
+                        throw new Exception("Attribute '" + tableCol.get(i).getName() +"' cannot be null.");
+                    } else {
+                        cVals.add(null);
+                    }
+                } else {
+                    switch (tableCol.get(i).getDataType()) {
+                        case Integer:
+                            cVals.add(Integer.parseInt(val));
+                            break;
+                        case Double:
+                            cVals.add(Double.parseDouble(val));
+                            break;
+                        case Boolean:
+                            cVals.add(Boolean.parseBoolean(val));
+                            break;
+                        case Char:
+                        case Varchar:
+                            cVals.add(val.toCharArray());
+                            break;
+                    }
+                }
+            } catch (IndexOutOfBoundsException e) {
+                    if (tableCol.get(i).isNotNull()) {
+                        throw new Exception("Attribute '" + tableCol.get(i).getName() +"' cannot be null.");
+                    } else {
+                        cVals.add(null);
+                    }
             }
         }
         for (int i = 0; i < cVals.size(); i++) {
-            if (tableCol.get(i).isNotNull() && cVals.get(i) == null) {
-                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' cannot be null.");
+            if (tableCol.get(i).isUnique()) {
+                switch (tableCol.get(i).getDataType()) {
+                    case Integer:
+                            if (sM.checkUnique(table, i, (int) cVals.get(i))) {
+                                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
+                            }
+                            break;
+                        case Double:
+                            if (sM.checkUnique(table, i, (double) cVals.get(i))) {
+                                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
+                            }
+                            break;
+                        case Boolean:
+                            if (sM.checkUnique(table, i, (boolean) cVals.get(i))) {
+                                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
+                            }
+                            break;
+                        case Char:
+                        case Varchar:
+                            if (sM.checkUnique(table, i, (char[]) cVals.get(i))) {
+                                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
+                            }
+                            break;
+                }
             }
-            if (tableCol.get(i).isUnique())
         }
+
         Record record = new Record(table, cVals);
         ArrayList<Record> records = new ArrayList<>();
         records.add(record);
