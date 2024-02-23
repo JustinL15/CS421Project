@@ -356,6 +356,5 @@ public class StorageManager {
         Record nw = new Record(table, vals);
         List<Record> in = new ArrayList<>();
         in.add(nw);
-        sM.In
     }
 }
