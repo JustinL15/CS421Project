@@ -9,10 +9,11 @@ public class Table {
     private int pagecount;
     private int recordcount;
 
-    public Table(String name, int number, List<Attribute> attributes) {
+    public Table(String name, int number, List<Attribute> attributes, int pagecount) {
         this.name = name;
         this.number = number;
         this.attributes = attributes;
+        this.pagecount = pagecount;
     }
 
     // creates a Table by deserializing a ByteBuffer
@@ -23,6 +24,7 @@ public class Table {
             this.name += buffer.getChar();
         }
         this.number = buffer.getInt();
+        this.pagecount = buffer.getInt();
         int attributes_length = buffer.getInt();
         this.attributes = new ArrayList<Attribute>();
         for (int i = 0; i < attributes_length; i++) {
@@ -44,7 +46,7 @@ public class Table {
     public int totalBytes(){
         int size = 0; // total bytes for binary representation
         size += Integer.BYTES + name.length() * 2; // name string w/ string length
-        size += Integer.BYTES * 2; // ints number and length of attributes
+        size += Integer.BYTES * 3; // ints number, length of attributes, and page count
         for (Attribute attribute : attributes) {
             size += attribute.totalBytes();
         }
@@ -57,6 +59,7 @@ public class Table {
             buffer.putChar(c);
         }
         buffer.putInt(number);
+        buffer.putInt(pagecount);
         buffer.putInt(attributes.size());
         for (Attribute attribute : attributes) {
             attribute.writeBytes(buffer);

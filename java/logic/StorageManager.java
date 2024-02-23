@@ -169,7 +169,7 @@ public class StorageManager {
         
     }
     public Table createTable(String name, int number, ArrayList<Attribute> TableAttr) {
-        Table New_Table = new Table(name,number,TableAttr);
+        Table New_Table = new Table(name,number,TableAttr, 0);
         return New_Table;
     }
     
