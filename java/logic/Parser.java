@@ -23,13 +23,13 @@ public class Parser {
             String[] attribute_values = i.split(" ");
             String ATTRname = attribute_values[0];
             String ATTRTYPE = attribute_values[1];
-            boolean unquie = false;
+            boolean unique = false;
             boolean nullable = true;
             boolean primkey = false;
             int length = 0;
             for( int j = 2; j <= attribute_values.length - 1; j++){
-                if(attribute_values[j].compareTo("UNIQUE") == 0) {
-                    unquie = true;
+                if(attribute_values[j].compareTo("UNIQUE") == 0){
+                    unique = true;
                 }
                 if(attribute_values[j].compareTo("NOT") == 0) {
                     if(j +1 <= attribute_values.length-1){
@@ -75,7 +75,7 @@ public class Parser {
                 System.out.println("Invalid data type \"" + ATTRTYPE + "\"");
                 return;
             }
-            Attribute new_attr = new Attribute(ATTRname, attrtype1, length, nullable, primkey, unquie);
+            Attribute new_attr = new Attribute(ATTRname, attrtype1, length, nullable, primkey, unique);
             AttrList.add(new_attr);
 
         }
