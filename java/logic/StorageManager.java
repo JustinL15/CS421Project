@@ -206,7 +206,7 @@ public class StorageManager {
     }
     public Table createTable(String name, int number, List<Attribute> TableAttr) {
         Table New_Table = new Table(name,number,TableAttr, 0);
-        catalog.getTables().add(New_Table);
+        catalog.createTable(New_Table);
         return New_Table;
     }
     
@@ -215,12 +215,15 @@ public class StorageManager {
         int moveTableNum = catalog.getTables().size() - 1;
         File fileToDelete = new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum);
         File fileToRename = new File(databaseLocation + File.separator + "tables" + File.separator + moveTableNum);
-        if (fileToDelete.exists() && fileToRename.exists() && fileToDelete.delete()) {
-            catalog.dropTable(tablenamePassed);
-            fileToRename.renameTo(new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum));
-        } else {
-            System.err.println("Deletion error for file: " + tablenamePassed);
+        catalog.dropTable(tablenamePassed);
+        if (fileToDelete.exists()) {
+            fileToDelete.delete();
         }
+        if (fileToRename.exists()) {
+            fileToRename.renameTo(new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum));
+        } // else {
+        //     System.err.println("Deletion error for file: " + tablenamePassed);
+        // }
 
     }
 

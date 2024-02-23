@@ -3,6 +3,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +34,7 @@ public class Main {
         boolean catalogFound = Files.exists(catalogPath);
 
         if(catalogFound){
-            System.out.println("Database Found\n");
+            System.out.println("Catalog Found\n");
             //get db catalog (unfinished)
             File catalogFile = new File(catalogPath.toString());
             RandomAccessFile catalogAccessFile;
@@ -52,6 +54,16 @@ public class Main {
                 myCatalog = new Catalog(Integer.parseInt(args[2]), byteBuffer);
             } catch (IOException e) {
                 System.out.println("IO Exception when reading catalog file at " + catalogPath);
+                System.out.println(e);
+                e.printStackTrace();
+                return;
+            }
+            catch(BufferOverflowException e){
+                System.out.println("Error reading Catalog.File may be corrupted or invalid");
+                return;
+            }
+            catch(BufferUnderflowException e){
+                System.out.println("Error reading Catalog.File may be corrupted or invalid");
                 return;
             }
         }
@@ -90,7 +102,7 @@ public class Main {
         boolean breakflag = false;
         Scanner scanner = new Scanner(System.in);
         while (!breakflag) { //program loop
-            System.out.println("\nDB>");
+            System.out.print("\nDB>");
             String input = scanner.nextLine();
             String[] arguments = input.split(" ");
             switch (arguments[0]) {
@@ -135,6 +147,10 @@ public class Main {
                     if(arguments[1].compareTo("table") == 0){
                         int lastindex = input.lastIndexOf(")");
                         int firstindex = input.indexOf("(");
+                        if(lastindex == -1 || firstindex == -1){
+                            System.out.println("ERROR: create table format invalid");
+                            continue;
+                        }
                         myParser.create_table(arguments[2], myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
                     }
                     break;
@@ -216,7 +232,6 @@ public class Main {
                     }
                     break;
                 case "display":
-                    System.out.println(arguments[1]);
                     if (arguments[1].compareTo("info") == 0){
                         Table table = myCatalog.getTableByName(arguments[2]);
                         if (table == null){
