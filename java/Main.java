@@ -122,7 +122,7 @@ public class Main {
                     sM.buffer.purge();
                     break;
                 case "select":
-                    if(arguments[1] == "*" && arguments[2] == "from"){
+                    if(arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0){
                         Table table = myCatalog.getTableByName(arguments[2]);
                         if (table == null){
                             System.out.println("No such table " + arguments[2]);
@@ -132,38 +132,38 @@ public class Main {
                     }
                     break;
                 case "create":
-                    if(arguments[1] == "table"){
+                    if(arguments[1].compareTo("table") == 0){
                         int lastindex = input.lastIndexOf(")");
                         int firstindex = input.indexOf("(");
                         myParser.create_table(arguments[2], myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
                     }
                     break;
                 case "alter":
-                    if(arguments[1] == "table"){
+                    if(arguments[1].compareTo("table") == 0){
                         if(myCatalog.getTableByName(arguments[2]) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
                             continue;
                         }
-                        if(arguments[3] == "add"){
+                        if(arguments[3].compareTo("add") == 0){
                             int datalength =0;
                             Type attrtype1 = null;
                             String defaultval = null;
-                            if(arguments[5].substring(0, arguments[5].indexOf("(")) == "VARCHAR"){
+                            if(arguments[5].substring(0, arguments[5].indexOf("(")).compareTo("VARCHAR") == 0){
                                 datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("("),arguments[5].indexOf(")")) );
                                 attrtype1 = Type.Varchar;
                             }
-                            if(arguments[5].substring(0, arguments[5].indexOf("(")) == "CHAR"){
+                            if(arguments[5].substring(0, arguments[5].indexOf("(")).compareTo("CHAR") == 0){
                                 datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("("),arguments[5].indexOf(")")) );
                                 attrtype1 = Type.Char;
                             }
-                            if(arguments[5] == "DOUBLE"){
+                            if(arguments[5].compareTo("DOUBLE") == 0){
                                 
                                 attrtype1 = Type.Double;
                             }
-                            if(arguments[5] == "INT"){
+                            if(arguments[5].compareTo("INT") == 0){
                                 attrtype1 = Type.Integer;
                             }
-                            if(arguments[5] == "BOOLEAN"){
+                            if(arguments[5].compareTo("BOOLEAN") == 0){
                                 attrtype1 = Type.Boolean;
                             }
                             Attribute addattr = new Attribute(arguments[5],attrtype1,datalength,true,false,false);
@@ -174,14 +174,14 @@ public class Main {
 
                             
                         }
-                        if(arguments[3] == "drop"){
+                        if(arguments[3].compareTo("drop") == 0){
                             myParser.delete_table_column(myCatalog.getTableByName(arguments[2]), arguments[4]);
                         }
                         //myParser.alter_table();
                     }
                     break;
                 case "drop":
-                    if(arguments[1] == "table"){
+                    if(arguments[1].compareTo("table") == 0){
                         if(myCatalog.getTableByName(arguments[2]) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
                             continue;
@@ -191,7 +191,7 @@ public class Main {
                     break;
 
                 case "insert":
-                    if(arguments[1] == "into" && arguments[3] == "values"){
+                    if(arguments[1].compareTo("into") == 0 && arguments[3].compareTo("values") == 0){
                         if(myCatalog.getTableByName(arguments[2]) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
                             continue;
@@ -216,7 +216,8 @@ public class Main {
                     }
                     break;
                 case "display":
-                    if (arguments[1] == "info"){
+                    System.out.println(arguments[1]);
+                    if (arguments[1].compareTo("info") == 0){
                         Table table = myCatalog.getTableByName(arguments[2]);
                         if (table == null){
                             System.out.println("No such table " + arguments[2]);
@@ -224,7 +225,7 @@ public class Main {
                         }
                         myParser.print_display_info(table);
                     }
-                    if(arguments[1] ==  "schema"){
+                    if(arguments[1].compareTo("schema") == 0){
                         myParser.print_display_schema(myCatalog,path.toString());
                     }
                     break;

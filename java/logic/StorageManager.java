@@ -96,7 +96,6 @@ public class StorageManager {
                 else{
                     return false;
                 }
-                break;
             case "Double":
                 if ((double) value.get(primaryKeyIndex) >= (double) newValues.get(primaryKeyIndex)) {
                     return true;
@@ -104,7 +103,6 @@ public class StorageManager {
                 else{
                     return false;
                 }
-                break;
             case "Boolean":
                 if (((boolean) value.get(primaryKeyIndex)) == (boolean)(newValues.get(primaryKeyIndex))) {
                     return true;
@@ -112,46 +110,28 @@ public class StorageManager {
                 else{
                     return false;
                 }
-                break;
             case "Char":
-                if (Character.compare(value.get(primaryKeyIndex), newValues.get(primaryKeyIndex))) {
+                if (Character.compare((char)value.get(primaryKeyIndex), (char)newValues.get(primaryKeyIndex)) > 0) {
                     return true;
                 }
                 else{
                     return false;
                 }
-                break;
             case "Varchar":
                 for (int i = 0; i < 200; i++) {
-                    value.get(primaryKeyIndex);
-                    
-                    if () {
+                    if (Character.compare((char)value.get(i), (char)newValues.get(i)) > 0) {
                         return true;
                     }
-                    else{
-                        return false;
-                    }
                 }
-                break;
+                return false;
         }
+        return false;
         
     }
 
 
     public void insertRecord_table (Table table, List<Record> newRecords){
         if(table.getPagecount() == 0){
-            // String fileName = table.getNumber() + ".txt"; // Checks the table object  to determine its number and 
-            //                                               // creates a new file name with that number 
-            // File myObj = new File(fileName);
-            
-            // Page page = new Page(table, newRecords, 0);
-            
-            // try (FileOutputStream fos = new FileOutputStream(myObj);
-            //         ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            //         oos.writeObject(page);
-            //         oos.flush();
-            //         }
-
             Page page = buffer.read(table.getName(), 0);
             page.getRecords().addAll(newRecords);
         }
@@ -184,16 +164,23 @@ public class StorageManager {
                             return;
                         }
                         if (insertRecord_table_helper(values, newValues, primaryKeyIndex)) {
-                            // somehow compare the values of the primary keys
-                            // maybe a helper function with cases for each data type
-                            // if value is greater than newValue, insert newValue before value
-                            // might be worth using linked list for records to insert more easily
-                            records.add(newRecord);
+                            if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
+                                buffer.splitPage(databaseLocation, i);
+                                records.add(newRecord);
+                            }
+                            else{
+                                records.add(newRecord);
+                            }
                         }
                         if(i == (pageCount - 1)){ // this condition isn't right
-                            records.add(newRecord);
+                            if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
+                                buffer.splitPage(databaseLocation, i);
+                                records.add(newRecord);
+                            }
+                            else{
+                                records.add(newRecord);
+                            }
                         }
-
                     }
                 }
             }
