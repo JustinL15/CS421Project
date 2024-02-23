@@ -12,7 +12,12 @@ public class Parser {
     }
 
     public void create_table(String name, int number, String TableAttr){
-        
+        for (Table table : sM.catalog.getTables()) {
+            if (name == table.getName()){
+                System.out.println("Table of name " + name + " already exists");
+                return;
+            }
+        }
         String[] Tablevals = TableAttr.split(",");
         ArrayList<Attribute> AttrList = new ArrayList<Attribute>();
         int k = 0;
@@ -55,19 +60,23 @@ public class Parser {
                 length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Varchar;
             }
-            if(ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")) == "CHAR"){
+            else if(ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")) == "CHAR"){
                 length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Char;
             }
-            if(ATTRTYPE == "DOUBLE"){
+            else if(ATTRTYPE == "DOUBLE"){
                 
                 attrtype1 = Type.Double;
             }
-            if(ATTRTYPE == "INT"){
+            else if(ATTRTYPE == "INT"){
                 attrtype1 = Type.Integer;
             }
-            if(ATTRTYPE == "BOOLEAN"){
+            else if(ATTRTYPE == "BOOLEAN"){
                 attrtype1 = Type.Boolean;
+            }
+            else {
+                System.out.println("Invalid data type \"" + ATTRTYPE + "\"");
+                return;
             }
             Attribute new_attr = new Attribute(ATTRname, attrtype1, length, nullable, primkey, unquie);
             AttrList.set(k, new_attr);
