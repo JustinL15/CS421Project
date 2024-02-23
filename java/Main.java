@@ -22,7 +22,7 @@ public class Main {
         if(dbfound){
             System.out.println("Database Found\n");
             //get db catalog (unfinished)
-            String catalogLocation = path + File.pathSeparator + "catalog";
+            String catalogLocation = path + File.separator + "catalog";
             File catalogFile = new File(catalogLocation);
             RandomAccessFile catalogAccessFile;
 
@@ -57,8 +57,8 @@ public class Main {
             myCatalog = new Catalog(Integer.parseInt(args[2]),Integer.parseInt(args[1]),tablelist);
 
             try {
-                Files.createFile(Path.of(path + File.pathSeparator + "catalog"));
-                Files.createDirectory(Path.of(path + File.pathSeparator + "tables"));
+                Files.createFile(Path.of(path + File.separator + "catalog"));
+                Files.createDirectory(Path.of(path + File.separator + "tables"));
             } catch (IOException e) {
                 System.out.println("IO Exception when creating catalog file and tables directory at " + path);
                 return;
