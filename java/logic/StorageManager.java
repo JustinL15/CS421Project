@@ -87,6 +87,52 @@ public class StorageManager {
         return allRecords;
     }
 
+    public boolean insertRecord_table_helper(List<Object> value, List<Object> newValues, int primaryKeyIndex){
+        switch ((value.get(primaryKeyIndex)).getClass().getSimpleName()){
+            case "Int":
+                if ((int) value.get(primaryKeyIndex) >= (int) newValues.get(primaryKeyIndex)) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+            case "Double":
+                if ((double) value.get(primaryKeyIndex) >= (double) newValues.get(primaryKeyIndex)) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+            case "Boolean":
+                if (value.get(primaryKeyIndex).compare(newValues.get(primaryKeyIndex))) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+            case "Char":
+                if (Character.compare(value.get(primaryKeyIndex), newValues.get(primaryKeyIndex))) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+            case "Varchar":
+                if () {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+                break;
+        }
+        
+    }
+
 
     public void insertRecord_table (Table table, List<Record> newRecords){
         if(table.getPagecount() == 0){
@@ -133,7 +179,8 @@ public class StorageManager {
                             System.out.println("Duplicate primary key " + newValues);
                             return;
                         }
-                        if (values.get(primaryKeyIndex).compare(newValues.get(primaryKeyIndex))) {
+                        insertRecord_table_helper(values, newValues, primaryKeyIndex);
+                        if ((values.get(primaryKeyIndex)).compare(newValues.get(primaryKeyIndex))) {
                             // somehow compare the values of the primary keys
                             // maybe a helper function with cases for each data type
                             // if value is greater than newValue, insert newValue before value
