@@ -103,23 +103,33 @@ public class Main {
                     if(arguments[1] == "table"){
                         int lastindex = input.lastIndexOf(")");
                         int firstindex = input.indexOf("(");
-                        //System.out.print(input.substring(firstindex+1,lastindex));
-                        myParser.create_table(arguments[2], 0, input.substring(firstindex+1,lastindex));
+                        myParser.create_table(arguments[2], myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
                     }
                     break;
                 case "alter":
                     if(arguments[1] == "table"){
-                        myParser.alter_table();
+                        
+                        //myParser.alter_table();
                     }
                     break;
                 case "drop":
                     if(arguments[1] == "table"){
-                        myParser.drop_table(arguments[1]);
+                        myParser.drop_table(arguments[2]);
                     }
                     break;
 
                 case "insert":
-                    myParser.insert_values(null, args, arguments);
+                    if(arguments[1] == "into" && arguments[3] == "values"){
+                        
+                        String[] tupleArray = input.substring(input.indexOf("(")).split(",");
+                        for(String i : tupleArray){
+                            int lastindex = i.lastIndexOf(")");
+                            int firstindex = i.indexOf("(");
+                            String insertvals = i.substring(firstindex+1,lastindex);
+                            String[] insertvalsarray = insertvals.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                            myParser.insert_values(myCatalog.getTableByName(args[2]), null,insertvalsarray );
+                        }
+                    }
                     break;
                 case "display":
                     if (arguments[1] == "info"){
@@ -145,9 +155,9 @@ public class Main {
     }
     public static void help_message(){
         System.out.println("all functions");
-        System.out.println("select table >> gets table");
-        System.out.println("create table() >> creates table with attributes");
-        System.out.println("drop (table) >> drops table");
+        System.out.println("select * from (table name) >> gets table");
+        System.out.println("create table (table name)(attribute_name type,attribute_name2 tyoe,...) >> creates table with attributes");
+        System.out.println("drop table (table name) >> drops table");
         System.out.println("alter (table) --- >> alters table based on values given");
         System.out.println("insert values --- >> insert values");
         System.out.println("display info table >> display values in table");

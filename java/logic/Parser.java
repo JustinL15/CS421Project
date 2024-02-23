@@ -25,7 +25,6 @@ public class Parser {
             boolean nullable = true;
             boolean primkey = false;
             int length = 0;
-            int decimal = 0;
             for( int j = 2; j <= attribute_values.length - 1; j++){
                 if(attribute_values[j] == "UNQUIE"){
                     unquie = true;
@@ -85,7 +84,9 @@ public class Parser {
     public void drop_table(String name){
         sM.dropTable(name);   
     }
-    public void alter_table(){
+    public void alter_table(Table table, ArrayList<Attribute> attrlist){
+        
+        sM.alterTable(table.getName(), attrlist);
         
     }
     public void insert_values(Table table, String[] order, String[] values){
