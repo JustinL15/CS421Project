@@ -42,7 +42,7 @@ public class Record {
                     for (int j = 0; j < clength; j++) {
                         charArr[j] = buffer.getChar();
                     }
-                    this.values.add(charArr);
+                    this.values.add(String.valueOf(charArr));
                     break;
                 case Varchar:
                     int vlength = buffer.getInt();
@@ -51,7 +51,7 @@ public class Record {
                     for (int j = 0; j < vlength; j++) {
                         vcharArr[j] = buffer.getChar();
                     }
-                    this.values.add(vcharArr);
+                    this.values.add(String.valueOf(vcharArr));
                     break;
             }
         }
@@ -78,11 +78,13 @@ public class Record {
                     totalcap += 1;
                     break;
                 case Char:
-                    char[] cl = (char[]) this.values.get(i);
+                    String stringChar = (String) this.values.get(i);
+                    char[] cl = stringChar.toCharArray();
                     totalcap += (2 * cl.length);
                     break;
                 case Varchar:
-                    char[] vl = (char[]) this.values.get(i);
+                    String stringVchar = (String) this.values.get(i);
+                    char[] vl = stringVchar.toCharArray();
                     totalcap += (2 * vl.length) + 4;
                     break;
             }
@@ -107,14 +109,18 @@ public class Record {
                     }
                     break;
                 case Char:
-                    for (char c: (char[]) this.values.get(i)) {
+                    String stringChar = (String) this.values.get(i);
+                    char[] cl = stringChar.toCharArray();
+                    buffer.putInt(cl.length);
+                    for (char c: cl) {
                         buffer.putChar(c);
                     }
                     break;
                 case Varchar:
-                    char[] vchar = (char[]) this.values.get(i);
-                    buffer.putInt(vchar.length);
-                    for (char c: vchar) {
+                    String stringVchar = (String) this.values.get(i);
+                    char[] vl = stringVchar.toCharArray();
+                    buffer.putInt(vl.length);
+                    for (char c: vl) {
                         buffer.putChar(c);
                     }
                     break;
@@ -155,11 +161,13 @@ public class Record {
                     totalcap += 1;
                     break;
                 case Char:
-                    char[] cl = (char[]) this.values.get(i);
+                    String stringChar = (String) this.values.get(i);
+                    char[] cl = stringChar.toCharArray();
                     totalcap += (2 * cl.length);
                     break;
                 case Varchar:
-                    char[] vl = (char[]) this.values.get(i);
+                    String stringVchar = (String) this.values.get(i);
+                    char[] vl = stringVchar.toCharArray();
                     totalcap += (2 * vl.length) + 4;
                     break;
             }
