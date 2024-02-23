@@ -132,18 +132,6 @@ public class StorageManager {
 
     public void insertRecord_table (Table table, List<Record> newRecords){
         if(table.getPagecount() == 0){
-            // String fileName = table.getNumber() + ".txt"; // Checks the table object  to determine its number and 
-            //                                               // creates a new file name with that number 
-            // File myObj = new File(fileName);
-            
-            // Page page = new Page(table, newRecords, 0);
-            
-            // try (FileOutputStream fos = new FileOutputStream(myObj);
-            //         ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            //         oos.writeObject(page);
-            //         oos.flush();
-            //         }
-
             Page page = buffer.read(table.getName(), 0);
             page.getRecords().addAll(newRecords);
         }
@@ -176,11 +164,6 @@ public class StorageManager {
                             return;
                         }
                         if (insertRecord_table_helper(values, newValues, primaryKeyIndex)) {
-                            // somehow compare the values of the primary keys
-                            // maybe a helper function with cases for each data type
-                            // if value is greater than newValue, insert newValue before value
-                            // might be worth using linked list for records to insert more easily
-                            records.add(newRecord);
                             if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
@@ -190,9 +173,14 @@ public class StorageManager {
                             }
                         }
                         if(i == (pageCount - 1)){ // this condition isn't right
-                            records.add(newRecord);
+                            if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
+                                buffer.splitPage(databaseLocation, i);
+                                records.add(newRecord);
+                            }
+                            else{
+                                records.add(newRecord);
+                            }
                         }
-
                     }
                 }
             }
@@ -230,8 +218,9 @@ public class StorageManager {
     public void updateRecord_primarykey(Table template, Object pKey, Record record){
         
     }
-    public Table createTable(String name, int number, ArrayList<Attribute> TableAttr) {
+    public Table createTable(String name, int number, List<Attribute> TableAttr) {
         Table New_Table = new Table(name,number,TableAttr, 0);
+        catalog.createTable(New_Table);
         return New_Table;
     }
     
@@ -240,12 +229,15 @@ public class StorageManager {
         int moveTableNum = catalog.getTables().size() - 1;
         File fileToDelete = new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum);
         File fileToRename = new File(databaseLocation + File.separator + "tables" + File.separator + moveTableNum);
-        if (fileToDelete.exists() && fileToRename.exists() && fileToDelete.delete()) {
-            catalog.dropTable(tablenamePassed);
-            fileToRename.renameTo(new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum));
-        } else {
-            System.err.println("Deletion error for file: " + tablenamePassed);
+        catalog.dropTable(tablenamePassed);
+        if (fileToDelete.exists()) {
+            fileToDelete.delete();
         }
+        if (fileToRename.exists()) {
+            fileToRename.renameTo(new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum));
+        } // else {
+        //     System.err.println("Deletion error for file: " + tablenamePassed);
+        // }
 
     }
 
@@ -351,5 +343,24 @@ public class StorageManager {
                 record.setTemplate(table);
             }
         }
+ 
+ 
+    }
+
+    public static void main(String[] args) {
+        Catalog catalog = new Catalog(4, 1000, new ArrayList<Table>());
+        StorageManager sM = new StorageManager(catalog, "resources");
+        Attribute name = new Attribute("name", Type.Varchar, 10, false, false, false);
+        Attribute age = new Attribute("age", Type.Integer, 0, false, false, false);
+        Attribute netWorth = new Attribute("newWorth", Type.Double, 0, false, false, false);
+        Attribute Id = new Attribute("id", Type.Integer, 0, false, true, false);
+        List<Attribute> attributes = new ArrayList<>();
+        attributes.add(name);
+        attributes.add(age);
+        attributes.add(netWorth);
+        attributes.add(0, Id);
+        sM.createTable("test", 0, attributes);
+        System.out.println(catalog.getTables().get(0).getName());
+        sM.insertRecord_table(null, null);
     }
 }
