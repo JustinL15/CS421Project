@@ -55,6 +55,10 @@ public class Page {
         return pageNumber;
     }
 
+    public void setPageNumber(int number) {
+        this.pageNumber = number;
+    }
+
     public static void main(String[] args) 
     {
         ArrayList<Attribute> attr = new ArrayList<Attribute>();
