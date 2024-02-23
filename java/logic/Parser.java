@@ -16,6 +16,7 @@ public class Parser {
         String[] Tablevals = TableAttr.split(",");
         ArrayList<Attribute> AttrList = new ArrayList<Attribute>();
         int k = 0;
+        Boolean primaryKeyPresent = false;
         for(String i : Tablevals){
             String[] attribute_values = i.split(",");
             String ATTRname = attribute_values[0];
@@ -40,6 +41,12 @@ public class Parser {
                     if(j +1 <= attribute_values.length+1){
                         if(attribute_values[j] == "KEY"){
                             primkey = true;
+                            if (primaryKeyPresent == true) {
+                                System.out.println("More than one primary key");
+                                return;
+                            } else {
+                                primaryKeyPresent = true;
+                            }
                         }
                     }
                 }
@@ -67,6 +74,10 @@ public class Parser {
             AttrList.set(k, new_attr);
             k = k +1;
 
+        }
+        if (primaryKeyPresent == false){
+            System.out.println("No primary key defined");
+            return;
         }
         sM.createTable(name,number,AttrList);
 
@@ -123,6 +134,9 @@ public class Parser {
         System.out.println("buffer size: "+curr_cat.getBufferSize());
         for(Table i : curr_cat.getTables()){
             table_schema_display(i);
+        }
+        if(curr_cat.getTables().size() == 0){
+            System.out.println("No tables to display");
         }
         
     }
