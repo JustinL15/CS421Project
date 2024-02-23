@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
 import java.nio.ByteBuffer;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -141,6 +140,10 @@ public class Main {
                     break;
                 case "alter":
                     if(arguments[1].compareTo("table") == 0){
+                        if(myCatalog.getTableByName(arguments[2]) == null){
+                            System.out.println("Table of name " + arguments[2] + " does not exist");
+                            continue;
+                        }
                         if(arguments[3].compareTo("add") == 0){
                             int datalength =0;
                             Type attrtype1 = null;
@@ -179,13 +182,20 @@ public class Main {
                     break;
                 case "drop":
                     if(arguments[1].compareTo("table") == 0){
+                        if(myCatalog.getTableByName(arguments[2]) == null){
+                            System.out.println("Table of name " + arguments[2] + " does not exist");
+                            continue;
+                        }
                         myParser.drop_table(arguments[2]);
                     }
                     break;
 
                 case "insert":
                     if(arguments[1].compareTo("into") == 0 && arguments[3].compareTo("values") == 0){
-                        
+                        if(myCatalog.getTableByName(arguments[2]) == null){
+                            System.out.println("Table of name " + arguments[2] + " does not exist");
+                            continue;
+                        }
                         String[] tupleArray = input.substring(input.indexOf("(")).split(",");
                         for(String i : tupleArray){
                             int lastindex = i.lastIndexOf(")");

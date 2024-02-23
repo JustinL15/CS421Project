@@ -122,11 +122,15 @@ public class StorageManager {
                 }
                 break;
             case "Varchar":
-                if () {
-                    return true;
-                }
-                else{
-                    return false;
+                for (int i = 0; i < 200; i++) {
+                    value.get(primaryKeyIndex);
+                    
+                    if () {
+                        return true;
+                    }
+                    else{
+                        return false;
+                    }
                 }
                 break;
         }
@@ -320,7 +324,9 @@ public class StorageManager {
             Page page = buffer.read(table.getName(), i);
             List<Record> records = page.getRecords();
             if(page.bytesUsed() + (records.size() * mysize) > catalog.getPageSize()){
-                //buffer.write() split
+                Page[] pages =buffer.splitPage(table.getName(), i);
+                page = pages[0];
+                records = page.getRecords();
             }
             for (Record record : records) {  
                 List<Object> recordvals = record.getValues();
