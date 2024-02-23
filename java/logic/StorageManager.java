@@ -261,20 +261,39 @@ public class StorageManager {
     }
     
 
-    public void add_table_column(Table table, Attribute newAttr, String defaultval) {
+    public void add_table_column(Table table, Attribute newAttr, Object defaultval) {
+        
         List<Attribute> attrlist =  table.getAttributes();
-        for(Attribute i : attrlist){
-            if(i.getName() == newAttr.getName()){
-                //error exit
-                return;
-            }
-        }
         attrlist.add(newAttr);
         table.setAttributes(attrlist);
+        int pageCount = table.getPagecount();
+
+        for (int i = 0; i < pageCount; i++) {
+            Page page = buffer.read(table.getName(), i);
+            List<Record> records = page.getRecords();
+            for (Record record : records) {
+                List<Object> recordvals = record.getValues();
+                recordvals.add(defaultval);
+                record.setTemplate(table);
+            }
+        }
         
     }
 
-    public void delete_table_column(Table table, String deleteAttribute) {
+    public void delete_table_column(Table table, String deleteAttribute, int index) {
+        List<Attribute> attrlist =  table.getAttributes();
         
+        table.setAttributes(attrlist);
+        int pageCount = table.getPagecount();
+
+        for (int i = 0; i < pageCount; i++) {
+            Page page = buffer.read(table.getName(), i);
+            List<Record> records = page.getRecords();
+            for (Record record : records) {
+                List<Object> recordvals = record.getValues();
+                recordvals.remove(index);
+                record.setTemplate(table);
+            }
+        }
     }
 }
