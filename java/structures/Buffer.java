@@ -95,7 +95,7 @@ public class Buffer {
         int pageCount = catalog.getTableByName(tableName).getPagecount(); 
         List<Record> newVals = new ArrayList<>();
         for (int i = 0; i < pageToSplit.getRecords().size()/2; i++) {
-            newVals.add(pageToSplit.getRecords().removeLast());
+            newVals.add(pageToSplit.getRecords().remove(pageToSplit.getRecords().size() - 1));
         }
         for (int i = pageNumber + 1; i < pageCount; i++) {
             Page next = read(tableName, i);
