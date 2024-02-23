@@ -196,6 +196,58 @@ public class StorageManager {
         }
     }
 
+    public boolean checkUnique(Table table, int attrCol, int value) {
+        for (int i = 0; i < table.getPagecount(); i++) {
+            Page page = buffer.read(table.getName(), i);
+            for (Record r : page.getRecords()) {
+                int compare = (int) r.getValues().get(attrCol);
+                if (compare == value) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean checkUnique(Table table, int attrCol, double value) {
+        for (int i = 0; i < table.getPagecount(); i++) {
+            Page page = buffer.read(table.getName(), i);
+            for (Record r : page.getRecords()) {
+                double compare = (double) r.getValues().get(attrCol);
+                if (compare == value) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean checkUnique(Table table, int attrCol, char[] value) {
+        for (int i = 0; i < table.getPagecount(); i++) {
+            Page page = buffer.read(table.getName(), i);
+            for (Record r : page.getRecords()) {
+                char[] compare = (char[]) r.getValues().get(attrCol);
+                if (Arrays.equals(compare, value)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean checkUnique(Table table, int attrCol, boolean value) {
+        for (int i = 0; i < table.getPagecount(); i++) {
+            Page page = buffer.read(table.getName(), i);
+            for (Record r : page.getRecords()) {
+                boolean compare = (boolean) r.getValues().get(i);
+                if (compare == value) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
 
     public void add_table_column(Table table, Attribute newAttr, String defaultval) {
         List<Attribute> attrlist =  table.getAttributes();
