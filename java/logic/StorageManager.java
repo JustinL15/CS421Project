@@ -87,46 +87,32 @@ public class StorageManager {
         return allRecords;
     }
 
-    public boolean insertRecord_table_helper(List<Object> value, List<Object> newValues, int primaryKeyIndex){
-        switch ((value.get(primaryKeyIndex)).getClass().getSimpleName()){
-            case "Int":
-                if ((int) value.get(primaryKeyIndex) >= (int) newValues.get(primaryKeyIndex)) {
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            case "Double":
-                if ((double) value.get(primaryKeyIndex) >= (double) newValues.get(primaryKeyIndex)) {
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            case "Boolean":
-                if (((boolean) value.get(primaryKeyIndex)) == (boolean)(newValues.get(primaryKeyIndex))) {
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            case "Char":
-                if (Character.compare((char)value.get(primaryKeyIndex), (char)newValues.get(primaryKeyIndex)) > 0) {
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            case "Varchar":
-                for (int i = 0; i < 200; i++) {
-                    if (Character.compare((char)value.get(i), (char)newValues.get(i)) > 0) {
-                        return true;
-                    }
-                }
+    public boolean insertRecord_table_helper(Table table, Record newRecord, Record record) {
+        int pkIndex = -1;
+        for (int i = 0; i < table.getAttributes().size(); i++) {
+            if (table.getAttributes().get(i).isKey()) {
+                pkIndex = i;
+                break;
+            }
+        }
+        switch(table.getAttributes().get(pkIndex).getDataType()) {
+            case Integer:
+                return (int) record.getValues().get(pkIndex) > (int) newRecord.getValues().get(pkIndex); 
+            case Double:
+                return (double) record.getValues().get(pkIndex) > (double) newRecord.getValues().get(pkIndex);
+            case Boolean:
+                int eqvOld = (boolean) record.getValues().get(pkIndex) ? 1 : 0;
+                int eqvNew = (boolean) newRecord.getValues().get(pkIndex) ? 1 : 0;
+                return eqvOld > eqvNew;
+            case Char:
+            case Varchar:
+                String oldString = (String) record.getValues().get(pkIndex);
+                String newString = (String) newRecord.getValues().get(pkIndex);
+                int compareVal = oldString.compareTo(newString);
+                return compareVal > 0;
+            default:
                 return false;
         }
-        return false;
-        
     }
 
 
@@ -163,7 +149,7 @@ public class StorageManager {
                             System.out.println("Duplicate primary key " + newValues);
                             return;
                         }
-                        if (insertRecord_table_helper(values, newValues, primaryKeyIndex)) {
+                        if (insertRecord_table_helper(table, newRecord, record)) {
                             if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
@@ -352,12 +338,21 @@ public class StorageManager {
         Attribute netWorth = new Attribute("newWorth", Type.Double, 0, false, false, false);
         Attribute Id = new Attribute("id", Type.Integer, 0, false, true, false);
         List<Attribute> attributes = new ArrayList<>();
+        attributes.add(Id);
         attributes.add(name);
         attributes.add(age);
         attributes.add(netWorth);
-        attributes.add(0, Id);
         sM.createTable("test", 0, attributes);
         System.out.println(catalog.getTables().get(0).getName());
-        sM.insertRecord_table(null, null);
+        Table table = catalog.getTableByName("test");
+        List<Object> vals = new ArrayList<>();
+        vals.add(1);
+        vals.add("John");
+        vals.add(18);
+        vals.add(90.01);
+        Record nw = new Record(table, vals);
+        List<Record> in = new ArrayList<>();
+        in.add(nw);
+        sM.In
     }
 }
