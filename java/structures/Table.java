@@ -26,7 +26,7 @@ public class Table {
         int attributes_length = buffer.getInt();
         this.attributes = new ArrayList<Attribute>();
         for (int i = 0; i < attributes_length; i++) {
-            this.attributes.set(i, new Attribute(buffer));
+            this.attributes.add(new Attribute(buffer));
         }
     }
 

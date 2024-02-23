@@ -26,7 +26,7 @@ public class Catalog {
         int tables_length = buffer.getInt();
         this.tables = new ArrayList<Table>();
         for (int i = 0; i < tables_length; i++) {
-            this.tables.set(i, new Table(buffer));
+            this.tables.add(new Table(buffer));
         }
         this.tableMap = new HashMap<>();
         for (int i = 0; i < tables.size(); i++) {
@@ -88,7 +88,7 @@ public class Catalog {
     public static void main(String[] args) {
         List<Attribute> atts = new ArrayList<>();
         atts.add(new Attribute("name", Type.Boolean, 1, true, true, true));
-        atts.add(new Attribute("id", Type.Integer, 0, false, false, false));
+        atts.add(new Attribute("id", Type.Integer, 1, false, false, false));
         List<Table> tables = new ArrayList<>();
         tables.add(new Table("test", 0, atts));
         Catalog catalog = new Catalog(1, 1, tables);
