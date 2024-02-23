@@ -122,11 +122,15 @@ public class StorageManager {
                 }
                 break;
             case "Varchar":
-                if () {
-                    return true;
-                }
-                else{
-                    return false;
+                for (int i = 0; i < 200; i++) {
+                    value.get(primaryKeyIndex);
+                    
+                    if () {
+                        return true;
+                    }
+                    else{
+                        return false;
+                    }
                 }
                 break;
         }

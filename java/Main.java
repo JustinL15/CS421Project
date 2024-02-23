@@ -12,23 +12,35 @@ public class Main {
 
     ///arg1= page size, arg 2 = buffer size
     public static void main(String[] args){
-        Path path = Paths.get("").toAbsolutePath();
+        if (args.length < 3){
+            System.out.println("Expected 3 arguments, got " + args.length);
+            return;
+            // path = Paths.get("").toAbsolutePath();
+        }
+
+        Path path = Path.of(args[0]);
         System.out.println(path.toString());
         boolean dbfound = Files.exists(path);
+
+        if (!dbfound){
+            System.out.println("Directory does not exist " + path.toString());
+            return;
+        }
         
         Catalog myCatalog;
+        Path catalogPath = Path.of(path.toString() + File.separator + "catalog");
+        boolean catalogFound = Files.exists(catalogPath);
 
-        if(dbfound){
+        if(catalogFound){
             System.out.println("Database Found\n");
             //get db catalog (unfinished)
-            String catalogLocation = path + File.separator + "catalog";
-            File catalogFile = new File(catalogLocation);
+            File catalogFile = new File(catalogPath.toString());
             RandomAccessFile catalogAccessFile;
 
             try {
                 catalogAccessFile = new RandomAccessFile(catalogFile, "r");
             } catch (FileNotFoundException e) {
-                System.out.println("No file at " + catalogLocation);
+                System.out.println("No file at " + catalogPath);
                 return;
             }
 
@@ -39,7 +51,7 @@ public class Main {
                 ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
                 myCatalog = new Catalog(Integer.parseInt(args[2]), byteBuffer);
             } catch (IOException e) {
-                System.out.println("IO Exception when reading catalog file at " + catalogLocation);
+                System.out.println("IO Exception when reading catalog file at " + catalogPath);
                 return;
             }
         }
@@ -87,6 +99,27 @@ public class Main {
                     break;
                 case "quit":
                     breakflag = true;
+
+                    byte[] bytes = myCatalog.toBinary();
+                    File catalogFile = new File(catalogPath.toString());
+                    RandomAccessFile catalogAccessFile;
+
+                    try {
+                        catalogAccessFile = new RandomAccessFile(catalogFile, "rw");
+                    } catch (FileNotFoundException e) {
+                        System.out.println("No file at " + catalogPath);
+                        return;
+                    }
+
+                    try {
+                        catalogAccessFile.write(bytes);
+                        catalogAccessFile.close();
+                    } catch (IOException e) {
+                        System.out.println("IOException when writing catalog at " + catalogPath);
+                        return;
+                    }
+
+                    sM.buffer.purge();
                     break;
                 case "select":
                     if(arguments[1] == "*" && arguments[2] == "from"){
