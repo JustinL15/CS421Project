@@ -248,4 +248,12 @@ public class StorageManager {
         return true;
     }
     
+
+    public void add_table_column(Table table, Attribute newAttr, String defaultval) {
+        List<Attribute> attrlist =  table.getAttributes();
+    }
+
+    public void delete_table_column(Table table, String deleteAttribute) {
+        
+    }
 }

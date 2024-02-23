@@ -104,7 +104,7 @@ public class Buffer {
         as.set(0, a1);
         as.set(1, a2);
 
-        Table table = new Table("test", 0, as);
+        Table table = new Table("test", 0, as,0);
 
         ArrayList<Table> tables = new ArrayList<Table>();
         tables.add(table);
