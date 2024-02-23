@@ -85,6 +85,19 @@ public class Catalog {
         return bufferSize;
     }
 
+    public void dropTable(String tableName) {
+        Table droppedTable = tables.get(tableMap.get(tableName));
+        Table movedTable = tables.get(tables.size() - 1);
+
+        movedTable.setNumber(droppedTable.getNumber());
+
+        tableMap.put(movedTable.getName(), droppedTable.getNumber());
+        tableMap.remove(tableName);
+
+        tables.set(droppedTable.getNumber(), movedTable);
+        tables.remove(tables.size() - 1);
+    }
+
     public static void main(String[] args) {
         List<Attribute> atts = new ArrayList<>();
         atts.add(new Attribute("name", Type.Boolean, 1, true, true, true));
