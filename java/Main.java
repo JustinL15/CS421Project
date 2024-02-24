@@ -3,6 +3,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -236,39 +238,38 @@ public class Main {
                 case "insert":
                 try {
                     if(arguments[1].compareTo("into") == 0){ 
-                        if(arguments[3].compareTo("values;") == 0 || (arguments[3].toLowerCase().contains("(") && arguments[3].toLowerCase().substring(0, arguments[3].indexOf("(")).compareTo("values") == 0)){
+                        if(arguments[3].compareTo("values") == 0 || (arguments[3].toLowerCase().contains("(") && arguments[3].toLowerCase().substring(0, arguments[3].indexOf("(")).trim().compareTo("values") == 0)){
                         if(myCatalog.getTableByName(arguments[2]) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
-                            continue;
+                            break;
                         }
-                        boolean exitpath = false;
-                        while(exitpath == false){
-                            System.out.print("insert values>");
-                            input = scanner.nextLine();
-                            
-                            int lastindex = input.lastIndexOf(")");
-                            int firstindex = input.indexOf("(");
-                            if(lastindex == -1 || firstindex == -1  || (input.endsWith(";") == false &&  input.endsWith(",") == false)){
-                                System.out.println("ERROR: create table format invalid");
-                                exitpath = true; 
-                                continue;
-                            }
-                            String insertvals = input.substring(firstindex+1,lastindex);
-                            String[] insertvalsarray = insertvals.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                        int lastindex = input.lastIndexOf(")");
+                        int firstindex = input.indexOf("(");
+                        if(lastindex == -1 || firstindex == -1  || input.endsWith(";") == false){
+                            System.out.println("ERROR: create table format invalid");
+                            break;
+                        }
+                      
+
+                        String regex = "((?<=(INSERT\\sINTO\\s))[\\w\\d_]+(?=\\s+))|((?<=\\()([\\w\\d_,]+)+(?=\\)))";
+
+                        Pattern re = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+
+                        Matcher m = re.matcher(input);
+                        m.find();
+                        while (m.find()) {
+                            String input1 = m.group(0);
+                            String[] insertvalsarray = input1.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                             try {
-                                try {
                                 myParser.insert_values(arguments[2], Arrays.asList(insertvalsarray));
-                                if (input.endsWith(";")){
-                                    exitpath = true;
-                                }
+                                
                             } catch (Exception e) {
                                 System.out.println(e);
                                 break;
                             }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                    
                         }
+
                         }
                     }
                     System.out.println("SUCCESS");

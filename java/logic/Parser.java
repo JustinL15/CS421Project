@@ -192,7 +192,7 @@ public class Parser {
                             break;
                         case Char:
                         case Varchar:
-                            cVals.add(val.toCharArray());
+                            cVals.add(val);
                             break;
                     }
                 }
@@ -224,7 +224,7 @@ public class Parser {
                             break;
                         case Char:
                         case Varchar:
-                            if (sM.checkUnique(table, i, (char[]) cVals.get(i))) {
+                            if (sM.checkUnique(table, i, (String) cVals.get(i))) {
                                 throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
                             }
                             break;
@@ -233,11 +233,9 @@ public class Parser {
         }
 
         Record record = new Record(table, cVals);
-        ArrayList<Record> records = new ArrayList<>();
-        records.add(record);
         
         // convert data into this function
-        sM.insertRecord_table(table, records);
+        sM.insertSingleRecord(table, record);
     }
 
 
@@ -262,6 +260,12 @@ public class Parser {
     }
 
     public void printing_out_records(List<Record> records) {
+        if (records.size() == 0){
+            System.out.println("No records to display");
+            System.out.println("SUCCESS");
+            return;
+        }
+        System.out.println("JottQL> select * from " + records.get(0).getTemplate().getName() + ";\n");
         System.out.println("-------");
 
         Table template = records.get(0).getTemplate();
