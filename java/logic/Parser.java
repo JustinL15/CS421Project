@@ -269,7 +269,18 @@ public class Parser {
         for (Attribute attribute : template.getAttributes()) {
             System.out.print("| " + attribute.getName() + " ");
         }
-        // go through record and print values
+        
+        System.out.println("| ");
+        System.out.println("-------");
+
+        for (Record record : records) {
+            List<Object> values = record.getValues();
+            for (Object value : values) {
+                System.out.print("|" + value + " ");
+            }
+            System.out.println(" |");
+        }
+        System.out.println("SUCCESS");
     }
 
 
