@@ -129,6 +129,10 @@ public class StorageManager {
             for (int i = 0; i < table.getPagecount(); i++) {
                 Page page = buffer.read(table.getName(), i);
                 List<Record> records = page.getRecords();
+                if (records.size() == 0) {
+                    records.add(newRecord);
+                    return;
+                }
                 for (int j = 0; j < records.size(); j++) {
                     if (insertRecord_table_helper(table, newRecord, records.get(j))) {
                         if (page.bytesUsed() + newRecord.spacedUsed() >= catalog.getPageSize()) {
