@@ -142,6 +142,7 @@ public class StorageManager {
                         } else {
                             System.out.println("normal case");
                             page.getRecords().add(newRecord);
+                            table.setRecordCount(table.getRecordcount()+1);
                             return;
                         }
                     }
@@ -155,6 +156,7 @@ public class StorageManager {
                     } else {
                         System.out.println("last page");
                         page.getRecords().add(newRecord);
+                        table.setRecordCount(table.getRecordcount()+1);
                         return;
                     }
                 }
@@ -167,6 +169,8 @@ public class StorageManager {
         if(table.getPagecount() == 0){
             Page page = buffer.read(table.getName(), 0);
             page.getRecords().addAll(newRecords);
+            table.setRecordCount(table.getRecordcount()+ newRecords.size());
+            table.setPageCount(1);
         }
 
         else{
@@ -200,18 +204,22 @@ public class StorageManager {
                             if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
+                                table.setRecordCount(table.getRecordcount()+1);
                             }
                             else{
                                 records.add(newRecord);
+                                table.setRecordCount(table.getRecordcount()+1);
                             }
                         }
                         if(i == (pageCount - 1)){ // this condition isn't right
                             if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
+                                table.setRecordCount(table.getRecordcount()+1);
                             }
                             else{
                                 records.add(newRecord);
+                                table.setRecordCount(table.getRecordcount()+1);
                             }
                         }
                     }
@@ -242,6 +250,7 @@ public class StorageManager {
                     List<Object> values = record.getValues();
                     if (values.get(primaryKeyIndex).equals(primaryKey)) {
                         records.remove(record);
+                        table.setRecordCount(table.getRecordcount()-1);
                         return;
                     }
                 }

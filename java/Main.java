@@ -228,7 +228,7 @@ public class Main {
                             
                             int lastindex = input.lastIndexOf(")");
                             int firstindex = input.indexOf("(");
-                            if(lastindex == -1 || firstindex == -1  || input.endsWith(";") || input.endsWith(",") == false){
+                            if(lastindex == -1 || firstindex == -1  || (input.endsWith(";") == false &&  input.endsWith(",") == false)){
                                 System.out.println("ERROR: create table format invalid");
                                 exitpath = true; 
                                 continue;

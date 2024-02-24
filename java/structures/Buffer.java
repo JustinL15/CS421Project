@@ -98,7 +98,7 @@ public class Buffer {
         Page pageToSplit = read(tableName, pageNumber);
         int pageCount = catalog.getTableByName(tableName).getPagecount(); 
         List<Record> newVals = new ArrayList<>();
-        for (int i = 0; i < Math.ceilDiv(pageToSplit.getRecords().size(), 2); i++) {
+        for (int i = 0; i < Math.ceil(pageToSplit.getRecords().size() / 2.0); i++) {
             newVals.add(pageToSplit.getRecords().remove(pageToSplit.getRecords().size() - 1));
         }
         for (int i = pageNumber + 1; i < pageCount; i++) {
