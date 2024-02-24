@@ -88,7 +88,10 @@ public class Parser {
     }
     public void add_table_column(Table table, Attribute newAttr,String defaulttoken){
         
-        Object defaultval = null; 
+        Object defaultval = null;
+        if (defaulttoken != null){
+
+        
         try{
             switch (newAttr.getDataType()) {
                 case Integer:
@@ -139,6 +142,7 @@ public class Parser {
                 return;
             }
         }
+        }      
         sM.add_table_column(table, newAttr,defaultval);
         
     }
@@ -151,7 +155,7 @@ public class Parser {
             if(attrlist.get(i).getName().compareTo(deleteAttribute) == 0){
                 //deleteAttrval = attrlist.get(i);
                 attrlist.remove(i);
-                //exit loop
+                found = i;
             }
         }
         if(found == -1){
