@@ -28,7 +28,7 @@ public class Parser {
             boolean primkey = false;
             int length = 0;
             for( int j = 2; j <= attribute_values.length - 1; j++){
-                if(attribute_values[j].toLowerCase().compareTo("unquie") == 0){
+                if(attribute_values[j].toLowerCase().compareTo("unique") == 0){
                     unique = true;
                 }
                 if(attribute_values[j].toLowerCase().compareTo("not") == 0) {
@@ -286,7 +286,27 @@ public class Parser {
     }
     public void select_statment(Table table){
         
-        sM.getRecords_tablenumber(table.getNumber());
+        List<Record> allrec = sM.getRecords_tablenumber(table.getNumber());
+        System.out.println("");
+        for(Attribute i : table.getAttributes()){
+            System.out.print(" | "+ i.getName());
+
+        }
+        System.out.println("");
+        for(Record i : allrec){
+            for(Object j : i.getValues()){
+                System.out.print(" | " );
+                if(j == null){
+                    System.out.print("null");
+                    continue;
+                }
+                else{
+                    System.out.print(j);
+                }
+                
+            }
+            System.out.println("");
+        }
         //prints strings
     }
 
