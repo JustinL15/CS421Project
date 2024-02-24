@@ -21,7 +21,7 @@ public class Buffer {
     }
 
     public Page read(String tableName, int pageNumber) {
-        System.out.println("Read");
+        //System.out.println("Read");
         Table table = catalog.getTableByName(tableName);
         for (Page page : pages) {
             if (page.getPageNumber() == pageNumber) {
