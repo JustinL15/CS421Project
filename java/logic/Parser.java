@@ -192,7 +192,7 @@ public class Parser {
                             break;
                         case Char:
                         case Varchar:
-                            cVals.add(val.toCharArray());
+                            cVals.add(val);
                             break;
                     }
                 }
@@ -224,7 +224,7 @@ public class Parser {
                             break;
                         case Char:
                         case Varchar:
-                            if (sM.checkUnique(table, i, (char[]) cVals.get(i))) {
+                            if (sM.checkUnique(table, i, (String) cVals.get(i))) {
                                 throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
                             }
                             break;
@@ -233,11 +233,9 @@ public class Parser {
         }
 
         Record record = new Record(table, cVals);
-        ArrayList<Record> records = new ArrayList<>();
-        records.add(record);
         
         // convert data into this function
-        sM.insertRecord_table(table, records);
+        sM.insertSingleRecord(table, record);
     }
 
 
@@ -262,6 +260,11 @@ public class Parser {
     }
 
     public void printing_out_records(List<Record> records) {
+        if (records.size() == 0){
+            System.out.println("No records to display");
+            System.out.println("SUCCESS");
+            return;
+        }
         System.out.println("JottQL> select * from " + records.get(0).getTemplate().getName() + ";\n");
         System.out.println("-------");
 
@@ -269,33 +272,24 @@ public class Parser {
         for (Attribute attribute : template.getAttributes()) {
             System.out.print("| " + attribute.getName() + " ");
         }
-        // go through record and print values
+        
+        System.out.println("|");
+        System.out.println("-------");
+
+        for (Record record : records) {
+            List<Object> values = record.getValues();
+            for (Object value : values) {
+                System.out.print("|" + value + " ");
+            }
+            System.out.println("|");
+        }
+        System.out.println("SUCCESS");
     }
 
 
     public void select_statment(Table table){
-        
         List<Record> allrec = sM.getRecords_tablenumber(table.getNumber());
-        System.out.println("");
-        for(Attribute i : table.getAttributes()){
-            System.out.print(" | "+ i.getName());
-
-        }
-        System.out.println("");
-        for(Record i : allrec){
-            for(Object j : i.getValues()){
-                System.out.print(" | " );
-                if(j == null){
-                    System.out.print("null");
-                    continue;
-                }
-                else{
-                    System.out.print(j);
-                }
-                
-            }
-            System.out.println("");
-        }
+        printing_out_records(allrec);
     }
 
 }
