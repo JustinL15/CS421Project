@@ -186,7 +186,7 @@ public class StorageManager {
                             return;
                         }
                         if (insertRecord_table_helper(table, newRecord, record)) {
-                            if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
+                            if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
                             }
@@ -195,7 +195,7 @@ public class StorageManager {
                             }
                         }
                         if(i == (pageCount - 1)){ // this condition isn't right
-                            if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
+                            if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
                             }
