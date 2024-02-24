@@ -142,7 +142,6 @@ public class StorageManager {
                         } else {
                             System.out.println("normal case");
                             page.getRecords().add(newRecord);
-                            table.setRecordCount(table.getRecordcount()+1);
                             return;
                         }
                     }
@@ -156,7 +155,6 @@ public class StorageManager {
                     } else {
                         System.out.println("last page");
                         page.getRecords().add(newRecord);
-                        table.setRecordCount(table.getRecordcount()+1);
                         return;
                     }
                 }
@@ -169,7 +167,6 @@ public class StorageManager {
         if(table.getPagecount() == 0){
             Page page = buffer.read(table.getName(), 0);
             page.getRecords().addAll(newRecords);
-            table.setRecordCount(table.getRecordcount()+ newRecords.size());
             table.setPageCount(1);
         }
 
@@ -204,22 +201,18 @@ public class StorageManager {
                             if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
-                                table.setRecordCount(table.getRecordcount()+1);
                             }
                             else{
                                 records.add(newRecord);
-                                table.setRecordCount(table.getRecordcount()+1);
                             }
                         }
                         if(i == (pageCount - 1)){ // this condition isn't right
                             if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
-                                table.setRecordCount(table.getRecordcount()+1);
                             }
                             else{
                                 records.add(newRecord);
-                                table.setRecordCount(table.getRecordcount()+1);
                             }
                         }
                     }
@@ -250,7 +243,6 @@ public class StorageManager {
                     List<Object> values = record.getValues();
                     if (values.get(primaryKeyIndex).equals(primaryKey)) {
                         records.remove(record);
-                        table.setRecordCount(table.getRecordcount()-1);
                         return;
                     }
                 }
@@ -350,29 +342,29 @@ public class StorageManager {
         attrlist.add(newAttr);
         table.setAttributes(attrlist);
         int pageCount = table.getPagecount();
-        int mysize = newAttr.getbytesize(defaultval);
 
+        List<Record> recordsToUpdate = new ArrayList<>();
 
         for (int i = 0; i < pageCount; i++) {
             Page page = buffer.read(table.getName(), i);
             List<Record> records = page.getRecords();
-            if(page.bytesUsed() + (records.size() * mysize) > catalog.getPageSize()){
-                Page[] pages =buffer.splitPage(table.getName(), i);
-                page = pages[0];
-                records = page.getRecords();
-            }
             for (Record record : records) {  
                 List<Object> recordvals = record.getValues();
                 recordvals.add(defaultval);
                 record.setTemplate(table);
             }
+            recordsToUpdate.addAll(records);
         }
-        
+        buffer.purge();
+        table.setPageCount(0);
+        for (Record r: recordsToUpdate) {
+            insertSingleRecord(table, r);
+        }
     }
 
     public void delete_table_column(Table table, String deleteAttribute, int index) {
         List<Attribute> attrlist =  table.getAttributes();
-        
+        attrlist.remove(index);
         table.setAttributes(attrlist);
         int pageCount = table.getPagecount();
 
