@@ -284,7 +284,6 @@ public class Parser {
             }
             System.out.println("");
         }
-        //prints strings
     }
 
 }
