@@ -7,7 +7,6 @@ public class Table {
     private int number;
     private List<Attribute> attributes;
     private int pagecount;
-    private int recordcount;
 
     public Table(String name, int number, List<Attribute> attributes, int pagecount) {
         this.name = name;
@@ -38,7 +37,7 @@ public class Table {
         string += "\ttable number: " + this.number + "\n";
         string += "\tattributes:\n";
         for (Attribute attribute : this.attributes) {
-            string += attribute.toString();
+            string += attribute.toString() + "\n";
         }
         return string;
     }
@@ -86,10 +85,6 @@ public class Table {
 
     public void setPageCount(int number){
         this.pagecount = number;
-    }
-
-    public int getRecordcount(){
-        return this.recordcount;
     }
 
     public void setAttributes(List<Attribute> attrlist) {

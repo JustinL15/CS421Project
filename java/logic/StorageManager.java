@@ -426,7 +426,7 @@ public class StorageManager {
         System.out.println("\n");
 
         List<Object> newVals = new ArrayList<>(vals);
-        newVals.set(0, 3);
+        newVals.set(0, 2);
         sM.insertSingleRecord(table, new Record(table, newVals));
         for (int i = 0; i < table.getPagecount(); i++) {
             System.out.println("Page " + i);
@@ -438,7 +438,7 @@ public class StorageManager {
         System.out.println("\n");
 
         List<Object> newerVals = new ArrayList<>(vals);
-        newerVals.set(0, 2);
+        newerVals.set(0, 3);
         sM.insertSingleRecord(table, new Record(table, newerVals));
         // Page page = sM.buffer.read(table.getName(), 0);
         // Page page1 = sM.buffer.read(table.getName(), 1);
