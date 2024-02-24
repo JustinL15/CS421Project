@@ -21,7 +21,7 @@ public class Buffer {
     }
 
     public Page read(String tableName, int pageNumber) {
-        System.out.println("Read");
+        //System.out.println("Read");
         Table table = catalog.getTableByName(tableName);
         for (Page page : pages) {
             if (page.getPageNumber() == pageNumber) {
@@ -64,7 +64,6 @@ public class Buffer {
     }
 
     private void write(Page page) {
-        System.out.println("Wrote");
         byte[] bytes = page.toByte(catalog.getPageSize());
         Table table = page.getTemplate();
         int tableNumber = table.getNumber();
