@@ -192,7 +192,7 @@ public class Parser {
                             break;
                         case Char:
                         case Varchar:
-                            cVals.add(val.toCharArray());
+                            cVals.add(val);
                             break;
                     }
                 }
@@ -224,7 +224,7 @@ public class Parser {
                             break;
                         case Char:
                         case Varchar:
-                            if (sM.checkUnique(table, i, (char[]) cVals.get(i))) {
+                            if (sM.checkUnique(table, i, (String) cVals.get(i))) {
                                 throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
                             }
                             break;
@@ -233,11 +233,9 @@ public class Parser {
         }
 
         Record record = new Record(table, cVals);
-        ArrayList<Record> records = new ArrayList<>();
-        records.add(record);
         
         // convert data into this function
-        sM.insertRecord_table(table, records);
+        sM.insertSingleRecord(table, record);
     }
 
 
@@ -290,29 +288,8 @@ public class Parser {
 
 
     public void select_statment(Table table){
-        
         List<Record> allrec = sM.getRecords_tablenumber(table.getNumber());
         printing_out_records(allrec);
-        // System.out.println("");
-        // for(Attribute i : table.getAttributes()){
-        //     System.out.print(" | "+ i.getName());
-
-        // }
-        // System.out.println("");
-        // for(Record i : allrec){
-        //     for(Object j : i.getValues()){
-        //         System.out.print(" | " );
-        //         if(j == null){
-        //             System.out.print("null");
-        //             continue;
-        //         }
-        //         else{
-        //             System.out.print(j);
-        //         }
-                
-        //     }
-        //     System.out.println("");
-        // }
     }
 
 }

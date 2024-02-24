@@ -308,12 +308,12 @@ public class StorageManager {
         return false;
     }
 
-    public boolean checkUnique(Table table, int attrCol, char[] value) {
+    public boolean checkUnique(Table table, int attrCol, String value) {
         for (int i = 0; i < table.getPagecount(); i++) {
             Page page = buffer.read(table.getName(), i);
             for (Record r : page.getRecords()) {
-                char[] compare = (char[]) r.getValues().get(attrCol);
-                if (Arrays.equals(compare, value)) {
+                String compare = (String) r.getValues().get(attrCol);
+                if ((compare.equals(value))) {
                     return true;
                 }
             }

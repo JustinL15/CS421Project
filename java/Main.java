@@ -134,6 +134,7 @@ public class Main {
                     sM.buffer.purge();
                     break;
                 case "select":
+                try {
                     if(arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0){
                         Table table = myCatalog.getTableByName(arguments[3].substring(0, arguments[3].length() - 1));
                         if (table == null){
@@ -143,7 +144,11 @@ public class Main {
                         myParser.select_statment(table);
                     }
                     break;
+                } catch (Exception e){
+                    System.out.println("ERROR");
+                }
                 case "create":
+                try{
                     if(input.endsWith(";") == false){
                         System.out.println("Bad input. type help for command list");
                         break;
@@ -162,7 +167,11 @@ public class Main {
                         myParser.create_table(tablename, myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
                     }
                     break;
+                } catch (Exception e){
+                    System.out.println("ERROR");
+                }
                 case "alter":
+                try{
                     if(arguments[1].compareTo("table") == 0){
                         if(myCatalog.getTableByName(arguments[2]) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
@@ -204,7 +213,11 @@ public class Main {
                         //myParser.alter_table();
                     }
                     break;
+                } catch (Exception e){
+                    System.out.println("ERROR");
+                }
                 case "drop":
+                try{
                     if(arguments[1].compareTo("table") == 0){
                         if(myCatalog.getTableByName(arguments[2].substring(0, arguments[2].length() - 1)) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
@@ -213,8 +226,11 @@ public class Main {
                         myParser.drop_table(arguments[2].substring(0, arguments[2].length() - 1));
                     }
                     break;
-
+                } catch (Exception e){
+                    System.out.println("ERROR");
+                }
                 case "insert":
+                try {
                     if(arguments[1].compareTo("into") == 0){ 
                         if(arguments[3].compareTo("values;") == 0 || (arguments[3].toLowerCase().contains("(") && arguments[3].toLowerCase().substring(0, arguments[3].indexOf("(")).compareTo("values") == 0)){
                         if(myCatalog.getTableByName(arguments[2]) == null){
@@ -253,7 +269,11 @@ public class Main {
                     }
                     
                     break;
+                } catch (Exception e){
+                    System.out.println("ERROR");
+                }
                 case "display":
+                try{
                     if (arguments[1].compareTo("info") == 0){
                         Table table = myCatalog.getTableByName(arguments[2].substring(0, arguments[2].length() - 1));
                         if (table == null){
@@ -266,7 +286,9 @@ public class Main {
                         myParser.print_display_schema(myCatalog,path.toString());
                     }
                     break;
-                
+                } catch (Exception e){
+                    System.out.println("ERROR");
+                }
                 default:
                     System.out.println("Bad input. type help for command list");
                     //help_message(); //usage
