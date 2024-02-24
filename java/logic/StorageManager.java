@@ -288,11 +288,11 @@ public class StorageManager {
             for (Record r : page.getRecords()) {
                 int compare = (int) r.getValues().get(attrCol);
                 if (compare == value) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     public boolean checkUnique(Table table, int attrCol, double value) {
@@ -301,11 +301,11 @@ public class StorageManager {
             for (Record r : page.getRecords()) {
                 double compare = (double) r.getValues().get(attrCol);
                 if (compare == value) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     public boolean checkUnique(Table table, int attrCol, char[] value) {
@@ -314,11 +314,11 @@ public class StorageManager {
             for (Record r : page.getRecords()) {
                 char[] compare = (char[]) r.getValues().get(attrCol);
                 if (Arrays.equals(compare, value)) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     public boolean checkUnique(Table table, int attrCol, boolean value) {
@@ -327,11 +327,11 @@ public class StorageManager {
             for (Record r : page.getRecords()) {
                 boolean compare = (boolean) r.getValues().get(i);
                 if (compare == value) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
     
 
