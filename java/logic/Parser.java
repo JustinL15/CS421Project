@@ -270,7 +270,7 @@ public class Parser {
             System.out.print("| " + attribute.getName() + " ");
         }
         
-        System.out.println("| ");
+        System.out.println("|");
         System.out.println("-------");
 
         for (Record record : records) {
@@ -278,7 +278,7 @@ public class Parser {
             for (Object value : values) {
                 System.out.print("|" + value + " ");
             }
-            System.out.println(" |");
+            System.out.println("|");
         }
         System.out.println("SUCCESS");
     }
