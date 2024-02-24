@@ -97,8 +97,8 @@ public class Main {
         StorageManager sM = new StorageManager(myCatalog,path.toString());
         Parser myParser = new Parser(sM);
 
-        System.out.println("----------------Starting Database Console---------------------");
-        System.out.println("   Please enter commands, enter <quit> to shutdown the db");
+        System.out.println("----------------------- ---Starting Database Console----------------------------");
+        System.out.println("   Please enter commands, enter help for commands, enter quit to shutdown the db");
         boolean breakflag = false;
         Scanner scanner = new Scanner(System.in);
         while (!breakflag) { //program loop
@@ -144,6 +144,10 @@ public class Main {
                     }
                     break;
                 case "create":
+                    if(input.endsWith(";") == false){
+                        System.out.println("Bad input. type help for command list");
+                        break;
+                    }
                     if(arguments[1].compareTo("table") == 0){
                         int lastindex = input.lastIndexOf(")");
                         int firstindex = input.indexOf("(");
@@ -168,25 +172,25 @@ public class Main {
                             int datalength =0;
                             Type attrtype1 = null;
                             String defaultval = null;
-                            if(arguments[5].substring(0, arguments[5].indexOf("(")).compareTo("VARCHAR") == 0){
+                            if(arguments[5].toLowerCase().contains("(") && arguments[5].toLowerCase().substring(0, arguments[5].indexOf("(")).compareTo("varchar") == 0){
                                 datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("("),arguments[5].indexOf(")")) );
                                 attrtype1 = Type.Varchar;
                             }
-                            if(arguments[5].substring(0, arguments[5].indexOf("(")).compareTo("CHAR") == 0){
+                            if(arguments[5].toLowerCase().contains("(") && arguments[5].toLowerCase().substring(0, arguments[5].indexOf("(")).compareTo("char") == 0){
                                 datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("("),arguments[5].indexOf(")")) );
                                 attrtype1 = Type.Char;
                             }
-                            if(arguments[5].compareTo("DOUBLE") == 0){
+                            if(arguments[5].compareTo("double") == 0){
                                 
                                 attrtype1 = Type.Double;
                             }
-                            if(arguments[5].compareTo("INT") == 0){
+                            if(arguments[5].compareTo("int") == 0){
                                 attrtype1 = Type.Integer;
                             }
-                            if(arguments[5].compareTo("BOOLEAN") == 0){
+                            if(arguments[5].compareTo("boolean") == 0){
                                 attrtype1 = Type.Boolean;
                             }
-                            Attribute addattr = new Attribute(arguments[5],attrtype1,datalength,true,false,false);
+                            Attribute addattr = new Attribute(arguments[4],attrtype1,datalength,true,false,false);
                             if (arguments.length == 7) {
                                 defaultval = arguments[6];
                             }
@@ -202,29 +206,41 @@ public class Main {
                     break;
                 case "drop":
                     if(arguments[1].compareTo("table") == 0){
-                        if(myCatalog.getTableByName(arguments[2]) == null){
+                        if(myCatalog.getTableByName(arguments[2].substring(0, arguments[2].length() - 1)) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
                             continue;
                         }
-                        myParser.drop_table(arguments[2]);
+                        myParser.drop_table(arguments[2].substring(0, arguments[2].length() - 1));
                     }
                     break;
 
                 case "insert":
-                    if(arguments[1].compareTo("into") == 0 && arguments[3].compareTo("values") == 0){
+                    if(arguments[1].compareTo("into") == 0){ 
+                        if(arguments[3].compareTo("values;") == 0 || (arguments[3].toLowerCase().contains("(") && arguments[3].toLowerCase().substring(0, arguments[3].indexOf("(")).compareTo("values") == 0)){
                         if(myCatalog.getTableByName(arguments[2]) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
                             continue;
                         }
-                        String[] tupleArray = input.substring(input.indexOf("(")).split(",");
-                        for(String i : tupleArray){
-                            int lastindex = i.lastIndexOf(")");
-                            int firstindex = i.indexOf("(");
-                            String insertvals = i.substring(firstindex+1,lastindex);
-                            String[] insertvalsarray = insertvals.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                        boolean exitpath = false;
+                        while(exitpath == false){
+                            System.out.print("insert values>");
+                            input = scanner.nextLine();
+                            
+                            int lastindex = input.lastIndexOf(")");
+                            int firstindex = input.indexOf("(");
+                            if(lastindex == -1 || firstindex == -1  || input.endsWith(";") || input.endsWith(",") == false){
+                                System.out.println("ERROR: create table format invalid");
+                                exitpath = true; 
+                                continue;
+                            }
+                            String insertvals = input.substring(firstindex+1,lastindex);
+                            String[] insertvalsarray = insertvals.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                             try {
                                 try {
                                 myParser.insert_values(arguments[2], Arrays.asList(insertvalsarray));
+                                if (input.endsWith(";")){
+                                    exitpath = true;
+                                }
                             } catch (Exception e) {
                                 System.out.println(e);
                                 break;
@@ -233,24 +249,27 @@ public class Main {
                                 e.printStackTrace();
                             }
                         }
+                        }
                     }
+                    
                     break;
                 case "display":
                     if (arguments[1].compareTo("info") == 0){
-                        Table table = myCatalog.getTableByName(arguments[2]);
+                        Table table = myCatalog.getTableByName(arguments[2].substring(0, arguments[2].length() - 1));
                         if (table == null){
                             System.out.println("No such table " + arguments[2]);
                             break;
                         }
                         myParser.print_display_info(table);
                     }
-                    if(arguments[1].compareTo("schema") == 0){
+                    if(arguments[1].compareTo("schema;") == 0){
                         myParser.print_display_schema(myCatalog,path.toString());
                     }
                     break;
                 
                 default:
-                    help_message(); //usage
+                    System.out.println("Bad input. type help for command list");
+                    //help_message(); //usage
                     break;
             }
             
@@ -259,13 +278,13 @@ public class Main {
     }
     public static void help_message(){
         System.out.println("all functions");
-        System.out.println("select * from (table name) >> gets table");
-        System.out.println("create table (table name)(attribute_name type,attribute_name2 tyoe,...) >> creates table with attributes");
-        System.out.println("drop table (table name) >> drops table");
-        System.out.println("alter (table) --- >> alters table based on values given");
-        System.out.println("insert values --- >> insert values");
-        System.out.println("display info table >> display values in table");
-        System.out.println("display schema >> display schema");
+        System.out.println("select * from (table name); >> gets table");
+        System.out.println("create table (table name)(attribute_name type,attribute_name2 tyoe,...); >> creates table with attributes");//good
+        System.out.println("drop table (table name); >> drops table"); //works
+        System.out.println("alter (table); --- >> alters table based on values given"); // need to test with split function
+        System.out.println("insert values into (tablename); >> starts loop to insert values"); //select and record/page number not update
+        System.out.println("display info (table name); >> display values in table"); //good
+        System.out.println("display schema; >> display schema"); //good
 
     }
     
