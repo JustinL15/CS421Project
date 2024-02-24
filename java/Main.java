@@ -136,9 +136,9 @@ public class Main {
                 case "select":
                 try {
                     if(arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0){
-                        Table table = myCatalog.getTableByName(arguments[2]);
+                        Table table = myCatalog.getTableByName(arguments[3].substring(0, arguments[3].length() - 1));
                         if (table == null){
-                            System.out.println("No such table " + arguments[2]);
+                            System.out.println("No such table " + arguments[3].substring(0, arguments[3].length() - 1));
                             break;
                         }
                         myParser.select_statment(table);

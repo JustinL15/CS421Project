@@ -261,6 +261,29 @@ public class Parser {
         System.out.println("number of records: " + numRecords);
     }
 
+    public void printing_out_records(List<Record> records) {
+        System.out.println("JottQL> select * from " + records.get(0).getTemplate().getName() + ";\n");
+        System.out.println("-------");
+
+        Table template = records.get(0).getTemplate();
+        for (Attribute attribute : template.getAttributes()) {
+            System.out.print("| " + attribute.getName() + " ");
+        }
+        
+        System.out.println("| ");
+        System.out.println("-------");
+
+        for (Record record : records) {
+            List<Object> values = record.getValues();
+            for (Object value : values) {
+                System.out.print("|" + value + " ");
+            }
+            System.out.println(" |");
+        }
+        System.out.println("SUCCESS");
+    }
+
+
     public void select_statment(Table table){
         
         List<Record> allrec = sM.getRecords_tablenumber(table.getNumber());

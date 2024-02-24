@@ -140,7 +140,6 @@ public class StorageManager {
                             table.setPageCount(table.getPagecount() + 1);
                             i = i - 1;
                         } else {
-                            System.out.println("normal case");
                             page.getRecords().add(newRecord);
                             return;
                         }
@@ -153,7 +152,6 @@ public class StorageManager {
                         table.setPageCount(table.getPagecount() + 1);
                         return;
                     } else {
-                        System.out.println("last page");
                         page.getRecords().add(newRecord);
                         return;
                     }
