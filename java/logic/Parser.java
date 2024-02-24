@@ -16,11 +16,11 @@ public class Parser {
                 return;
             }
         }
-        String[] Tablevals = TableAttr.split(",");
+        String[] Tablevals = TableAttr.split(",", -1);
         ArrayList<Attribute> AttrList = new ArrayList<Attribute>();
         Boolean primaryKeyPresent = false;
         for(String i : Tablevals){
-            String[] attribute_values = i.split(" ");
+            String[] attribute_values = i.trim().split(" ", -1);
             String ATTRname = attribute_values[0];
             String ATTRTYPE = attribute_values[1];
             boolean unique = false;
@@ -28,47 +28,44 @@ public class Parser {
             boolean primkey = false;
             int length = 0;
             for( int j = 2; j <= attribute_values.length - 1; j++){
-                if(attribute_values[j].compareTo("UNIQUE") == 0){
+                if(attribute_values[j].toLowerCase().compareTo("unquie") == 0){
                     unique = true;
                 }
-                if(attribute_values[j].compareTo("NOT") == 0) {
+                if(attribute_values[j].toLowerCase().compareTo("not") == 0) {
                     if(j +1 <= attribute_values.length-1){
-                        if(attribute_values[j+1].compareTo("NULL") == 0) {
+                        if(attribute_values[j+1].toLowerCase().compareTo("null") == 0) {
                             nullable = false;
                         }
                     }
                 }
-                if(attribute_values[j].compareTo("PRIMARY") == 0) {
-                    if(j +1 <= attribute_values.length-1){
-                        if(attribute_values[j+1].compareTo("KEY") == 0) {
-                            primkey = true;
-                            if (primaryKeyPresent == true) {
-                                System.out.println("More than one primary key");
-                                return;
-                            } else {
-                                primaryKeyPresent = true;
-                            }
-                        }
+                if(attribute_values[j].toLowerCase().compareTo("primarykey") == 0) {
+                    primkey = true;
+                    if (primaryKeyPresent == true) {
+                        System.out.println("More than one primary key");
+                        return;
+                    } else {
+                        primaryKeyPresent = true;    
                     }
+                    
                 }
             }
             Type attrtype1 = null;
-            if(ATTRTYPE.contains("(") && ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")).compareTo("VARCHAR") == 0){
-                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
+            if(ATTRTYPE.toLowerCase().contains("(") && ATTRTYPE.toLowerCase().substring(0, ATTRTYPE.indexOf("(")).compareTo("varchar") == 0){
+                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("(")+1,ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Varchar;
             }
-            else if(ATTRTYPE.contains("(") && ATTRTYPE.substring(0, ATTRTYPE.indexOf("(")).compareTo("CHAR") == 0){
-                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("("),ATTRTYPE.indexOf(")")) );
+            else if(ATTRTYPE.toLowerCase().contains("(") && ATTRTYPE.toLowerCase().substring(0, ATTRTYPE.indexOf("(")).compareTo("char") == 0){
+                length = Integer.parseInt( ATTRTYPE.substring(ATTRTYPE.indexOf("(")+1,ATTRTYPE.indexOf(")")) );
                 attrtype1 = Type.Char;
             }
-            else if(ATTRTYPE.compareTo("DOUBLE") == 0){
+            else if(ATTRTYPE.toLowerCase().compareTo("double") == 0){
                 
                 attrtype1 = Type.Double;
             }
-            else if(ATTRTYPE.compareTo("INT") == 0){
+            else if(ATTRTYPE.toLowerCase().compareTo("int") == 0){
                 attrtype1 = Type.Integer;
             }
-            else if(ATTRTYPE.compareTo("BOOLEAN") == 0){
+            else if(ATTRTYPE.toLowerCase().compareTo("boolean") == 0){
                 attrtype1 = Type.Boolean;
             }
             else {
