@@ -25,6 +25,7 @@ public class Table {
         }
         this.number = buffer.getInt();
         this.pagecount = buffer.getInt();
+        this.pagecount = buffer.getInt();
         int attributes_length = buffer.getInt();
         this.attributes = new ArrayList<Attribute>();
         for (int i = 0; i < attributes_length; i++) {
@@ -90,6 +91,9 @@ public class Table {
 
     public int getRecordcount(){
         return this.recordcount;
+    }
+    public void setRecordCount(int number){
+        this.recordcount = number;
     }
 
     public void setAttributes(List<Attribute> attrlist) {
