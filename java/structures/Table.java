@@ -83,6 +83,11 @@ public class Table {
     public int getPagecount(){
         return this.pagecount;
     }
+
+    public void setPageCount(int number){
+        this.pagecount = number;
+    }
+
     public int getRecordcount(){
         return this.recordcount;
     }

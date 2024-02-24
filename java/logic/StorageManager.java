@@ -115,6 +115,42 @@ public class StorageManager {
         }
     }
 
+    public void insertSingleRecord(Table table, Record newRecord) {
+        if (table.getPagecount() == 0) {
+            Page page = buffer.read(table.getName(), 0);
+            page.getRecords().add(newRecord);
+            table.setPageCount(1);
+            return;
+        } else {
+            for (int i = 0; i < table.getPagecount(); i++) {
+                Page page = buffer.read(table.getName(), i);
+                List<Record> records = page.getRecords();
+                for (int j = 0; j < records.size(); j++) {
+                    if (insertRecord_table_helper(table, newRecord, records.get(j))) {
+                        if (page.bytesUsed() + newRecord.spacedUsed() > catalog.getPageSize()) {
+                            buffer.splitPage(table.getName(), i);
+                            table.setPageCount(table.getPagecount() + 1);
+                            i = i - 1;
+                        } else {
+                            page.getRecords().add(newRecord);
+                            return;
+                        }
+                    }
+                }
+                if (i + 1 == table.getPagecount()) {
+                    if (page.bytesUsed() + newRecord.spacedUsed() > catalog.getPageSize()) {
+                        buffer.splitPage(table.getName(), i);
+                        table.setPageCount(table.getPagecount() + 1);
+                        i = i - 1;
+                    } else {
+                        page.getRecords().add(newRecord);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
 
     public void insertRecord_table (Table table, List<Record> newRecords){
         if(table.getPagecount() == 0){
@@ -356,6 +392,5 @@ public class StorageManager {
         Record nw = new Record(table, vals);
         List<Record> in = new ArrayList<>();
         in.add(nw);
-        sM.In
     }
 }
