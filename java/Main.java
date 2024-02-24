@@ -143,6 +143,7 @@ public class Main {
                         }
                         myParser.select_statment(table);
                     }
+                    System.out.println("SUCCESS");
                     break;
                 } catch (Exception e){
                     System.out.println("ERROR");
@@ -166,6 +167,7 @@ public class Main {
                         }
                         myParser.create_table(tablename, myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
                     }
+                    System.out.println("SUCCESS");
                     break;
                 } catch (Exception e){
                     System.out.println("ERROR");
@@ -212,6 +214,7 @@ public class Main {
                         }
                         //myParser.alter_table();
                     }
+                    System.out.println("SUCCESS");
                     break;
                 } catch (Exception e){
                     System.out.println("ERROR");
@@ -225,6 +228,7 @@ public class Main {
                         }
                         myParser.drop_table(arguments[2].substring(0, arguments[2].length() - 1));
                     }
+                    System.out.println("SUCCESS");
                     break;
                 } catch (Exception e){
                     System.out.println("ERROR");
@@ -267,7 +271,7 @@ public class Main {
                         }
                         }
                     }
-                    
+                    System.out.println("SUCCESS");
                     break;
                 } catch (Exception e){
                     System.out.println("ERROR");
@@ -285,6 +289,7 @@ public class Main {
                     if(arguments[1].compareTo("schema;") == 0){
                         myParser.print_display_schema(myCatalog,path.toString());
                     }
+                    System.out.println("SUCCESS");
                     break;
                 } catch (Exception e){
                     System.out.println("ERROR");
