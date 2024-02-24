@@ -246,7 +246,7 @@ public class Parser {
         System.out.println("page size: "+ curr_cat.getPageSize());
         System.out.println("buffer size: "+curr_cat.getBufferSize());
         for(Table i : curr_cat.getTables()){
-            table_schema_display(i);
+            print_display_info(i);
         }
         if(curr_cat.getTables().size() == 0){
             System.out.println("No tables to display");
@@ -255,35 +255,12 @@ public class Parser {
     }
 
     public void print_display_info(Table table){
-      
-        System.out.println("table name: "+ table.getName());
-        System.out.println("table schema: "+ table.toString());    
+        int numRecords = this.sM.getRecords_tablenumber(table.getNumber()).size();
+        System.out.println(table.toString());    
         System.out.println("number of pages: " + table.getPagecount());
-        System.out.println("number of records: " + table.getRecordcount());
-        table_schema_display(table);
-
+        System.out.println("number of records: " + numRecords);
     }
-    private void table_schema_display(Table table){
-        
-        System.out.println("Table name:"+table.getName());
-        System.out.println("Table schema");
-        for(Attribute i : table.getAttributes()){
-            System.out.print("    "+i.getName()+":"+i.getDataType());
-            if(i.getDataType() == Type.Varchar || i.getDataType() == Type.Char){
-                System.out.print("("+i.getMaxLength()+")");
-            }
-            if(i.isKey()){
-                System.out.print(" primarykey");
-            }
-            System.out.println("\n");
 
-        }
-        System.out.println("Pages:"+table.getPagecount());
-        System.out.println("Records:"+table.getRecordcount());
-
-        
-        
-    }
     public void select_statment(Table table){
         
         List<Record> allrec = sM.getRecords_tablenumber(table.getNumber());
