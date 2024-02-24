@@ -151,7 +151,11 @@ public class Main {
                             System.out.println("ERROR: create table format invalid");
                             continue;
                         }
-                        myParser.create_table(arguments[2], myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
+                        String tablename = arguments[2];
+                        if(arguments[2].contains("(")){
+                            tablename = arguments[2].substring(0, arguments[2].indexOf("("));
+                        }
+                        myParser.create_table(tablename, myCatalog.getTables().size(), input.substring(firstindex+1,lastindex));
                     }
                     break;
                 case "alter":
