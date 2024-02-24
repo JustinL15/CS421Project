@@ -263,6 +263,18 @@ public class Parser {
         table_schema_display(table);
 
     }
+
+    public void printing_out_records(List<Record> records) {
+        System.out.println("JottQL> select * from " + records.get(0).getTemplate().getName() + ";\n");
+        System.out.println("-------");
+
+        Table template = records.get(0).getTemplate();
+        for (Attribute attribute : template.getAttributes()) {
+            System.out.print("| " + attribute.getName() + " ");
+        }
+        // go through record and print values
+    }
+
     private void table_schema_display(Table table){
         
         System.out.println("Table name:"+table.getName());
