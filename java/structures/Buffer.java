@@ -21,6 +21,7 @@ public class Buffer {
     }
 
     public Page read(String tableName, int pageNumber) {
+        System.out.println("Read");
         Table table = catalog.getTableByName(tableName);
         for (Page page : pages) {
             if (page.getPageNumber() == pageNumber) {
@@ -45,7 +46,8 @@ public class Buffer {
         int pageSize = catalog.getPageSize();
         byte[] bytes = new byte[pageSize];
         try {
-            tableAccessFile.read(bytes, pageNumber * pageSize, pageSize);
+            tableAccessFile.seek(pageSize * pageNumber);
+            tableAccessFile.read(bytes, 0, pageSize); // different way to specify where in file (pagesize * pagenumber)
             tableAccessFile.close();
         } catch (IOException e) {
             System.out.println("IOException when reading from table " + tableNumber);
@@ -62,6 +64,7 @@ public class Buffer {
     }
 
     private void write(Page page) {
+        System.out.println("Wrote");
         byte[] bytes = page.toByte(catalog.getPageSize());
         Table table = page.getTemplate();
         int tableNumber = table.getNumber();
@@ -82,7 +85,8 @@ public class Buffer {
 
         int pageSize = catalog.getPageSize();
         try {
-            tableAccessFile.write(bytes, page.getPageNumber() * pageSize, pageSize);
+            tableAccessFile.seek(page.getPageNumber() * pageSize);
+            tableAccessFile.write(bytes, 0, bytes.length); // write at page.getPageNumber() * pageSize
             tableAccessFile.close();
         } catch (IOException e) {
             System.out.println("IOException when writing to table " + tableNumber);
