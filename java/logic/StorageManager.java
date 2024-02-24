@@ -115,6 +115,42 @@ public class StorageManager {
         }
     }
 
+    public void insertSingleRecord(Table table, Record newRecord) {
+        if (table.getPagecount() == 0) {
+            Page page = buffer.read(table.getName(), 0);
+            page.getRecords().add(newRecord);
+            table.setPageCount(1);
+            return;
+        } else {
+            for (int i = 0; i < table.getPagecount(); i++) {
+                Page page = buffer.read(table.getName(), i);
+                List<Record> records = page.getRecords();
+                for (int j = 0; j < records.size(); j++) {
+                    if (insertRecord_table_helper(table, newRecord, records.get(j))) {
+                        if (page.bytesUsed() + newRecord.spacedUsed() > catalog.getPageSize()) {
+                            buffer.splitPage(table.getName(), i);
+                            table.setPageCount(table.getPagecount() + 1);
+                            i = i - 1;
+                        } else {
+                            page.getRecords().add(newRecord);
+                            return;
+                        }
+                    }
+                }
+                if (i + 1 == table.getPagecount()) {
+                    if (page.bytesUsed() + newRecord.spacedUsed() > catalog.getPageSize()) {
+                        buffer.splitPage(table.getName(), i);
+                        table.setPageCount(table.getPagecount() + 1);
+                        i = i - 1;
+                    } else {
+                        page.getRecords().add(newRecord);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
 
     public void insertRecord_table (Table table, List<Record> newRecords){
         if(table.getPagecount() == 0){
@@ -150,7 +186,7 @@ public class StorageManager {
                             return;
                         }
                         if (insertRecord_table_helper(table, newRecord, record)) {
-                            if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
+                            if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
                             }
@@ -159,7 +195,7 @@ public class StorageManager {
                             }
                         }
                         if(i == (pageCount - 1)){ // this condition isn't right
-                            if ((page.bytesUsed() + newRecord.spacedUsed()) > page.bytesUsed()){
+                            if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
                                 buffer.splitPage(databaseLocation, i);
                                 records.add(newRecord);
                             }
@@ -334,7 +370,7 @@ public class StorageManager {
     }
 
     public static void main(String[] args) {
-        Catalog catalog = new Catalog(4, 1000, new ArrayList<Table>());
+        Catalog catalog = new Catalog(4, 32, new ArrayList<Table>());
         StorageManager sM = new StorageManager(catalog, "resources");
         Attribute name = new Attribute("name", Type.Varchar, 10, false, false, false);
         Attribute age = new Attribute("age", Type.Integer, 0, false, false, false);
@@ -356,5 +392,17 @@ public class StorageManager {
         Record nw = new Record(table, vals);
         List<Record> in = new ArrayList<>();
         in.add(nw);
+        for (int i = 0; i < 8; i++) {
+            sM.insertRecord_table(table, in);
+        }
+        Page page = sM.buffer.read(table.getName(), 0);
+        Page page1 = sM.buffer.read(table.getName(), 1);
+        for (Record record : page.getRecords()) {
+            System.out.println(record.getValues());
+        }
+        System.out.println("new page\n");
+        for (Record record : page1.getRecords()) {
+            System.out.println(record.getValues());
+        }
     }
 }

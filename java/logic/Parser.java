@@ -205,7 +205,7 @@ public class Parser {
             }
         }
         for (int i = 0; i < cVals.size(); i++) {
-            if (tableCol.get(i).isUnique()) {
+            if (tableCol.get(i).isUnique() || tableCol.get(i).isKey()) {
                 switch (tableCol.get(i).getDataType()) {
                     case Integer:
                             if (sM.checkUnique(table, i, (int) cVals.get(i))) {
