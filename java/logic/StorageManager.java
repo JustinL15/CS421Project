@@ -116,6 +116,10 @@ public class StorageManager {
     }
 
     public void insertSingleRecord(Table table, Record newRecord) {
+        if (newRecord.spacedUsed() >= catalog.getPageSize()) {
+            System.out.println("Record size larger than page size");
+            return;
+        }
         if (table.getPagecount() == 0) {
             Page page = buffer.read(table.getName(), 0);
             page.getRecords().add(newRecord);
@@ -125,13 +129,18 @@ public class StorageManager {
             for (int i = 0; i < table.getPagecount(); i++) {
                 Page page = buffer.read(table.getName(), i);
                 List<Record> records = page.getRecords();
+                if (records.size() == 0) {
+                    records.add(newRecord);
+                    return;
+                }
                 for (int j = 0; j < records.size(); j++) {
                     if (insertRecord_table_helper(table, newRecord, records.get(j))) {
-                        if (page.bytesUsed() + newRecord.spacedUsed() > catalog.getPageSize()) {
+                        if (page.bytesUsed() + newRecord.spacedUsed() >= catalog.getPageSize()) {
                             buffer.splitPage(table.getName(), i);
                             table.setPageCount(table.getPagecount() + 1);
                             i = i - 1;
                         } else {
+                            System.out.println("normal case");
                             page.getRecords().add(newRecord);
                             table.setRecordCount(table.getRecordcount()+1);
                             return;
@@ -140,10 +149,12 @@ public class StorageManager {
                 }
                 if (i + 1 == table.getPagecount()) {
                     if (page.bytesUsed() + newRecord.spacedUsed() > catalog.getPageSize()) {
-                        buffer.splitPage(table.getName(), i);
+                        Page newPage = buffer.read(table.getName(), table.getPagecount());
+                        newPage.getRecords().add(newRecord);
                         table.setPageCount(table.getPagecount() + 1);
-                        i = i - 1;
+                        return;
                     } else {
+                        System.out.println("last page");
                         page.getRecords().add(newRecord);
                         table.setRecordCount(table.getRecordcount()+1);
                         return;
@@ -379,7 +390,7 @@ public class StorageManager {
     }
 
     public static void main(String[] args) {
-        Catalog catalog = new Catalog(4, 32, new ArrayList<Table>());
+        Catalog catalog = new Catalog(4, 40, new ArrayList<Table>());
         StorageManager sM = new StorageManager(catalog, "resources");
         Attribute name = new Attribute("name", Type.Varchar, 10, false, false, false);
         Attribute age = new Attribute("age", Type.Integer, 0, false, false, false);
@@ -399,19 +410,60 @@ public class StorageManager {
         vals.add(18);
         vals.add(90.01);
         Record nw = new Record(table, vals);
-        List<Record> in = new ArrayList<>();
-        in.add(nw);
-        for (int i = 0; i < 8; i++) {
-            sM.insertRecord_table(table, in);
+        System.out.println(nw.spacedUsed());
+        // for (int i = 0; i < 8; i++) {
+        //     System.out.println(i);
+        // }
+        for (int i = 0; i < table.getPagecount(); i++) {
+            System.out.println("Page " + i);
+            Page page = sM.buffer.read(table.getName(), i);
+            for (Record record : page.getRecords()) {
+                System.out.println(record.getValues());
+            }
         }
-        Page page = sM.buffer.read(table.getName(), 0);
-        Page page1 = sM.buffer.read(table.getName(), 1);
-        for (Record record : page.getRecords()) {
-            System.out.println(record.getValues());
+        System.out.println("\n");
+
+        sM.insertSingleRecord(table, nw);
+        for (int i = 0; i < table.getPagecount(); i++) {
+            System.out.println("Page " + i);
+            Page page = sM.buffer.read(table.getName(), i);
+            System.out.println(page.getRecords().size());
+            for (Record record : page.getRecords()) {
+                System.out.println(record.getValues());
+            }
         }
-        System.out.println("new page\n");
-        for (Record record : page1.getRecords()) {
-            System.out.println(record.getValues());
+        System.out.println("\n");
+
+        List<Object> newVals = new ArrayList<>(vals);
+        newVals.set(0, 3);
+        sM.insertSingleRecord(table, new Record(table, newVals));
+        for (int i = 0; i < table.getPagecount(); i++) {
+            System.out.println("Page " + i);
+            Page page = sM.buffer.read(table.getName(), i);
+            for (Record record : page.getRecords()) {
+                System.out.println(record.getValues());
+            }
+        }
+        System.out.println("\n");
+
+        List<Object> newerVals = new ArrayList<>(vals);
+        newerVals.set(0, 2);
+        sM.insertSingleRecord(table, new Record(table, newerVals));
+        // Page page = sM.buffer.read(table.getName(), 0);
+        // Page page1 = sM.buffer.read(table.getName(), 1);
+        // for (Record record : page.getRecords()) {
+        //     System.out.println(record.getValues());
+        // }
+        // System.out.println("new page\n");
+        // for (Record record : page1.getRecords()) {
+        //     System.out.println(record.getValues());
+        // }
+        for (int i = 0; i < table.getPagecount(); i++) {
+            System.out.println("Page " + i);
+            Page page = sM.buffer.read(table.getName(), i);
+            for (Record record : page.getRecords()) {
+                System.out.println(record.getValues());
+            }
         }
     }
 }
