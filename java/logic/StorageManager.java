@@ -334,7 +334,7 @@ public class StorageManager {
     }
 
     public static void main(String[] args) {
-        Catalog catalog = new Catalog(4, 1000, new ArrayList<Table>());
+        Catalog catalog = new Catalog(4, 32, new ArrayList<Table>());
         StorageManager sM = new StorageManager(catalog, "resources");
         Attribute name = new Attribute("name", Type.Varchar, 10, false, false, false);
         Attribute age = new Attribute("age", Type.Integer, 0, false, false, false);
@@ -356,6 +356,17 @@ public class StorageManager {
         Record nw = new Record(table, vals);
         List<Record> in = new ArrayList<>();
         in.add(nw);
-        sM.In
+        for (int i = 0; i < 8; i++) {
+            sM.insertRecord_table(table, in);
+        }
+        Page page = sM.buffer.read(table.getName(), 0);
+        Page page1 = sM.buffer.read(table.getName(), 1);
+        for (Record record : page.getRecords()) {
+            System.out.println(record.getValues());
+        }
+        System.out.println("new page\n");
+        for (Record record : page1.getRecords()) {
+            System.out.println(record.getValues());
+        }
     }
 }
