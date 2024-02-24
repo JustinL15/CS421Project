@@ -148,9 +148,10 @@ public class StorageManager {
                 }
                 if (i + 1 == table.getPagecount()) {
                     if (page.bytesUsed() + newRecord.spacedUsed() > catalog.getPageSize()) {
-                        buffer.splitPage(table.getName(), i);
+                        Page newPage = buffer.read(table.getName(), table.getPagecount());
+                        newPage.getRecords().add(newRecord);
                         table.setPageCount(table.getPagecount() + 1);
-                        i = i - 1;
+                        return;
                     } else {
                         System.out.println("last page");
                         page.getRecords().add(newRecord);
