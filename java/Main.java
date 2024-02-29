@@ -113,10 +113,10 @@ public class Main {
             input = command;
             String[] arguments = input.split(" ");
             switch (arguments[0]) {
-                case ("help"):
+                case ("help;"):
                     help_message(); //usage
                     break;
-                case "quit":
+                case "quit;":
                     breakflag = true;
 
                     byte[] bytes = myCatalog.toBinary();
@@ -202,7 +202,7 @@ public class Main {
                                 
                                 attrtype1 = Type.Double;
                             }
-                            if(arguments[5].compareTo("int") == 0){
+                            if(arguments[5].compareTo("integer") == 0){
                                 attrtype1 = Type.Integer;
                             }
                             if(arguments[5].compareTo("boolean") == 0){

@@ -62,7 +62,7 @@ public class Parser {
                 
                 attrtype1 = Type.Double;
             }
-            else if(ATTRTYPE.toLowerCase().compareTo("int") == 0){
+            else if(ATTRTYPE.toLowerCase().compareTo("integer") == 0){
                 attrtype1 = Type.Integer;
             }
             else if(ATTRTYPE.toLowerCase().compareTo("boolean") == 0){
