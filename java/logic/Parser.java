@@ -62,7 +62,7 @@ public class Parser {
                 
                 attrtype1 = Type.Double;
             }
-            else if(ATTRTYPE.toLowerCase().compareTo("int") == 0){
+            else if(ATTRTYPE.toLowerCase().compareTo("integer") == 0){
                 attrtype1 = Type.Integer;
             }
             else if(ATTRTYPE.toLowerCase().compareTo("boolean") == 0){
@@ -90,8 +90,6 @@ public class Parser {
         
         Object defaultval = null;
         if (defaulttoken != null){
-
-        
         try{
             switch (newAttr.getDataType()) {
                 case Integer:
@@ -105,7 +103,7 @@ public class Parser {
                         defaultval = true;
                     }
                     else if(defaulttoken.compareTo("false") == 0) {
-                        defaultval = true;
+                        defaultval = false;
                     }
                     else{
                         System.out.println("Error incorrect value for Attribute type");
@@ -113,20 +111,18 @@ public class Parser {
                     }
                     break;
                 case Char:
-                    char[] defaultchar = new char[defaulttoken.length()];
- 
-                    for (int i = 0; i < defaulttoken.length(); i++) {
-                        defaultchar[i] = defaulttoken.charAt(i);
+                    if (defaulttoken.length() == newAttr.getMaxLength()) {
+                        defaultval = defaulttoken;
+                    } else {
+                        System.out.println("Invalid length for char length " + newAttr.getMaxLength());
                     }
-                    defaultval = defaultchar;
                     break;
                 case Varchar:
-                    char[] defaultvchar = new char[defaulttoken.length()];
- 
-                    for (int i = 0; i < defaulttoken.length(); i++) {
-                        defaultvchar[i] = defaulttoken.charAt(i);
-                     }
-                    defaultval = defaultvchar;
+                if (defaulttoken.length() > newAttr.getMaxLength()) {
+                    defaultval = defaulttoken;
+                } else {
+                    System.out.println("Invalid length for varchar length " + newAttr.getMaxLength());
+                }
                     break;
             }
         }

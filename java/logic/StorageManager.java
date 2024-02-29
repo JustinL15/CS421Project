@@ -160,64 +160,6 @@ public class StorageManager {
         }
     }
 
-
-    public void insertRecord_table (Table table, List<Record> newRecords){
-        if(table.getPagecount() == 0){
-            Page page = buffer.read(table.getName(), 0);
-            page.getRecords().addAll(newRecords);
-            table.setPageCount(1);
-        }
-
-        else{
-            int pageCount = table.getPagecount();
-    
-            List<Attribute> attributes = table.getAttributes();
-       
-            int primaryKeyIndex = -1;
-            for (int j = 0; j < attributes.size(); j++) {
-                Attribute attribute = attributes.get(j);
-                if (attribute.isKey()) {
-                    primaryKeyIndex = j;
-                    break;
-                }
-            }
-
-            for (Record newRecord : newRecords) {
-                for (int i = 0; i < pageCount; i++) {
-                    Page page = buffer.read(table.getName(), i);
-                    List<Record> records = page.getRecords();
-        
-                    for (Record record : records) {
-
-                        List<Object> values = record.getValues();
-                        List<Object> newValues = newRecord.getValues();
-                        if (values.get(primaryKeyIndex).equals(newValues.get(primaryKeyIndex))) {
-                            System.out.println("Duplicate primary key " + newValues);
-                            return;
-                        }
-                        if (insertRecord_table_helper(table, newRecord, record)) {
-                            if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
-                                buffer.splitPage(databaseLocation, i);
-                                records.add(newRecord);
-                            }
-                            else{
-                                records.add(newRecord);
-                            }
-                        }
-                        if(i == (pageCount - 1)){ // this condition isn't right
-                            if ((page.bytesUsed() + newRecord.spacedUsed()) > catalog.getPageSize()){
-                                buffer.splitPage(databaseLocation, i);
-                                records.add(newRecord);
-                            }
-                            else{
-                                records.add(newRecord);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
     
     public void deleteRecord_primarykey(Table table, Object primaryKey) {
         int pageCount = table.getPagecount();
@@ -271,15 +213,6 @@ public class StorageManager {
         //     System.err.println("Deletion error for file: " + tablenamePassed);
         // }
 
-    }
-
-    public void alterTable(String tableName, ArrayList<Attribute> newAttributes) {
-        List<Table> tables = catalog.getTables();
-        for (Table table : tables) {
-            if (table.getName().equals(tableName)) {
-                table.setAttributes(newAttributes);
-            }
-        }
     }
 
     public boolean checkUnique(Table table, int attrCol, int value) {
