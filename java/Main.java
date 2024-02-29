@@ -103,9 +103,14 @@ public class Main {
         System.out.println("   Please enter commands, enter help for commands, enter quit to shutdown the db");
         boolean breakflag = false;
         Scanner scanner = new Scanner(System.in);
+        String command = "";
         while (!breakflag) { //program loop
             System.out.print("\nDB>");
             String input = scanner.nextLine();
+            command += input; //INSTRUCTOR FIX
+            if(!input.endsWith(";"))
+                continue;
+            input = command;
             String[] arguments = input.split(" ");
             switch (arguments[0]) {
                 case ("help"):
@@ -300,7 +305,7 @@ public class Main {
                     //help_message(); //usage
                     break;
             }
-            
+            command = "";
         }
         scanner.close();
     }
