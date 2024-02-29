@@ -198,14 +198,13 @@ public class Main {
                                 datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("(")+1,arguments[5].indexOf(")")) );
                                 attrtype1 = Type.Char;
                             }
-                            if(arguments[5].compareTo("double") == 0){
-                                
+                            if(arguments[5].substring(0, arguments[3].length() - 1).compareTo("double") == 0){     
                                 attrtype1 = Type.Double;
                             }
-                            if(arguments[5].compareTo("integer") == 0){
+                            if(arguments[5].substring(0, arguments[3].length() - 1).compareTo("integer") == 0){
                                 attrtype1 = Type.Integer;
                             }
-                            if(arguments[5].compareTo("boolean") == 0){
+                            if(arguments[5].substring(0, arguments[3].length() - 1).compareTo("boolean") == 0){
                                 attrtype1 = Type.Boolean;
                             }
                             Attribute addattr = new Attribute(arguments[4],attrtype1,datalength,true,false,false);
@@ -299,6 +298,7 @@ public class Main {
                     break;
                 } catch (Exception e){
                     System.out.println("ERROR");
+                    break;
                 }
                 default:
                     System.out.println("Bad input. type help for command list");
