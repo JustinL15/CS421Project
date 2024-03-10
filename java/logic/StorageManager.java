@@ -139,8 +139,9 @@ public class StorageManager {
                             buffer.splitPage(table.getName(), i);
                             table.setPageCount(table.getPagecount() + 1);
                             i = i - 1;
+                            break;
                         } else {
-                            page.getRecords().add(newRecord);
+                            page.getRecords().add(j, newRecord);
                             return;
                         }
                     }
