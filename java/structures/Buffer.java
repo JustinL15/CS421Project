@@ -24,7 +24,7 @@ public class Buffer {
         //System.out.println("Read");
         Table table = catalog.getTableByName(tableName);
         for (Page page : pages) {
-            if (page.getPageNumber() == pageNumber) {
+            if (page.getPageNumber() == pageNumber && page.getTemplate() == table) {
                 pages.remove(page);
                 pages.add(page);
                 return page;
