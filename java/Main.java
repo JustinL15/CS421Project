@@ -166,7 +166,7 @@ public class Main {
                         int firstindex = input.indexOf("(");
                         if(lastindex == -1 || firstindex == -1){
                             System.out.println("ERROR: create table format invalid");
-                            continue;
+                            break;
                         }
                         String tablename = arguments[2];
                         if(arguments[2].contains("(")){
@@ -184,7 +184,7 @@ public class Main {
                     if(arguments[1].compareTo("table") == 0){
                         if(myCatalog.getTableByName(arguments[2]) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
-                            continue;
+                            break;
                         }
                         if(arguments[3].compareTo("add") == 0){
                             int datalength =0;
@@ -230,7 +230,7 @@ public class Main {
                     if(arguments[1].compareTo("table") == 0){
                         if(myCatalog.getTableByName(arguments[2].substring(0, arguments[2].length() - 1)) == null){
                             System.out.println("Table of name " + arguments[2] + " does not exist");
-                            continue;
+                            break;
                         }
                         myParser.drop_table(arguments[2].substring(0, arguments[2].length() - 1));
                     }
@@ -298,6 +298,7 @@ public class Main {
                     break;
                 } catch (Exception e){
                     System.out.println("ERROR");
+                    System.out.println(e);
                     break;
                 }
                 default:
