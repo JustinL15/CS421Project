@@ -194,20 +194,23 @@ public class Main {
                                 datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("(")+1,arguments[5].indexOf(")")) );
                                 attrtype1 = Type.Varchar;
                             }
-                            if(arguments[5].toLowerCase().contains("(") && arguments[5].toLowerCase().substring(0, arguments[5].indexOf("(")).compareTo("char") == 0){
+                            else if(arguments[5].toLowerCase().contains("(") && arguments[5].toLowerCase().substring(0, arguments[5].indexOf("(")).compareTo("char") == 0){
                                 datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("(")+1,arguments[5].indexOf(")")) );
                                 attrtype1 = Type.Char;
                             }
-                            if(arguments[5].substring(0, arguments[3].length() - 1).compareTo("double") == 0){     
+                            else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("double") == 0){     
                                 attrtype1 = Type.Double;
                             }
-                            if(arguments[5].substring(0, arguments[3].length() - 1).compareTo("integer") == 0){
+                            else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("integer") == 0){
                                 attrtype1 = Type.Integer;
                             }
-                            if(arguments[5].substring(0, arguments[3].length() - 1).compareTo("boolean") == 0){
+                            else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("boolean") == 0){
                                 attrtype1 = Type.Boolean;
                             }
-                            Attribute addattr = new Attribute(arguments[4],attrtype1,datalength,true,false,false);
+                            else {
+                                System.out.println("Invalid data type " + arguments[5].substring(0, arguments[5].length() - 1));
+                            }
+                            Attribute addattr = new Attribute(arguments[4],attrtype1,datalength,true,false,false); // doesn't account for unique, notnull, key
                             if (arguments.length == 7) {
                                 defaultval = arguments[6];
                             }
