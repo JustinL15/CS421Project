@@ -150,7 +150,7 @@ public class Parser {
         for (int i = 0; i < attrlist.size(); i++) {
             if(attrlist.get(i).getName().compareTo(deleteAttribute) == 0){
                 //deleteAttrval = attrlist.get(i);
-                attrlist.remove(i);
+                // attrlist.remove(i);
                 found = i;
             }
         }

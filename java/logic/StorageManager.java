@@ -297,7 +297,7 @@ public class StorageManager {
     public void delete_table_column(Table table, String deleteAttribute, int index) {
         List<Attribute> attrlist =  table.getAttributes();
         attrlist.remove(index);
-        table.setAttributes(attrlist);
+        // table.setAttributes(attrlist);
         int pageCount = table.getPagecount();
 
         for (int i = 0; i < pageCount; i++) {
@@ -306,7 +306,7 @@ public class StorageManager {
             for (Record record : records) {
                 List<Object> recordvals = record.getValues();
                 recordvals.remove(index);
-                record.setTemplate(table);
+                // record.setTemplate(table);
             }
         }
  

@@ -219,7 +219,7 @@ public class Main {
                             
                         }
                         if(arguments[3].compareTo("drop") == 0){
-                            myParser.delete_table_column(myCatalog.getTableByName(arguments[2]), arguments[4]);
+                            myParser.delete_table_column(myCatalog.getTableByName(arguments[2]), arguments[4].substring(0, arguments[4].length() - 1));
                         }
                         //myParser.alter_table();
                     }
