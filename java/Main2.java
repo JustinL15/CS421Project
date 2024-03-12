@@ -19,14 +19,9 @@ public class Main2 {
             }
             Path path = Path.of(args[0]);
             System.out.println(path.toString());
-            boolean dbfound = Files.exists(path);
-
-            Catalog myCatalog;
-            Path catalogPath = Path.of(path.toString() + File.separator + "catalog");
-            boolean catalogFound = Files.exists(catalogPath);
 
             // If you need to change this do so
-            myCatalog = initCatalog(path);
+            Catalog myCatalog = initCatalog(path, Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 
             StorageManager sM = new StorageManager(myCatalog,path.toString());
             Parser myParser = new Parser(sM);
@@ -38,7 +33,7 @@ public class Main2 {
             try {
                 startParsing(scanner, myParser);
             } catch (Exception e) {
-                // handle exceptions that shouldn't break program here
+                System.out.println(e.getMessage());
             }
             scanner.close();
 
@@ -54,8 +49,61 @@ public class Main2 {
     // This function should initalize the catalog whether or not there is a catalog
     // creates database if not
     // Throws exception if catalog file is corrupted/missing somehow
-    public static Catalog initCatalog(Path path) throws Exception{
-        return null;
+    public static Catalog initCatalog(Path path, int pageSize, int bufferSize) throws Exception {
+        boolean dbfound = Files.exists(path);
+        if (!dbfound){
+            throw new Exception("Directory does not exist " + path.toString());
+        }
+        Path catalogPath = Path.of(path.toString() + File.separator + "catalog");
+        boolean catalogFound = Files.exists(catalogPath);
+        if(catalogFound){
+            System.out.println("Catalog Found\n");
+            //get db catalog (unfinished)
+            File catalogFile = new File(catalogPath.toString());
+            RandomAccessFile catalogAccessFile;
+
+            try {
+                catalogAccessFile = new RandomAccessFile(catalogFile, "r");
+            } catch (FileNotFoundException e) {
+                throw new Exception("No file at " + catalogPath);
+            }
+
+            try {
+                byte[] bytes = new byte[(int)catalogAccessFile.length()];
+                catalogAccessFile.read(bytes);
+                catalogAccessFile.close();
+                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+                return new Catalog(bufferSize, byteBuffer);
+            } catch (IOException e) {
+                throw new Exception("IO Exception when reading catalog file at " + catalogPath);
+            } catch(BufferOverflowException e){
+                if (catalogAccessFile.length() == 0) {
+                    throw new Exception("Catalog file is empty.");
+                }
+                throw new Exception("Error reading Catalog.File may be corrupted or invalid");
+            } catch(BufferUnderflowException e){
+                throw new Exception("Error reading Catalog.File may be corrupted or invalid");
+            }
+        }
+        else{
+            System.out.println("Creating database");
+            //create catalog
+
+            ArrayList<Table> tablelist = new ArrayList<Table>();
+            Catalog myCatalog = new Catalog(bufferSize,pageSize,tablelist);
+
+            try {
+                Files.createFile(Path.of(path + File.separator + "catalog"));
+                Files.createDirectory(Path.of(path + File.separator + "tables"));
+            } catch (IOException e) {
+                throw new Exception("IO Exception when creating catalog file and tables directory at " + path);
+            }
+
+            System.out.println("New db created successfully");
+            System.out.print("Page size: "+ pageSize);
+            System.out.println("Buffer size: "+ bufferSize);
+            return myCatalog;
+        }
     }
 
     public static void startParsing(Scanner scanner, Parser parser) throws Exception {
