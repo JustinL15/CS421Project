@@ -40,7 +40,11 @@ public class Main2 {
                 System.out.println(e.getMessage());
             }
             scanner.close();
-
+            myParser.sM.buffer.purge();
+            try (RandomAccessFile catalogFile = new RandomAccessFile(path.toString() + File.separator + "catalog", "rw")) {
+                catalogFile.seek(0);
+                catalogFile.write(myParser.sM.catalog.toBinary());
+            }
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -209,7 +213,7 @@ public class Main2 {
 
     private static void parseInsert(String[] arguments, Parser parser) throws Exception {
         Catalog catalog = parser.sM.catalog;
-        if(arguments.length > 5 && arguments[1].equals("into") && arguments[3].equals("values") ) {
+        if(arguments.length >= 5 && arguments[1].equals("into") && arguments[3].equals("values") ) {
             Table table = catalog.getTableByName(arguments[2]);
             if (table == null) {
                 throw new Exception("Table " + arguments[2] + " does not exist.");
@@ -233,13 +237,14 @@ public class Main2 {
                     records.add(rec);
                     curIdx++;
                 } else {
-                    throw new Exception("Error parsing insert command.");
+                    throw new Exception("Error parsing insert command, '(' expected.");
                 }
                 for (List<String> record : records) {
                     parser.insert_values(arguments[2], record);
                 }
             }
             System.out.println("SUCCESS");
+            return;
         }
         throw new Exception("Error parsing insert command.");
     }
