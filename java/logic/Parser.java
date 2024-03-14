@@ -235,8 +235,8 @@ public class Parser {
     }
 
 
-    public void print_display_schema(Catalog curr_cat,String file_loc){
-        System.out.println("database location: "+ file_loc);
+    public void print_display_schema(Catalog curr_cat){
+        System.out.println("database location: "+ sM.databaseLocation);
         System.out.println("page size: "+ curr_cat.getPageSize());
         System.out.println("buffer size: "+curr_cat.getBufferSize());
         for(Table i : curr_cat.getTables()){

@@ -295,7 +295,7 @@ public class Main {
                         myParser.print_display_info(table);
                     }
                     if(arguments[1].compareTo("schema;") == 0){
-                        myParser.print_display_schema(myCatalog,path.toString());
+                        myParser.print_display_schema(myCatalog);
                     }
                     System.out.println("SUCCESS");
                     break;
