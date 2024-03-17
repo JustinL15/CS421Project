@@ -148,7 +148,9 @@ public class Main {
                             System.out.println("No such table " + arguments[3].substring(0, arguments[3].length() - 1));
                             break;
                         }
-                        myParser.select_statment(table);
+                        List<Table> tables = new ArrayList<Table>();
+                        tables.add(table);
+                        myParser.select_statment(tables,null);
                     }
                     System.out.println("SUCCESS");
                     break;

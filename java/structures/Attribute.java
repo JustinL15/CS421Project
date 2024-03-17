@@ -109,4 +109,7 @@ public class Attribute {
             return 0;
         }
     }
+    public void set_name(String new_name){
+        this.name = new_name;
+    }
 }

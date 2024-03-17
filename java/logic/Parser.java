@@ -282,10 +282,100 @@ public class Parser {
         System.out.println("SUCCESS");
     }
 
+    public void printing_out_records(List<Record> records, List<String> columns,int size) {
+        Boolean print_array[] = new Boolean[size];
+        if (records.size() == 0){
+            System.out.println("No records to display");
+            System.out.println("SUCCESS");
+            return;
+        }
+        System.out.println("JottQL> select * from " + records.get(0).getTemplate().getName() + ";\n");
+        System.out.println("-------");
 
-    public void select_statment(Table table){
-        List<Record> allrec = sM.getRecords_tablenumber(table.getNumber());
-        printing_out_records(allrec);
+        Table template = records.get(0).getTemplate();
+        int x = 0;
+        for (Attribute attribute : template.getAttributes()) {
+            if( columns.contains(attribute.getName()) ){
+                System.out.print("| " + attribute.getName() + " ");     
+                print_array[x] = true;
+            }
+            x = x + 1;
+            
+        }
+        
+        System.out.println("|");
+        System.out.println("-------");
+
+        for (Record record : records) {
+            List<Object> values = record.getValues();
+            x = 0;
+            for (Object value : values) {
+                if(print_array[x] == true){
+                    System.out.print("|" + value + " ");
+                }
+                x = x +1;
+            }
+            System.out.println("|");
+        }
+        System.out.println("SUCCESS");
     }
 
+
+    public void select_statment(List<Table> tables, List<String> columns){
+        
+        List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
+        List<Attribute> new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
+        Table newtemplate =  new Table(allrec.get(0).getTemplate().getName(), -1, new_attr, -1);
+        if(tables.size() > 1){
+            for ( Record i : allrec) {
+                List<Object> all_obj = new ArrayList<Object>(); 
+                all_obj.addAll(i.getValues());
+
+                Record newrecord = new Record(newtemplate, all_obj);
+                allrec.remove(0);
+                allrec.add(newrecord);
+            }
+        }
+
+        for (int i = 1; i < tables.size(); i++) {
+            List<Attribute> all_attr = new ArrayList<Attribute>(); 
+            all_attr.addAll(allrec.get(0).getTemplate().getAttributes());
+            all_attr.addAll(   adjust_attrbute_names(tables.get(i).getName(), tables.get(i).getAttributes())   );
+            Table new_template =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
+
+            List<Record> allrec_2 = sM.getRecords_tablenumber(tables.get(i).getNumber()); 
+            allrec = Cart_product(allrec,allrec_2,new_template);
+        }
+        if(columns == null){
+            printing_out_records(allrec);
+        }
+        else{
+          printing_out_records(allrec,columns,allrec.get(0).getValues().size());  
+        }
+        
+    }
+
+    private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
+        List<Record> new_list = new ArrayList<Record>();
+        
+        for ( Record i : allrec_1) {
+            for ( Record j : allrec_2) {
+                List<Object> all_obj = new ArrayList<Object>(); 
+                all_obj.addAll(i.getValues());
+                all_obj.addAll(j.getValues());
+                Record newrecord = new Record(template, all_obj);
+                new_list.add(newrecord);
+            }
+        }
+        return new_list;
+    }
+    private List<Attribute> adjust_attrbute_names(String table_name, List<Attribute> attributes){
+        List<Attribute> new_attr = new ArrayList<Attribute>(); 
+        for( Attribute i : attributes){
+            i.set_name(table_name+"."+ i.getName());
+            new_attr.add(i);
+
+        }
+        return new_attr;
+    }
 }

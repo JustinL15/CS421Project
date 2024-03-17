@@ -323,13 +323,56 @@ public class Main2 {
 
     private static void parseSelect(String[] arguments, Parser parser) throws Exception {
         Catalog myCatalog = parser.sM.catalog; 
+        int arg_counter = 1;
+        List<String> columns = new ArrayList<String>();
+        //columns
         if(arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0){
-            Table table = myCatalog.getTableByName(arguments[3].substring(0, arguments[3].length() - 1));
-            if (table == null){
-                throw new Exception("No such table " + arguments[3].substring(0, arguments[3].length() - 1));
-            }
-            parser.select_statment(table);
+            columns = null;
+            arg_counter = 2;
         }
+        else{
+            while(arguments[arg_counter] != "from" ){
+                String curr_val = arguments[arg_counter];
+                if(curr_val == ","){
+                    continue;
+                } 
+                if (curr_val.substring(curr_val.length() - 1) == "," ){
+                    columns.add(curr_val.substring(0, curr_val.length() - 1));
+                }
+                else if(curr_val.substring(0,1) == "," ){
+                    columns.add(curr_val.substring(1, curr_val.length()));
+                }
+                else{
+                    columns.add(arguments[arg_counter]);
+                }
+            }
+            arg_counter = arg_counter +1;
+        }
+        arg_counter = arg_counter +1;
+        List<Table> tables = new ArrayList<Table>();
+        
+        while(arguments[arg_counter] != "where" || arguments[arg_counter] != ";" ){
+            String curr_val = arguments[arg_counter];
+            Table table;
+                if(curr_val == "," || curr_val == ";"){
+                    continue;
+                } 
+                if (curr_val.substring(curr_val.length() - 1) == "," || curr_val.substring(curr_val.length() - 1) == ";"){
+                    table = myCatalog.getTableByName(curr_val.substring(0, curr_val.length() - 1));
+                }
+                else if(curr_val.substring(0,1) == "," || curr_val.substring(curr_val.length() - 1) == ";"){
+                    table = myCatalog.getTableByName(curr_val.substring(1, curr_val.length()));
+                }
+                else{
+                    table = myCatalog.getTableByName(arguments[arg_counter]);
+                }
+                tables.add(table);
+        
+        }
+        
+        parser.select_statment(tables,columns);
+
+
         System.out.println("SUCCESS");
     }
 }
