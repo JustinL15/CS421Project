@@ -201,7 +201,9 @@ public class Main2 {
             if (table == null) {
                 System.out.println("No such table " + arguments[2]);
             }
-            parser.print_display_info(table);
+            else {
+                parser.print_display_info(table);
+            }
             return;
         }
         if(arguments[1].equals("schema;")){
@@ -354,19 +356,26 @@ public class Main2 {
         while(arguments[arg_counter] != "where" || arguments[arg_counter] != ";" ){
             String curr_val = arguments[arg_counter];
             Table table;
+            String tableName;
                 if(curr_val == "," || curr_val == ";"){
                     continue;
                 } 
-                if (curr_val.substring(curr_val.length() - 1) == "," || curr_val.substring(curr_val.length() - 1) == ";"){
-                    table = myCatalog.getTableByName(curr_val.substring(0, curr_val.length() - 1));
+                if (curr_val.substring(curr_val.length() - 1).compareTo(",") == 0 || curr_val.substring(curr_val.length() - 1).compareTo(";") == 0){
+                    tableName = curr_val.substring(0, curr_val.length() - 1);
                 }
-                else if(curr_val.substring(0,1) == "," || curr_val.substring(curr_val.length() - 1) == ";"){
-                    table = myCatalog.getTableByName(curr_val.substring(1, curr_val.length()));
+                else if(curr_val.substring(0,1).compareTo(",") == 0 || curr_val.substring(curr_val.length() - 1).compareTo(";") == 0){
+                    tableName = curr_val.substring(1, curr_val.length());
                 }
                 else{
-                    table = myCatalog.getTableByName(arguments[arg_counter]);
+                    tableName = arguments[arg_counter];
+                }
+
+                table = myCatalog.getTableByName(tableName);
+                if (table == null){
+                    throw new Exception("Table of name " + tableName + " does not exist");
                 }
                 tables.add(table);
+                break;
         
         }
         

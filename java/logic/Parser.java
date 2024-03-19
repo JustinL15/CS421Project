@@ -325,18 +325,19 @@ public class Parser {
         
         List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
         List<Attribute> new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
-        Table newtemplate =  new Table(allrec.get(0).getTemplate().getName(), -1, new_attr, -1);
-        if(tables.size() > 1){
+        Table newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
+        List<Record> new_rec = new ArrayList<Record>();
+        // if(tables.size() > 1){
             for ( Record i : allrec) {
                 List<Object> all_obj = new ArrayList<Object>(); 
                 all_obj.addAll(i.getValues());
 
                 Record newrecord = new Record(newtemplate, all_obj);
-                allrec.remove(0);
-                allrec.add(newrecord);
+                new_rec.add(newrecord);
             }
-        }
+        // }
 
+        // should probably use new_rec instead of allrec in this loop
         for (int i = 1; i < tables.size(); i++) {
             List<Attribute> all_attr = new ArrayList<Attribute>(); 
             all_attr.addAll(allrec.get(0).getTemplate().getAttributes());
@@ -347,10 +348,10 @@ public class Parser {
             allrec = Cart_product(allrec,allrec_2,new_template);
         }
         if(columns == null){
-            printing_out_records(allrec);
+            printing_out_records(new_rec);
         }
         else{
-          printing_out_records(allrec,columns,allrec.get(0).getValues().size());  
+          printing_out_records(new_rec,columns,new_rec.get(0).getValues().size());  
         }
         
     }
@@ -372,9 +373,7 @@ public class Parser {
     private List<Attribute> adjust_attrbute_names(String table_name, List<Attribute> attributes){
         List<Attribute> new_attr = new ArrayList<Attribute>(); 
         for( Attribute i : attributes){
-            i.set_name(table_name+"."+ i.getName());
-            new_attr.add(i);
-
+            new_attr.add(new Attribute(table_name+"."+ i.getName(), i.getDataType(), i.getMaxLength(), i.isNotNull(), i.isKey(), i.isUnique()));
         }
         return new_attr;
     }
