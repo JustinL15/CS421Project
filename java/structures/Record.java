@@ -94,6 +94,9 @@ public class Record {
         buffer.put(nullbitmap);
         
         for (int i = 0; i < this.values.size(); i++) {
+            if (nullbitmap[i] == 1) {
+                continue;
+            }
             switch (attrs.get(i).getDataType()) {
                 case Integer:
                     buffer.putInt((int) this.values.get(i));

@@ -152,6 +152,7 @@ public class Main2 {
                         parseAlter(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
+                        e.printStackTrace();
                     }
                     break;
                 case ("drop"):
