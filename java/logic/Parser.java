@@ -297,7 +297,7 @@ public class Parser {
         System.out.println("-------");
 
         for (Record record : records) {
-            List<Object> values _= record.getValues();
+            List<Object> values = record.getValues();
             for (Object value : values) {
                 System.out.print("|" + value + " ");
             }
@@ -363,10 +363,10 @@ public class Parser {
             allrec = Cart_product(allrec,allrec_2,new_template);
         }
         if(columns == null){
-            printing_out_records(new_rec);
+            printing_out_records(new_rec, newtemplate);
         }
         else{
-          printing_out_records(new_rec,columns,new_rec.get(0).getValues().size());  
+          printing_out_records(new_rec,columns,new_rec.get(0).getValues().size(), newtemplate);  
         }
         
     }
