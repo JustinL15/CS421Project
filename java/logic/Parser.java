@@ -337,7 +337,6 @@ public class Parser {
 
 
     public void select_statment(List<Table> tables, List<String> columns){
-        
         List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
         List<Attribute> new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
         Table newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
