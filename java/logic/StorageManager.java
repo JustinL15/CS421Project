@@ -216,58 +216,60 @@ public class StorageManager {
 
     }
 
-    public boolean checkUnique(Table table, int attrCol, int value) {
-        for (int i = 0; i < table.getPagecount(); i++) {
-            Page page = buffer.read(table.getName(), i);
-            for (Record r : page.getRecords()) {
-                int compare = (int) r.getValues().get(attrCol);
-                if (compare == value) {
-                    return true;
+    public int checkUnique(Table table, int attrCol, Object value) {
+        switch (table.getAttributes().get(attrCol).getDataType()) {
+            case Integer:
+                int ival = (int) value;
+                for (int i = 0; i < table.getPagecount(); i++) {
+                    Page page = buffer.read(table.getName(), i);
+                    for (Record r : page.getRecords()) {
+                        int compare = (int) r.getValues().get(attrCol);
+                        if (compare == ival) {
+                            return i;
+                        }
+                    }
                 }
-            }
-        }
-        return false;
-    }
-
-    public boolean checkUnique(Table table, int attrCol, double value) {
-        for (int i = 0; i < table.getPagecount(); i++) {
-            Page page = buffer.read(table.getName(), i);
-            for (Record r : page.getRecords()) {
-                double compare = (double) r.getValues().get(attrCol);
-                if (compare == value) {
-                    return true;
+                break;
+            case Double:
+                double dval = (double) value;
+                for (int i = 0; i < table.getPagecount(); i++) {
+                    Page page = buffer.read(table.getName(), i);
+                    for (Record r : page.getRecords()) {
+                        double compare = (double) r.getValues().get(attrCol);
+                        if (compare == dval) {
+                            return i;
+                        }
+                    }
                 }
-            }
-        }
-        return false;
-    }
-
-    public boolean checkUnique(Table table, int attrCol, String value) {
-        for (int i = 0; i < table.getPagecount(); i++) {
-            Page page = buffer.read(table.getName(), i);
-            for (Record r : page.getRecords()) {
-                String compare = (String) r.getValues().get(attrCol);
-                if ((compare.equals(value))) {
-                    return true;
+                break;
+            case Boolean:
+                boolean bval = (boolean) value;
+                for (int i = 0; i < table.getPagecount(); i++) {
+                    Page page = buffer.read(table.getName(), i);
+                    for (Record r : page.getRecords()) {
+                        boolean compare = (boolean) r.getValues().get(attrCol);
+                        if (compare == bval) {
+                            return i;
+                        }
+                    }
                 }
-            }
-        }
-        return false;
-    }
-
-    public boolean checkUnique(Table table, int attrCol, boolean value) {
-        for (int i = 0; i < table.getPagecount(); i++) {
-            Page page = buffer.read(table.getName(), i);
-            for (Record r : page.getRecords()) {
-                boolean compare = (boolean) r.getValues().get(i);
-                if (compare == value) {
-                    return true;
+                break;
+            case Char:
+            case Varchar:
+                String val = (String) value;
+                for (int i = 0; i < table.getPagecount(); i++) {
+                    Page page = buffer.read(table.getName(), i);
+                    for (Record r : page.getRecords()) {
+                        String compare = (String) r.getValues().get(attrCol);
+                        if ((compare.equals(val))) {
+                            return i;
+                        }
+                    }
                 }
-            }
+                break;
         }
-        return false;
+        return -1;
     }
-    
 
     public void add_table_column(Table table, Attribute newAttr, Object defaultval) {
         List<Attribute> attrlist =  table.getAttributes();

@@ -9,7 +9,7 @@ public class Parser {
         sM = StorageMan;
     }
 
-    public void create_table(String name, int number, String TableAttr){
+    public void create_table(String name, int number, String TableAttr) throws Exception{
         for (Table table : sM.catalog.getTables()) {
             if (name.compareTo(table.getName()) == 0){
                 System.out.println("Table of name " + name + " already exists");
@@ -41,8 +41,7 @@ public class Parser {
                 if(attribute_values[j].toLowerCase().compareTo("primarykey") == 0) {
                     primkey = true;
                     if (primaryKeyPresent == true) {
-                        System.out.println("More than one primary key");
-                        return;
+                        throw new Exception("More than one primary key");
                     } else {
                         primaryKeyPresent = true;    
                     }
@@ -111,19 +110,20 @@ public class Parser {
                     }
                     break;
                 case Char:
+                    defaulttoken = cleanString(defaulttoken);
                     if (defaulttoken.length() == newAttr.getMaxLength()) {
-                        defaultval = defaulttoken;
                     } else {
                         System.out.println("Invalid length for char length " + newAttr.getMaxLength());
                     }
                     break;
                 case Varchar:
-                if (defaulttoken.length() > newAttr.getMaxLength()) {
-                    defaultval = defaulttoken;
-                } else {
-                    System.out.println("Invalid length for varchar length " + newAttr.getMaxLength());
-                }
-                    break;
+                    defaulttoken = cleanString(defaulttoken);
+                    if (defaulttoken.length() <= newAttr.getMaxLength()) {
+                        defaultval = defaulttoken;
+                    } else {
+                        System.out.println("Invalid length for varchar length " + newAttr.getMaxLength());
+                    }
+                        break;
             }
         }
         catch (NumberFormatException e){
@@ -138,7 +138,7 @@ public class Parser {
                 return;
             }
         }
-        }      
+        }  
         sM.add_table_column(table, newAttr,defaultval);
         
     }
@@ -181,13 +181,51 @@ public class Parser {
                             cVals.add(Integer.parseInt(val));
                             break;
                         case Double:
-                            cVals.add(Double.parseDouble(val));
+                            try {
+                                cVals.add(Double.parseDouble(val));
+                            } catch (NumberFormatException e) {
+                                StringBuilder er = new StringBuilder();
+                                er.append("row(");
+                                er.append(values.get(0));
+                                for (int j = 1; j < values.size(); j++) {
+                                    er.append(' ');
+                                    er.append(values.get(j));
+                                }
+                                er.append("): Invalid data type: expected (double) got (string).");
+                                throw new Exception(er.toString());
+                            }
                             break;
                         case Boolean:
                             cVals.add(Boolean.parseBoolean(val));
                             break;
                         case Char:
+                            int cMax = tableCol.get(i).getMaxLength();
+                            if (val.length() != cMax) {
+                                StringBuilder er = new StringBuilder();
+                                er.append("row(");
+                                er.append(values.get(0));
+                                for (int j = 1; j < values.size(); j++) {
+                                    er.append(' ');
+                                    er.append(values.get(j));
+                                }
+                                er.append("): char(" + cMax + ") can only accept " + cMax + " chars; \"" + val + "\" is " + val.length());
+                                throw new Exception(er.toString());
+                            }
+                            cVals.add(val);
+                            break;
                         case Varchar:
+                            int vMax = tableCol.get(i).getMaxLength();
+                            if (val.length() > vMax) {
+                                StringBuilder er = new StringBuilder();
+                                er.append("row(");
+                                er.append(values.get(0));
+                                for (int j = 1; j < values.size(); j++) {
+                                    er.append(' ');
+                                    er.append(values.get(j));
+                                }
+                                er.append("): varchar(" + vMax + ") can only accept up to " + vMax + " chars; \"" + val + "\" is " + val.length());
+                                throw new Exception(er.toString());
+                            }
                             cVals.add(val);
                             break;
                     }
@@ -201,29 +239,22 @@ public class Parser {
             }
         }
         for (int i = 0; i < cVals.size(); i++) {
-            if (tableCol.get(i).isUnique() || tableCol.get(i).isKey()) {
-                switch (tableCol.get(i).getDataType()) {
-                    case Integer:
-                            if (sM.checkUnique(table, i, (int) cVals.get(i))) {
-                                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
-                            }
-                            break;
-                        case Double:
-                            if (sM.checkUnique(table, i, (double) cVals.get(i))) {
-                                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
-                            }
-                            break;
-                        case Boolean:
-                            if (sM.checkUnique(table, i, (boolean) cVals.get(i))) {
-                                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
-                            }
-                            break;
-                        case Char:
-                        case Varchar:
-                            if (sM.checkUnique(table, i, (String) cVals.get(i))) {
-                                throw new Exception("Attribute '" + tableCol.get(i).getName() +"' has to be unique.");
-                            }
-                            break;
+            if (tableCol.get(i).isKey()) {
+                int res = sM.checkUnique(table, i, cVals.get(i));
+                if (res != -1) {
+                    StringBuilder er = new StringBuilder();
+                    er.append("Duplicate primary key for row(");
+                    er.append(values.get(0));
+                    for (int j = 1; j < values.size(); j++) {
+                        er.append(' ');
+                        er.append(values.get(j));
+                    }
+                    er.append(')');
+                    throw new Exception(er.toString());
+                }
+            } else if (tableCol.get(i).isUnique()) {
+                if (sM.checkUnique(table, i, cVals.get(i)) != -1) {
+                    throw new Exception("Attribute '" + table.getAttributes().get(i).getName() + "' has to be unique");
                 }
             }
         }
@@ -255,16 +286,9 @@ public class Parser {
         System.out.println("number of records: " + numRecords);
     }
 
-    public void printing_out_records(List<Record> records) {
-        if (records.size() == 0){
-            System.out.println("No records to display");
-            System.out.println("SUCCESS");
-            return;
-        }
-        System.out.println("JottQL> select * from " + records.get(0).getTemplate().getName() + ";\n");
+    public void printing_out_records(List<Record> records, Table template) {
         System.out.println("-------");
-
-        Table template = records.get(0).getTemplate();
+        
         for (Attribute attribute : template.getAttributes()) {
             System.out.print("| " + attribute.getName() + " ");
         }
@@ -279,20 +303,12 @@ public class Parser {
             }
             System.out.println("|");
         }
-        System.out.println("SUCCESS");
     }
 
-    public void printing_out_records(List<Record> records, List<String> columns,int size) {
+    public void printing_out_records(List<Record> records, List<String> columns,int size, Table template) {
         Boolean print_array[] = new Boolean[size];
-        if (records.size() == 0){
-            System.out.println("No records to display");
-            System.out.println("SUCCESS");
-            return;
-        }
-        System.out.println("JottQL> select * from " + records.get(0).getTemplate().getName() + ";\n");
         System.out.println("-------");
 
-        Table template = records.get(0).getTemplate();
         int x = 0;
         for (Attribute attribute : template.getAttributes()) {
             if( columns.contains(attribute.getName()) ){
@@ -317,15 +333,15 @@ public class Parser {
             }
             System.out.println("|");
         }
-        System.out.println("SUCCESS");
     }
 
 
     public void select_statment(List<Table> tables, List<String> columns){
         
         List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
-        List<Attribute> new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
-        Table newtemplate =  new Table(allrec.get(0).getTemplate().getName(), -1, new_attr, -1);
+        //List<Attribute> new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
+        //Table newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
+        Table newtemplate = tables.get(0);
         if(tables.size() > 1){
             for ( Record i : allrec) {
                 List<Object> all_obj = new ArrayList<Object>(); 
@@ -347,10 +363,10 @@ public class Parser {
             allrec = Cart_product(allrec,allrec_2,new_template);
         }
         if(columns == null){
-            printing_out_records(allrec);
+            printing_out_records(allrec, newtemplate);
         }
         else{
-          printing_out_records(allrec,columns,allrec.get(0).getValues().size());  
+          printing_out_records(allrec,columns,allrec.get(0).getValues().size(), newtemplate);  
         }
         
     }
@@ -377,5 +393,22 @@ public class Parser {
 
         }
         return new_attr;
+    }
+
+    private String cleanString(String s) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int quotes = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '"') {
+                quotes++;
+                if (quotes > 1) {
+                    break;
+                }
+            } else {
+                stringBuilder.append(c);
+            }
+        }
+        return stringBuilder.toString();
     }
 }

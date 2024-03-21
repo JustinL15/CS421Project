@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main2 {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         try {
             if (args.length < 3){
                 System.out.println("Expected 3 arguments, got " + args.length);
@@ -47,7 +47,7 @@ public class Main2 {
             }
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw e;
         }
 
 
@@ -137,7 +137,7 @@ public class Main2 {
                     try {
                         parseSelect(arguments, parser);
                     } catch (Exception e) {
-                        System.out.println(e.getMessage());
+                        throw e;
                     }
                     break;
                 case ("create"):
@@ -351,7 +351,7 @@ public class Main2 {
         arg_counter = arg_counter +1;
         List<Table> tables = new ArrayList<Table>();
         
-        while(arguments[arg_counter] != "where" || arguments[arg_counter] != ";" ){
+        while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
             String curr_val = arguments[arg_counter];
             Table table;
                 if(curr_val == "," || curr_val == ";"){
@@ -367,7 +367,7 @@ public class Main2 {
                     table = myCatalog.getTableByName(arguments[arg_counter]);
                 }
                 tables.add(table);
-        
+            arg_counter++;
         }
         
         parser.select_statment(tables,columns);
