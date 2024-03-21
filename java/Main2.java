@@ -152,6 +152,7 @@ public class Main2 {
                         parseAlter(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
+                        e.printStackTrace();
                     }
                     break;
                 case ("drop"):
@@ -201,7 +202,9 @@ public class Main2 {
             if (table == null) {
                 System.out.println("No such table " + arguments[2]);
             }
-            parser.print_display_info(table);
+            else {
+                parser.print_display_info(table);
+            }
             return;
         }
         if(arguments[1].equals("schema;")){
@@ -218,30 +221,41 @@ public class Main2 {
             if (table == null) {
                 throw new Exception("Table " + arguments[2] + " does not exist.");
             }
+            arguments[arguments.length - 1] = arguments[arguments.length - 1].substring(0, arguments[arguments.length - 1].length() - 1); // get rid of ;
             List<List<String>> records = new ArrayList<>();
-            int curIdx = 4;
-            while (curIdx < arguments.length) {
-                if (arguments[curIdx].charAt(0) == '(') {
+
+            String combinedArgs = "";
+            for (int i = 4; i < arguments.length; i++) {
+                combinedArgs += arguments[i];
+            }
+            String[] inputRecords = combinedArgs.split(",");
+
+            for (String inputRecord : inputRecords) {
+                String[] recordTokens = inputRecord.strip().split(" ");
+                int curIdx = 0;
+
+                if (recordTokens[curIdx].charAt(0) == '(') {
                     List<String> rec = new ArrayList<>();
-                    if (arguments[curIdx].charAt(arguments[curIdx].length() - 2) == ')') {
-                        rec.add(arguments[curIdx].substring(1, arguments[curIdx].length() - 2));
+                    //single value record?
+                    if (recordTokens[curIdx].charAt(recordTokens[curIdx].length() - 1) == ')') {
+                        rec.add(recordTokens[curIdx].substring(1, recordTokens[curIdx].length() - 1));
                     } else {
-                        rec.add(arguments[curIdx].substring(1));
+                        rec.add(recordTokens[curIdx].substring(1));
                         curIdx++;
-                        while (!(arguments[curIdx].charAt(arguments[curIdx].length() - 2) == ')')) {
-                            rec.add(arguments[curIdx]);
+                        while (!(recordTokens[curIdx].charAt(recordTokens[curIdx].length() - 1) == ')') && curIdx < recordTokens.length) {
+                            rec.add(recordTokens[curIdx]);
                             curIdx++;
                         }
-                        rec.add(arguments[curIdx].substring(0, arguments[curIdx].length() - 2));
+                        rec.add(recordTokens[curIdx].substring(0, recordTokens[curIdx].length() - 1));
                     }
                     records.add(rec);
                     curIdx++;
                 } else {
                     throw new Exception("Error parsing insert command, '(' expected.");
                 }
-                for (List<String> record : records) {
-                    parser.insert_values(arguments[2], record);
-                }
+            }
+            for (List<String> record : records) {
+                parser.insert_values(arguments[2], record);
             }
             System.out.println("SUCCESS");
             return;
@@ -354,20 +368,27 @@ public class Main2 {
         while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
             String curr_val = arguments[arg_counter];
             Table table;
+            String tableName;
                 if(curr_val == "," || curr_val == ";"){
                     continue;
                 } 
-                if (curr_val.substring(curr_val.length() - 1) == "," || curr_val.substring(curr_val.length() - 1) == ";"){
-                    table = myCatalog.getTableByName(curr_val.substring(0, curr_val.length() - 1));
+                if (curr_val.substring(curr_val.length() - 1).compareTo(",") == 0 || curr_val.substring(curr_val.length() - 1).compareTo(";") == 0){
+                    tableName = curr_val.substring(0, curr_val.length() - 1);
                 }
-                else if(curr_val.substring(0,1) == "," || curr_val.substring(curr_val.length() - 1) == ";"){
-                    table = myCatalog.getTableByName(curr_val.substring(1, curr_val.length()));
+                else if(curr_val.substring(0,1).compareTo(",") == 0 || curr_val.substring(curr_val.length() - 1).compareTo(";") == 0){
+                    tableName = curr_val.substring(1, curr_val.length());
                 }
                 else{
-                    table = myCatalog.getTableByName(arguments[arg_counter]);
+                    tableName = arguments[arg_counter];
+                }
+
+                table = myCatalog.getTableByName(tableName);
+                if (table == null){
+                    throw new Exception("Table of name " + tableName + " does not exist");
                 }
                 tables.add(table);
-            arg_counter++;
+                break;
+        
         }
         
         parser.select_statment(tables,columns);
