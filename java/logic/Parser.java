@@ -408,4 +408,34 @@ public class Parser {
         }
         return stringBuilder.toString();
     }
+
+    public Integer update(String tableName, String attributeName, Object value, String conditions) {
+        Table table = sM.catalog.getTableByName(tableName);
+        // Error check: table exists
+
+        List<Record> records = sM.getRecords_tablenumber(table.getNumber());
+        // records = where(records, conditions);
+
+        List<Attribute> attributes = table.getAttributes();
+        Integer attributeIndex = null;
+        Integer keyIndex = null;
+        for (Attribute attribute : attributes) {
+            if (attribute.getName() == attributeName) {
+                attributeIndex = attributes.indexOf(attribute);
+            }
+            if (attribute.isKey()) {
+                keyIndex = attributes.indexOf(attribute);
+            }
+        }
+        // Error check: attribute exists
+        // Error check: value type matches attribute type
+
+        for (Record record : records) {
+            // Not doing deep copy of the record might be a problem but should be ok
+            record.getValues().set(attributeIndex, value);
+            sM.updateRecord_primarykey(record.getValues().get(keyIndex), record);
+        }
+        
+        return records.size();
+    }
 }
