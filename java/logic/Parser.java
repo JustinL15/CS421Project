@@ -409,12 +409,16 @@ public class Parser {
         return stringBuilder.toString();
     }
 
-    public Integer update(String tableName, String attributeName, Object value, String conditions) {
+    public Integer update(String tableName, String attributeName, Object value, String conditions) throws Exception {
         Table table = sM.catalog.getTableByName(tableName);
-        // Error check: table exists
+        if (table == null) {
+            throw new Exception("Table of name " + tableName + " does not exist");
+        }
 
         List<Record> records = sM.getRecords_tablenumber(table.getNumber());
-        // records = where(records, conditions);
+        // if (conditions.length() > 0) {
+        //     records = where(records, conditions);
+        // }
 
         List<Attribute> attributes = table.getAttributes();
         Integer attributeIndex = null;
@@ -427,7 +431,9 @@ public class Parser {
                 keyIndex = attributes.indexOf(attribute);
             }
         }
-        // Error check: attribute exists
+        if (attributeIndex == null) {
+            throw new Exception("Attribute of name " + attributeName + " does not exist");
+        }
         // Error check: value type matches attribute type
 
         for (Record record : records) {
@@ -435,7 +441,7 @@ public class Parser {
             record.getValues().set(attributeIndex, value);
             sM.updateRecord_primarykey(record.getValues().get(keyIndex), record);
         }
-        
+
         return records.size();
     }
 }
