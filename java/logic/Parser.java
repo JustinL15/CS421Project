@@ -372,8 +372,6 @@ public class Parser {
             printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate);
         }
     }
-        
-    }
 
     private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
         List<Record> new_list = new ArrayList<Record>();
