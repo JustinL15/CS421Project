@@ -178,6 +178,13 @@ public class Main2 {
                         System.out.println(e.getMessage());
                     }
                     break;
+                case "update":
+                    try{
+                        parseUpdate(arguments, parser);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                        break;
+                    }
                 default:
                     System.out.println("Invalid command.");
                     break;
@@ -418,5 +425,23 @@ public class Main2 {
 
 
         System.out.println("SUCCESS");
+    }
+
+    private static void parseUpdate(String[] arguments, Parser parser) throws Exception {
+        if (arguments.length < 6) {
+            throw new Exception("Syntax error for update command: Not enough arguments");
+        }
+        if (!arguments[0].equals("update") || !arguments[2].equals("set") || !arguments[4].equals("=")) {
+            throw new Exception("Syntax error for update command");
+        }
+
+        String conditions = "";
+        if (arguments.length >= 8 && arguments[6].equals("where")) {
+            for (int i = 7; i < arguments.length; i++) {
+                conditions += " " + arguments[i];
+            }
+        }
+
+        parser.update(arguments[1], arguments[3], arguments[5], conditions);
     }
 }
