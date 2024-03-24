@@ -215,8 +215,11 @@ public class Main2 {
             }
             return;
         }
-        if(arguments[1].equals("schema;")){
+        else if(arguments[1].equals("schema;")){
             parser.print_display_schema(myCatalog);
+        }
+        else{
+            System.out.println("Bad Command");
         }
         System.out.println("SUCCESS");
         return;
@@ -372,7 +375,7 @@ public class Main2 {
             arg_counter = 2;
         }
         else{
-            while(arguments[arg_counter] != "from" ){
+            while(arguments[arg_counter].equals("from") == false  ){
                 String curr_val = arguments[arg_counter];
                 if(curr_val == ","){
                     continue;
@@ -386,25 +389,35 @@ public class Main2 {
                 else{
                     columns.add(arguments[arg_counter]);
                 }
+                arg_counter = arg_counter +1;
             }
-            arg_counter = arg_counter +1;
+            
         }
         arg_counter = arg_counter +1;
         List<Table> tables = new ArrayList<Table>();
         
         System.out.println(arguments[arg_counter].charAt(arguments[arg_counter].length() - 1));
         // while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
-        while(arguments[arg_counter] != "where"){
+        boolean end = false;  
+        while( end == false && arguments[arg_counter].equals("where") == false){
             String curr_val = arguments[arg_counter];
             Table table;
             String tableName;
+            
                 if(curr_val == "," || curr_val == ";"){
                     continue;
                 } 
-                if (curr_val.substring(curr_val.length() - 1).compareTo(",") == 0 || curr_val.substring(curr_val.length() - 1).compareTo(";") == 0){
+                else if (curr_val == ";"){
+                    break;
+                }
+                if (curr_val.substring(curr_val.length() - 1).compareTo(",") == 0){
                     tableName = curr_val.substring(0, curr_val.length() - 1);
                 }
-                else if(curr_val.substring(0,1).compareTo(",") == 0 || curr_val.substring(curr_val.length() - 1).compareTo(";") == 0){
+                else if( curr_val.substring(curr_val.length() - 1).compareTo(";") == 0){
+                    tableName = curr_val.substring(0, curr_val.length() - 1);
+                    end = true;
+                }
+                else if(curr_val.substring(0,1).compareTo(",") == 0){
                     tableName = curr_val.substring(1, curr_val.length());
                 }
                 else{
@@ -416,7 +429,7 @@ public class Main2 {
                     throw new Exception("Table of name " + tableName + " does not exist");
                 }
                 tables.add(table);
-                break;
+                arg_counter = arg_counter +1;
         
         }
         
