@@ -216,51 +216,70 @@ public class Main2 {
 
     private static void parseInsert(String[] arguments, Parser parser) throws Exception {
         Catalog catalog = parser.sM.catalog;
-        if(arguments.length >= 5 && arguments[1].equals("into") && arguments[3].equals("values") ) {
-            Table table = catalog.getTableByName(arguments[2]);
-            if (table == null) {
-                throw new Exception("Table " + arguments[2] + " does not exist.");
-            }
-            arguments[arguments.length - 1] = arguments[arguments.length - 1].substring(0, arguments[arguments.length - 1].length() - 1); // get rid of ;
-            List<List<String>> records = new ArrayList<>();
-
-            String combinedArgs = "";
-            for (int i = 4; i < arguments.length; i++) {
-                combinedArgs += arguments[i];
-            }
-            String[] inputRecords = combinedArgs.split(",");
-
-            for (String inputRecord : inputRecords) {
-                String[] recordTokens = inputRecord.strip().split(" ");
-                int curIdx = 0;
-
-                if (recordTokens[curIdx].charAt(0) == '(') {
-                    List<String> rec = new ArrayList<>();
-                    //single value record?
-                    if (recordTokens[curIdx].charAt(recordTokens[curIdx].length() - 1) == ')') {
-                        rec.add(recordTokens[curIdx].substring(1, recordTokens[curIdx].length() - 1));
-                    } else {
-                        rec.add(recordTokens[curIdx].substring(1));
-                        curIdx++;
-                        while (!(recordTokens[curIdx].charAt(recordTokens[curIdx].length() - 1) == ')') && curIdx < recordTokens.length) {
-                            rec.add(recordTokens[curIdx]);
-                            curIdx++;
+        try {
+            if(arguments.length >= 5 && arguments[1].equals("into") && arguments[3].startsWith("values")) {
+                Table table = catalog.getTableByName(arguments[2]);
+                if (table == null) {
+                    throw new Exception("Table " + arguments[2] + " does not exist.");
+                }
+                List<List<String>> records = new ArrayList<>();
+                StringBuilder values = new StringBuilder();
+                for (int i = 3; i < arguments.length; i++) {
+                    values.append(' ');
+                    values.append(arguments[i]);
+                }
+                String icommand = values.toString();
+                boolean open = false;
+                List<String> record = new ArrayList<>();
+                StringBuilder word = new StringBuilder();
+                for (int i = 0; i < icommand.length(); i++) {
+                    if (open == false &&  icommand.charAt(i) == '(') {
+                        open = true;
+                    } else if (open == true) {
+                        switch (icommand.charAt(i)) {
+                            case '(':
+                                throw new Exception("Error parsing insert command.");
+                            case ')':
+                                if (word.length() != 0) {
+                                    record.add(word.toString());
+                                    word = new StringBuilder();
+                                }
+                                records.add(record);;
+                                record = new ArrayList<>();
+                                open = false;
+                                break;
+                            case ';':
+                                break;
+                            case ' ':
+                            case '\n':
+                                if (word.length() != 0) {
+                                    record.add(word.toString());
+                                    word = new StringBuilder();
+                                }
+                                break;
+                            case '"':
+                                i++;
+                                while (icommand.charAt(i) != '"') {
+                                    word.append(icommand.charAt(i));
+                                    i++;
+                                }
+                                if (icommand.charAt(i + 1) != ' ') {
+                                    throw new Exception(" Error parsing insert command.");
+                                }
+                                break;
+                            default:
+                                word.append(icommand.charAt(i));
+                                break;
                         }
-                        rec.add(recordTokens[curIdx].substring(0, recordTokens[curIdx].length() - 1));
                     }
-                    records.add(rec);
-                    curIdx++;
-                } else {
-                    throw new Exception("Error parsing insert command, '(' expected.");
+                }
+                for (List<String> r: records) {
+                    parser.insert_values(table.getName(), r);
                 }
             }
-            for (List<String> record : records) {
-                parser.insert_values(arguments[2], record);
-            }
-            System.out.println("SUCCESS");
-            return;
+        } catch (Exception e){
+            throw e;
         }
-        throw new Exception("Error parsing insert command.");
     }
 
     private static void parseDrop(String[] arguments, Parser parser) throws Exception {
