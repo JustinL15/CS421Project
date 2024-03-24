@@ -137,8 +137,7 @@ public class Main2 {
                     try {
                         parseSelect(arguments, parser);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        throw e;
+                        System.out.println(e.getMessage());
                     }
                     break;
                 case ("create"):
