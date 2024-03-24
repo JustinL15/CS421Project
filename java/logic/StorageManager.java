@@ -190,8 +190,9 @@ public class StorageManager {
             }
         }
     }
-    public void updateRecord_primarykey(Table template, Object pKey, Record record){
-        
+    public void updateRecord_primarykey(Object pKey, Record record){
+        deleteRecord_primarykey(record.getTemplate(), pKey);
+        insertSingleRecord(record.getTemplate(), record);
     }
     public Table createTable(String name, int number, List<Attribute> TableAttr) {
         Table New_Table = new Table(name,number,TableAttr, 0);

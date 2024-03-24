@@ -137,6 +137,7 @@ public class Main2 {
                     try {
                         parseSelect(arguments, parser);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         throw e;
                     }
                     break;
@@ -167,6 +168,7 @@ public class Main2 {
                         parseInsert(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
+                        e.printStackTrace();
                     }
                     break;
                 case ("display"):
@@ -384,7 +386,9 @@ public class Main2 {
         arg_counter = arg_counter +1;
         List<Table> tables = new ArrayList<Table>();
         
-        while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
+        System.out.println(arguments[arg_counter].charAt(arguments[arg_counter].length() - 1));
+        // while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
+        while(arguments[arg_counter] != "where"){
             String curr_val = arguments[arg_counter];
             Table table;
             String tableName;

@@ -337,7 +337,6 @@ public class Parser {
 
 
     public void select_statment(List<Table> tables, List<String> columns){
-        
         List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
         List<Attribute> new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
         Table newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
@@ -408,5 +407,41 @@ public class Parser {
             }
         }
         return stringBuilder.toString();
+    }
+
+    public Integer update(String tableName, String attributeName, Object value, String conditions) throws Exception {
+        Table table = sM.catalog.getTableByName(tableName);
+        if (table == null) {
+            throw new Exception("Table of name " + tableName + " does not exist");
+        }
+
+        List<Record> records = sM.getRecords_tablenumber(table.getNumber());
+        // if (conditions.length() > 0) {
+        //     records = where(records, conditions);
+        // }
+
+        List<Attribute> attributes = table.getAttributes();
+        Integer attributeIndex = null;
+        Integer keyIndex = null;
+        for (Attribute attribute : attributes) {
+            if (attribute.getName() == attributeName) {
+                attributeIndex = attributes.indexOf(attribute);
+            }
+            if (attribute.isKey()) {
+                keyIndex = attributes.indexOf(attribute);
+            }
+        }
+        if (attributeIndex == null) {
+            throw new Exception("Attribute of name " + attributeName + " does not exist");
+        }
+        // Error check: value type matches attribute type
+
+        for (Record record : records) {
+            // Not doing deep copy of the record might be a problem but should be ok
+            record.getValues().set(attributeIndex, value);
+            sM.updateRecord_primarykey(record.getValues().get(keyIndex), record);
+        }
+
+        return records.size();
     }
 }
