@@ -441,6 +441,10 @@ public class Main2 {
                 conditions += " " + arguments[i];
             }
         }
+        conditions = conditions.strip();
+        if (conditions.endsWith(";")) {
+            conditions = conditions.substring(0, conditions.length() - 1);
+        }
 
         parser.update(arguments[1], arguments[3], arguments[5], conditions);
     }
