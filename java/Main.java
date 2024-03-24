@@ -141,22 +141,33 @@ public class Main {
 
                     sM.buffer.purge();
                     break;
-                case "select":
-                try {
-                    if(arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0){
-                        Table table = myCatalog.getTableByName(arguments[3].substring(0, arguments[3].length() - 1));
-                        if (table == null){
-                            System.out.println("No such table " + arguments[3].substring(0, arguments[3].length() - 1));
-                            break;
+                    case "select":
+                    try {
+                        if (arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0) {
+                            Table table = myCatalog.getTableByName(arguments[3].substring(0, arguments[3].length() - 1));
+                            if (table == null) {
+                                System.out.println("No such table " + arguments[3].substring(0, arguments[3].length() - 1));
+                                break;
+                            }
+                            List<Table> tables = new ArrayList<>();
+                            tables.add(table);
+                            String orderByColumn = null;
+                            String order = "asc"; // Default order is ascending
+                            for (int i = 4; i < arguments.length; i++) {
+                                if (arguments[i].equalsIgnoreCase("orderby")) {
+                                    orderByColumn = arguments[i + 1];
+                                    if (i + 2 < arguments.length && arguments[i + 2].equalsIgnoreCase("desc")) {
+                                        order = "desc";
+                                    }
+                                    break;
+                                }
+                            }
+                            myParser.select_statment(tables, null);
                         }
-                        List<Table> tables = new ArrayList<Table>();
-                        tables.add(table);
-                        myParser.select_statment(tables,null);
+                        break;
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
                     }
-                    break;
-                } catch (Exception e){
-                    System.out.println(e.getMessage());
-                }
                 case "create":
                 try{
                     if(input.endsWith(";") == false){
