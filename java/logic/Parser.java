@@ -371,6 +371,30 @@ public class Parser {
         
     }
 
+    // This is the delete command for the table
+    public void delete_statment(Table table, List<String> conditions){
+        // We start by gathering all the records in the table
+        List<Record> tableRecords = sM.getRecords_tablenumber(table.getNumber());
+        // Then we collect the attributes
+        List<Attribute> attr = table.getAttributes();
+
+        // This iterates through all the records
+        for (Record record : tableRecords) {
+            List<Object> values = record.getValues(); //This gets the values stored in the record
+            // Create a loop that goes through each column name to find the condition
+            int index = 0;
+            for (Attribute attribute : attr) {
+                if (/*Insert the where method here when it is complete */attribute.getName() == "boolean") {
+                    // This uses the delete Record function to remove the record. 
+                    Object primeKey = values.get(index);
+                    sM.deleteRecord_primarykey(table, primeKey);
+                    break;
+                }
+                index += 1;
+            }
+        }
+    }
+
     private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
         List<Record> new_list = new ArrayList<Record>();
         
