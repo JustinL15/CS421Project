@@ -182,8 +182,8 @@ public class Main2 {
                         parseUpdate(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
-                        break;
                     }
+                    break;
                 default:
                     System.out.println("Invalid command.");
                     break;

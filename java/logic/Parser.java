@@ -427,7 +427,7 @@ public class Parser {
         Integer attributeIndex = null;
         Integer keyIndex = null;
         for (Attribute attribute : attributes) {
-            if (attribute.getName() == attributeName) {
+            if (attribute.getName().equals(attributeName)) {
                 attributeIndex = attributes.indexOf(attribute);
             }
             if (attribute.isKey()) {
