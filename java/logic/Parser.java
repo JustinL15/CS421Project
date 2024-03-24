@@ -444,4 +444,13 @@ public class Parser {
 
         return records.size();
     }
+
+    public List<Record> where(List<Record> records, String conditions) {
+        List<Record> result = new ArrayList<>();
+        
+
+
+        return result;
+    }
+
 }
