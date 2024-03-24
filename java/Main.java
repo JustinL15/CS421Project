@@ -141,22 +141,33 @@ public class Main {
 
                     sM.buffer.purge();
                     break;
-                case "select":
-                try {
-                    if(arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0){
-                        Table table = myCatalog.getTableByName(arguments[3].substring(0, arguments[3].length() - 1));
-                        if (table == null){
-                            System.out.println("No such table " + arguments[3].substring(0, arguments[3].length() - 1));
-                            break;
+                    case "select":
+                    try {
+                        if (arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0) {
+                            Table table = myCatalog.getTableByName(arguments[3].substring(0, arguments[3].length() - 1));
+                            if (table == null) {
+                                System.out.println("No such table " + arguments[3].substring(0, arguments[3].length() - 1));
+                                break;
+                            }
+                            List<Table> tables = new ArrayList<>();
+                            tables.add(table);
+                            String orderByColumn = null;
+                            String order = "asc"; // Default order is ascending
+                            for (int i = 4; i < arguments.length; i++) {
+                                if (arguments[i].equalsIgnoreCase("orderby")) {
+                                    orderByColumn = arguments[i + 1];
+                                    if (i + 2 < arguments.length && arguments[i + 2].equalsIgnoreCase("desc")) {
+                                        order = "desc";
+                                    }
+                                    break;
+                                }
+                            }
+                            myParser.select_statment(tables, null);
                         }
-                        List<Table> tables = new ArrayList<Table>();
-                        tables.add(table);
-                        myParser.select_statment(tables,null);
+                        break;
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
                     }
-                    break;
-                } catch (Exception e){
-                    System.out.println(e.getMessage());
-                }
                 case "create":
                 try{
                     if(input.endsWith(";") == false){
@@ -334,6 +345,13 @@ public class Main {
                     System.out.println(e);
                     break;
                 }
+                case "update":
+                try{
+                    parseUpdate(arguments, myParser);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    break;
+                }
                 default:
                     System.out.println("Bad input. type help for command list");
                     //help_message(); //usage
@@ -353,6 +371,24 @@ public class Main {
         System.out.println("display info (table name); >> display values in table"); //good
         System.out.println("display schema; >> display schema"); //good
 
+    }
+
+    private static void parseUpdate(String[] arguments, Parser parser) throws Exception {
+        if (arguments.length < 6) {
+            throw new Exception("Syntax error for update command: Not enough arguments");
+        }
+        if (!arguments[0].equals("update") || !arguments[2].equals("set") || !arguments[4].equals("=")) {
+            throw new Exception("Syntax error for update command");
+        }
+
+        String conditions = "";
+        if (arguments.length >= 8 && arguments[6].equals("where")) {
+            for (int i = 7; i < arguments.length; i++) {
+                conditions += " " + arguments[i];
+            }
+        }
+
+        parser.update(arguments[1], arguments[3], arguments[5], conditions);
     }
     
 }

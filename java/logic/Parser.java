@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -337,7 +339,6 @@ public class Parser {
 
 
     public void select_statment(List<Table> tables, List<String> columns){
-        
         List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
         List<Attribute> new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
         Table newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
@@ -362,13 +363,14 @@ public class Parser {
             List<Record> allrec_2 = sM.getRecords_tablenumber(tables.get(i).getNumber()); 
             allrec = Cart_product(allrec,allrec_2,new_template);
         }
+
+
         if(columns == null){
             printing_out_records(new_rec, newtemplate);
         }
-        else{
-          printing_out_records(new_rec,columns,new_rec.get(0).getValues().size(), newtemplate);  
+        else {
+            printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate);
         }
-        
     }
 
     // This is the delete command for the table
@@ -433,4 +435,104 @@ public class Parser {
         }
         return stringBuilder.toString();
     }
+
+    public Integer update(String tableName, String attributeName, Object value, String conditions) throws Exception {
+        Table table = sM.catalog.getTableByName(tableName);
+        if (table == null) {
+            throw new Exception("Table of name " + tableName + " does not exist");
+        }
+
+        List<Record> records = sM.getRecords_tablenumber(table.getNumber());
+        // if (conditions.length() > 0) {
+        //     records = where(records, conditions);
+        // }
+
+        List<Attribute> attributes = table.getAttributes();
+        Integer attributeIndex = null;
+        Integer keyIndex = null;
+        for (Attribute attribute : attributes) {
+            if (attribute.getName().equals(attributeName)) {
+                attributeIndex = attributes.indexOf(attribute);
+            }
+            if (attribute.isKey()) {
+                keyIndex = attributes.indexOf(attribute);
+            }
+        }
+        if (attributeIndex == null) {
+            throw new Exception("Attribute of name " + attributeName + " does not exist");
+        }
+        // Error check: value type matches attribute type
+
+        for (Record record : records) {
+            // Not doing deep copy of the record might be a problem but should be ok
+            record.getValues().set(attributeIndex, value);
+            sM.updateRecord_primarykey(record.getValues().get(keyIndex), record);
+        }
+
+        return records.size();
+    }
+
+    public void orderby(String tableName, String attributeName, String order) throws Exception {
+        
+        Table table = sM.catalog.getTableByName(tableName);
+        if (table == null) {
+            throw new Exception("Table of name " + tableName + " does not exist");
+        }
+
+        
+        List<Record> records = sM.getRecords_tablenumber(table.getNumber());
+
+        int attributeIndex = -1;
+        List<Attribute> attributes = table.getAttributes();
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).getName().equals(attributeName)) {
+                attributeIndex = i;
+                break;
+            }
+        }
+
+        if (attributeIndex == -1) {
+            throw new Exception("Attribute '" + attributeName + "' does not exist in table '" + tableName + "'");
+        }
+
+        
+        Collections.sort(records, new Comparator<Record>() {
+            @Override
+            public int compare(Record r1, Record r2) {
+                Object value1 = r1.getValues().get(attributeIndex);
+                Object value2 = r2.getValues().get(attributeIndex);
+
+                
+                if (value1 instanceof Integer && value2 instanceof Integer) {
+                    return ((Integer) value1).compareTo((Integer) value2);
+                } else if (value1 instanceof Double && value2 instanceof Double) {
+                    return ((Double) value1).compareTo((Double) value2);
+                } else if (value1 instanceof String && value2 instanceof String) {
+                    return ((String) value1).compareTo((String) value2);
+                } else if (value1 instanceof Boolean && value2 instanceof Boolean) {
+                    return ((Boolean) value1).compareTo((Boolean) value2);
+                } else {
+                    
+                    throw new IllegalArgumentException("Unsupported data type for sorting");
+                }
+            }
+        });
+
+        if (order.equalsIgnoreCase("desc")) {
+            Collections.reverse(records);
+        }
+
+       
+        for (Record record : records) {
+            System.out.println(record);         }
+    }
+
+    public List<Record> where(List<Record> records, String conditions) {
+        List<Record> result = new ArrayList<>();
+        
+
+
+        return result;
+    }
+
 }
