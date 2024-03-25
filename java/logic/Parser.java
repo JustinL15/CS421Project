@@ -84,9 +84,11 @@ public class Parser {
         sM.createTable(name,number,AttrList);
 
     }
+
     public void drop_table(String name){
-        sM.dropTable(name);   
+       sM.dropTable(name);   
     }
+
     public void add_table_column(Table table, Attribute newAttr,String defaulttoken){
         
         Object defaultval = null;
@@ -144,6 +146,7 @@ public class Parser {
         sM.add_table_column(table, newAttr,defaultval);
         
     }
+
     public void delete_table_column(Table table, String deleteAttribute){
         List<Attribute> attrlist =  table.getAttributes();
         //Attribute deleteAttrval = null;
@@ -163,6 +166,7 @@ public class Parser {
         sM.delete_table_column(table, deleteAttribute, found);
         
     }
+
     public void insert_values(String tableName, List<String> values) throws Exception {
         Table table = sM.catalog.getTableByName(tableName);
         List<Attribute> tableCol = table.getAttributes();
@@ -308,7 +312,7 @@ public class Parser {
     }
 
     public void printing_out_records(List<Record> records, List<String> columns,int size, Table template) {
-        Boolean print_array[] = new Boolean[size];
+        boolean print_array[] = new boolean[size];
         System.out.println("-------");
 
         int x = 0;
@@ -340,10 +344,12 @@ public class Parser {
 
     public void select_statment(List<Table> tables, List<String> columns){
         List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
-        List<Attribute> new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
-        Table newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
+        List<Attribute> new_attr = new ArrayList<Attribute>();; 
+        Table newtemplate = tables.get(0);
         List<Record> new_rec = new ArrayList<Record>();
-        // if(tables.size() > 1){
+        if(tables.size() > 1){
+            new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
+            newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
             for ( Record i : allrec) {
                 List<Object> all_obj = new ArrayList<Object>(); 
                 all_obj.addAll(i.getValues());
@@ -351,17 +357,20 @@ public class Parser {
                 Record newrecord = new Record(newtemplate, all_obj);
                 new_rec.add(newrecord);
             }
-        // }
+        }
+        else{
+            new_rec = allrec;
+        }
 
         // should probably use new_rec instead of allrec in this loop
         for (int i = 1; i < tables.size(); i++) {
             List<Attribute> all_attr = new ArrayList<Attribute>(); 
-            all_attr.addAll(allrec.get(0).getTemplate().getAttributes());
+            all_attr.addAll(new_rec.get(0).getTemplate().getAttributes());
             all_attr.addAll(   adjust_attrbute_names(tables.get(i).getName(), tables.get(i).getAttributes())   );
             Table new_template =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
 
             List<Record> allrec_2 = sM.getRecords_tablenumber(tables.get(i).getNumber()); 
-            allrec = Cart_product(allrec,allrec_2,new_template);
+            new_rec = Cart_product(new_rec,allrec_2,new_template);
         }
 
 
@@ -370,6 +379,30 @@ public class Parser {
         }
         else {
             printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate);
+        }
+    }
+
+    // This is the delete command for the table
+    public void delete_statment(Table table, List<String> conditions){
+        // We start by gathering all the records in the table
+        List<Record> tableRecords = sM.getRecords_tablenumber(table.getNumber());
+        // Then we collect the attributes
+        List<Attribute> attr = table.getAttributes();
+
+        // This iterates through all the records
+        for (Record record : tableRecords) {
+            List<Object> values = record.getValues(); //This gets the values stored in the record
+            // Create a loop that goes through each column name to find the condition
+            int index = 0;
+            for (Attribute attribute : attr) {
+                if (/*Insert the where method here when it is complete */attribute.getName() == "boolean") {
+                    // This uses the delete Record function to remove the record. 
+                    Object primeKey = values.get(index);
+                    sM.deleteRecord_primarykey(table, primeKey);
+                    break;
+                }
+                index += 1;
+            }
         }
     }
 
@@ -427,7 +460,7 @@ public class Parser {
         Integer attributeIndex = null;
         Integer keyIndex = null;
         for (Attribute attribute : attributes) {
-            if (attribute.getName() == attributeName) {
+            if (attribute.getName().equals(attributeName)) {
                 attributeIndex = attributes.indexOf(attribute);
             }
             if (attribute.isKey()) {
@@ -505,13 +538,8 @@ public class Parser {
 
     public List<Record> where(List<Record> records, String conditions) throws Exception {
         List<Record> result = new ArrayList<>();
-        LogicNode logicTree = LogicNode.build(conditions);
         
-        for (int i = 0; i < records.size(); i++){
-            if(logicTree.evaluate(records.get(i))) {
-                result.add(records.get(i));
-            }
-        }
+
 
         return result;
     }
