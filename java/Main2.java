@@ -303,12 +303,12 @@ public class Main2 {
 
     private static void parseAlter(String[] arguments, Parser parser) throws Exception {
         Catalog myCatalog = parser.sM.catalog;
-        if(arguments[1].compareTo("table") == 0){
+        if(arguments[1].equals("table")){
             if(myCatalog.getTableByName(arguments[2]) == null){
                 throw new Exception("Table of name " + arguments[2] + " does not exist");
             }
-            if(arguments[3].compareTo("add") == 0){
-                int datalength =0;
+            if(arguments[3].equals("add")){
+                int datalength = 0;
                 Type attrtype1 = null;
                 String defaultval = null;
                 if(arguments[5].toLowerCase().contains("(") && arguments[5].toLowerCase().substring(0, arguments[5].indexOf("(")).compareTo("varchar") == 0){
@@ -332,8 +332,8 @@ public class Main2 {
                     System.out.println("Invalid data type " + arguments[5].substring(0, arguments[5].length() - 1));
                 }
                 Attribute addattr = new Attribute(arguments[4],attrtype1,datalength,true,false,false); // doesn't account for unique, notnull, key
-                if (arguments.length == 7) {
-                    defaultval = arguments[6];
+                if (arguments.length == 8) {
+                    defaultval = arguments[7];
                 }
                 parser.add_table_column(myCatalog.getTableByName(arguments[2]), addattr,defaultval);
 
@@ -343,6 +343,7 @@ public class Main2 {
                 parser.delete_table_column(myCatalog.getTableByName(arguments[2]), arguments[4].substring(0, arguments[4].length() - 1));
             }
         }
+        System.out.println("SUCCESS");
     }
 
     private static void parseCreate(String[] arguments, String input, Parser parser) throws Exception {

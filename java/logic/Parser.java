@@ -372,8 +372,6 @@ public class Parser {
             printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate);
         }
     }
-        
-    }
 
     private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
         List<Record> new_list = new ArrayList<Record>();
@@ -505,10 +503,15 @@ public class Parser {
             System.out.println(record);         }
     }
 
-    public List<Record> where(List<Record> records, String conditions) {
+    public List<Record> where(List<Record> records, String conditions) throws Exception {
         List<Record> result = new ArrayList<>();
+        LogicNode logicTree = LogicNode.build(conditions);
         
-
+        for (int i = 0; i < records.size(); i++){
+            if(logicTree.evaluate(records.get(i))) {
+                result.add(records.get(i));
+            }
+        }
 
         return result;
     }
