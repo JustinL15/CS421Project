@@ -538,8 +538,13 @@ public class Parser {
 
     public List<Record> where(List<Record> records, String conditions) throws Exception {
         List<Record> result = new ArrayList<>();
-        
+        LogicNode logicTree = LogicNode.build(conditions);
 
+        for (int i = 0; i < records.size(); i++){
+            if(logicTree.evaluate(records.get(i))) {
+                result.add(records.get(i));
+            }
+        }
 
         return result;
     }
