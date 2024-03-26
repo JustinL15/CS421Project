@@ -482,15 +482,13 @@ public class Parser {
     }
 
     public void orderby(String tableName, String attributeName, String order) throws Exception {
-        
         Table table = sM.catalog.getTableByName(tableName);
         if (table == null) {
             throw new Exception("Table of name " + tableName + " does not exist");
         }
-
-        
+    
         List<Record> records = sM.getRecords_tablenumber(table.getNumber());
-
+    
         int attributeIndex = -1;
         List<Attribute> attributes = table.getAttributes();
         for (int i = 0; i < attributes.size(); i++) {
@@ -499,42 +497,42 @@ public class Parser {
                 break;
             }
         }
-
+    
         if (attributeIndex == -1) {
             throw new Exception("Attribute '" + attributeName + "' does not exist in table '" + tableName + "'");
         }
-
-        
+    
         Collections.sort(records, new Comparator<Record>() {
             @Override
             public int compare(Record r1, Record r2) {
                 Object value1 = r1.getValues().get(attributeIndex);
                 Object value2 = r2.getValues().get(attributeIndex);
-
-                
+    
+              
+                int result;
                 if (value1 instanceof Integer && value2 instanceof Integer) {
-                    return ((Integer) value1).compareTo((Integer) value2);
+                    result = ((Integer) value1).compareTo((Integer) value2);
                 } else if (value1 instanceof Double && value2 instanceof Double) {
-                    return ((Double) value1).compareTo((Double) value2);
+                    result = ((Double) value1).compareTo((Double) value2);
                 } else if (value1 instanceof String && value2 instanceof String) {
-                    return ((String) value1).compareTo((String) value2);
+                    result = ((String) value1).compareTo((String) value2);
                 } else if (value1 instanceof Boolean && value2 instanceof Boolean) {
-                    return ((Boolean) value1).compareTo((Boolean) value2);
+                    result = ((Boolean) value1).compareTo((Boolean) value2);
                 } else {
-                    
                     throw new IllegalArgumentException("Unsupported data type for sorting");
                 }
+    
+                if (order.equalsIgnoreCase("desc")) {
+                    result = -result;
+                }
+                return result;
             }
         });
-
-        if (order.equalsIgnoreCase("desc")) {
-            Collections.reverse(records);
-        }
-
-       
+    
         for (Record record : records) {
-            System.out.println(record);         }
-    }
+            System.out.println(record);
+        }
+    }    
 
     public List<Record> where(List<Record> records, String conditions) throws Exception {
         List<Record> result = new ArrayList<>();
