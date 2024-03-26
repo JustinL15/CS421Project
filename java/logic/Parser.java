@@ -502,13 +502,14 @@ public class Parser {
             throw new Exception("Attribute '" + attributeName + "' does not exist in table '" + tableName + "'");
         }
     
+        final int finalAttributeIndex = attributeIndex;
+    
         Collections.sort(records, new Comparator<Record>() {
             @Override
             public int compare(Record r1, Record r2) {
-                Object value1 = r1.getValues().get(attributeIndex);
-                Object value2 = r2.getValues().get(attributeIndex);
+                Object value1 = r1.getValues().get(finalAttributeIndex);
+                Object value2 = r2.getValues().get(finalAttributeIndex);
     
-              
                 int result;
                 if (value1 instanceof Integer && value2 instanceof Integer) {
                     result = ((Integer) value1).compareTo((Integer) value2);
@@ -532,7 +533,7 @@ public class Parser {
         for (Record record : records) {
             System.out.println(record);
         }
-    }    
+    }
 
     public List<Record> where(List<Record> records, String conditions) throws Exception {
         List<Record> result = new ArrayList<>();
