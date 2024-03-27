@@ -482,13 +482,11 @@ public class Parser {
         return records.size();
     }
 
-    public void orderby(String tableName, String attributeName, String order) throws Exception {
+    public List<Record> orderby(String tableName, String attributeName, String order, List<Record> records) throws Exception {
         Table table = sM.catalog.getTableByName(tableName);
         if (table == null) {
             throw new Exception("Table of name " + tableName + " does not exist");
         }
-    
-        List<Record> records = sM.getRecords_tablenumber(table.getNumber());
     
         int attributeIndex = -1;
         List<Attribute> attributes = table.getAttributes();
@@ -531,9 +529,7 @@ public class Parser {
             }
         });
     
-        for (Record record : records) {
-            System.out.println(record);
-        }
+        return records;
     }
 
     public List<Record> where(List<Record> records, String conditions) throws Exception {
@@ -549,4 +545,51 @@ public class Parser {
         return result;
     }
 
+    public static void main(String[] args) {
+        List<Record> unsortedRecords = new ArrayList<>();
+        Attribute a1 = new Attribute("Id", Type.Integer, 0, false, true, false);
+        Attribute a2 = new Attribute("Name", Type.Varchar, 10, false, false, false);
+        List<Attribute> aL = new ArrayList<>();
+        aL.add(a1);
+        aL.add(a2);
+        Table t1 = new Table("test", 0, aL, 0);
+        List<Table> tL = new ArrayList<>();
+        tL.add(t1);
+        Catalog c1 = new Catalog(100, 100, tL);
+        StorageManager sM = new StorageManager(c1, "resources");
+        Parser p = new Parser(sM);
+        List<Object> v1 = new ArrayList<>();
+        v1.add(0);
+        v1.add("John");
+        List<Object> v2 = new ArrayList<>();
+        v2.add(1);
+        v2.add("Tommy");
+        List<Object> v3 = new ArrayList<>();
+        v3.add(2);
+        v3.add("Sarah");
+        List<Object> v4 = new ArrayList<>();
+        v4.add(3);
+        v4.add("Cindy");
+        List<Object> v5 = new ArrayList<>();
+        v5.add(4);
+        v5.add("Johnny");
+        Record r1 = new Record(t1, v1);
+        Record r2 = new Record(t1, v2);
+        Record r3 = new Record(t1, v3);
+        Record r4 = new Record(t1, v4);
+        Record r5 = new Record(t1, v5);
+        unsortedRecords.add(r1);
+        unsortedRecords.add(r2);
+        unsortedRecords.add(r3);
+        unsortedRecords.add(r4);
+        unsortedRecords.add(r5);
+        try {
+            p.orderby("test", "Name", "DESC", unsortedRecords);
+            System.out.println();
+            p.orderby("test", "Name", "ASC", unsortedRecords);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    
+    }
 }

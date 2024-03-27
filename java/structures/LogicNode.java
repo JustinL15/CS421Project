@@ -133,6 +133,7 @@ public class LogicNode {
             StringBuilder tokenBuilder = new StringBuilder();
             while(conditions.charAt(i) != ' ') {
                 tokenBuilder.append(conditions.charAt(i));
+                i++;
             }
             String token = tokenBuilder.toString();
             switch (token) {
