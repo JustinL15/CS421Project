@@ -131,7 +131,7 @@ public class LogicNode {
         for (int i = 0; i < conditions.length(); i++) {
             String type = "";
             StringBuilder tokenBuilder = new StringBuilder();
-            while(conditions.charAt(i) != ' ') {
+            while(conditions.charAt(i) != ' ' && i < conditions.length()) {
                 tokenBuilder.append(conditions.charAt(i));
                 i++;
             }
