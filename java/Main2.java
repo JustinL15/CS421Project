@@ -135,7 +135,7 @@ public class Main2 {
                     return;
                 case ("select"):
                     try {
-                        parseSelect(arguments, parser);
+                        parseSelect(arguments,input,parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -366,7 +366,7 @@ public class Main2 {
         System.out.println("SUCCESS");
     }
 
-    private static void parseSelect(String[] arguments, Parser parser) throws Exception {
+    private static void parseSelect(String[] arguments, String argumentline, Parser parser) throws Exception {
         Catalog myCatalog = parser.sM.catalog; 
         int arg_counter = 1;
         List<String> columns = new ArrayList<String>();
@@ -395,9 +395,10 @@ public class Main2 {
             
         }
         arg_counter = arg_counter +1;
+        //tables
         List<Table> tables = new ArrayList<Table>();
-        
-        System.out.println(arguments[arg_counter].charAt(arguments[arg_counter].length() - 1));
+        String where = null;
+        //System.out.println(arguments[arg_counter].charAt(arguments[arg_counter].length() - 1));
         // while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
         boolean end = false;  
         while( end == false && arguments[arg_counter].equals("where") == false){
@@ -405,10 +406,11 @@ public class Main2 {
             Table table;
             String tableName;
             
-                if(curr_val == "," || curr_val == ";"){
+                if(curr_val == ","){
                     continue;
                 } 
                 else if (curr_val == ";"){
+                    end = true;
                     break;
                 }
                 if (curr_val.substring(curr_val.length() - 1).compareTo(",") == 0){
@@ -433,9 +435,32 @@ public class Main2 {
                 arg_counter = arg_counter +1;
         
         }
+        if(end){
+            parser.select_statment(tables,columns,where);
+            System.out.println("SUCCESS");
+            return;
+        }
         
-        parser.select_statment(tables,columns);
+        //where
+        String regexString =  "where(.*?);";
+        String regexString2 =  "where(.*?)orderby";
+        Pattern pattern = Pattern.compile(regexString);
+        Pattern pattern2 = Pattern.compile(regexString2);
+	    // text contains the full text that you want to extract data
+	    Matcher matcher = pattern.matcher(argumentline);
+        Matcher matcher2 = pattern2.matcher(argumentline);
+        if(matcher.find()) {
+            //System.out.println(matcher.group(1));
+            where = matcher.group(1);
+            where = where.trim();
+        }
+        else if(matcher2.find()){
+            //System.out.println(matcher2.group(1));
+            where = matcher2.group(1);
+            where = where.trim();
+        }
 
+        parser.select_statment(tables,columns,where);
 
         System.out.println("SUCCESS");
     }

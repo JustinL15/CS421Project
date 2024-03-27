@@ -342,7 +342,7 @@ public class Parser {
     }
 
 
-    public void select_statment(List<Table> tables, List<String> columns){
+    public void select_statment(List<Table> tables, List<String> columns,String where) throws Exception{
         List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
         List<Attribute> new_attr = new ArrayList<Attribute>();; 
         Table newtemplate = tables.get(0);
@@ -372,8 +372,9 @@ public class Parser {
             List<Record> allrec_2 = sM.getRecords_tablenumber(tables.get(i).getNumber()); 
             new_rec = Cart_product(new_rec,allrec_2,new_template);
         }
-
-
+        if(where != null){
+            new_rec = where(new_rec, where);
+        }
         if(columns == null){
             printing_out_records(new_rec, newtemplate);
         }
