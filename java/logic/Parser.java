@@ -89,7 +89,7 @@ public class Parser {
        sM.dropTable(name);   
     }
 
-    public void add_table_column(Table table, Attribute newAttr,String defaulttoken){
+    public void add_table_column(Table table, Attribute newAttr,String defaulttoken) throws Exception{
         
         Object defaultval = null;
         if (defaulttoken != null){

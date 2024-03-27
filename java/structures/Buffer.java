@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -55,6 +57,7 @@ public class Buffer {
         }
 
         Page page = new Page(table, bytes, pageNumber);
+        System.out.println("Make Page "+ pageNumber);
         pages.add(page);
         if (pages.size() > catalog.getBufferSize()) {
             Page lruPage = pages.remove();
@@ -64,6 +67,10 @@ public class Buffer {
     }
 
     private void write(Page page) {
+        if (page.bytesUsed() > catalog.getPageSize()) {
+            splitPage(page.getTemplate().getName(), page);
+            return;
+        }
         byte[] bytes = page.toByte(catalog.getPageSize());
         Table table = page.getTemplate();
         int tableNumber = table.getNumber();
@@ -93,20 +100,42 @@ public class Buffer {
         }
     }
 
-    public Page[] splitPage(String tableName, int pageNumber) {
-        Page pageToSplit = read(tableName, pageNumber);
-        int pageCount = catalog.getTableByName(tableName).getPagecount(); 
-        List<Record> newVals = new ArrayList<>();
-        for (int i = 0; i < Math.ceil(pageToSplit.getRecords().size() / 2.0); i++) {
-            newVals.add(0, pageToSplit.getRecords().remove(pageToSplit.getRecords().size() - 1));
+    public void splitPage(String tableName, Page page) {
+        Deque<Page> pagesToSplit = new ArrayDeque<>();
+        pagesToSplit.add(page);
+        int pageNumber = page.getPageNumber();
+        while (pagesToSplit.peekFirst().bytesUsed() > catalog.getPageSize()) {
+            int numPages = pagesToSplit.size();
+            for (int i = 0; i < numPages; i++) {
+                Page cur = pagesToSplit.poll();
+                if (cur.bytesUsed() > catalog.getPageSize()) {
+                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), pageNumber);
+                    for (int j = 0; j < cur.getRecords().size() / 2; j++) {
+                        newPage.getRecords().addFirst(cur.getRecords().remove(cur.getRecords().size() - 1));
+                    }
+                    pagesToSplit.add(cur);
+                    pagesToSplit.add(newPage);
+                } else {
+                    pagesToSplit.add(cur);
+                }
+            }
         }
-        for (int i = pageNumber + 1; i < pageCount; i++) {
+
+        Table table = catalog.getTableByName(tableName);
+        System.out.println(pagesToSplit.size());
+        List<Page> pagesToAdd = new ArrayList<>(pagesToSplit);
+        for (int i = pageNumber + 1; i < table.getPagecount(); i++) {
             Page next = read(tableName, i);
-            next.setPageNumber(i + 1);
+            next.setPageNumber(i + pagesToAdd.size() - 1);
         }
-        Page newPage = new Page(catalog.getTableByName(tableName), newVals, pageNumber + 1);
-        write(newPage);
-        return new Page[] {read(tableName, pageNumber), read(tableName, pageNumber + 1)};
+        for (int i = 0; i < pagesToAdd.size(); i++) {
+            pagesToAdd.get(i).setPageNumber(pageNumber + i);
+            for (Record r :pagesToAdd.get(i).getRecords()) {
+                System.out.println(r.getValues());
+            }
+            write(pagesToAdd.get(i));
+            table.setPageCount(table.getPagecount() + pagesToAdd.size() - 1);
+        }
     }
 
     public void purge() {
@@ -114,6 +143,22 @@ public class Buffer {
             write(page);
         }
         pages = new LinkedList<Page>();
+    }
+    
+    public void cleanTable(Table table) {
+        int tableNumber = table.getNumber();
+        String tableLocation = databaseLocation + File.separator + "tables" + File.separator + tableNumber;
+        RandomAccessFile tableAccessFile;
+        File tableFile = new File(tableLocation);
+        try {
+            tableAccessFile = new RandomAccessFile(tableFile, "rw");
+            tableAccessFile.setLength(0);
+        } catch (FileNotFoundException e) {
+            System.out.println("Table does not exist.");
+            return;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     public static void main(String[] args) 
     {
@@ -127,7 +172,7 @@ public class Buffer {
 
         ArrayList<Table> tables = new ArrayList<Table>();
         tables.add(table);
-        Catalog cat = new Catalog(1, 500, tables);
+        Catalog cat = new Catalog(1, 20, tables);
 
         Buffer buffer = new Buffer(cat, "Database-System-Implementation-Project\\resources");
         Page page0 = buffer.read(table.getName(), 0);
