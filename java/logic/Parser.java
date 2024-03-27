@@ -342,7 +342,7 @@ public class Parser {
     }
 
 
-    public void select_statment(List<Table> tables, List<String> columns,String where) throws Exception{
+    public void select_statment(List<Table> tables, List<String> columns,String where, String order) throws Exception{
         List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
         List<Attribute> new_attr = new ArrayList<Attribute>();; 
         Table newtemplate = tables.get(0);
@@ -374,6 +374,9 @@ public class Parser {
         }
         if(where != null){
             new_rec = where(new_rec, where);
+        }
+        if(order != null){
+            new_rec = orderby(newtemplate, order, "asc", new_rec);
         }
         if(columns == null){
             printing_out_records(new_rec, newtemplate);
@@ -482,11 +485,12 @@ public class Parser {
         return records.size();
     }
 
-    public List<Record> orderby(String tableName, String attributeName, String order, List<Record> records) throws Exception {
+    public List<Record> orderby(Table table, String attributeName, String order, List<Record> records) throws Exception {
+        /** 
         Table table = sM.catalog.getTableByName(tableName);
         if (table == null) {
             throw new Exception("Table of name " + tableName + " does not exist");
-        }
+        }*/
     
         int attributeIndex = -1;
         List<Attribute> attributes = table.getAttributes();
@@ -498,7 +502,7 @@ public class Parser {
         }
     
         if (attributeIndex == -1) {
-            throw new Exception("Attribute '" + attributeName + "' does not exist in table '" + tableName + "'");
+            throw new Exception("Attribute '" + attributeName + "' does not exist in table '" + table.getName() + "'");
         }
     
         final int finalAttributeIndex = attributeIndex;
@@ -584,9 +588,9 @@ public class Parser {
         unsortedRecords.add(r4);
         unsortedRecords.add(r5);
         try {
-            p.orderby("test", "Name", "DESC", unsortedRecords);
+            p.orderby(c1.getTableByName("test"), "Name", "DESC", unsortedRecords);
             System.out.println();
-            p.orderby("test", "Name", "ASC", unsortedRecords);
+            p.orderby(c1.getTableByName("test"), "Name", "ASC", unsortedRecords);
         } catch (Exception e) {
             e.printStackTrace();
         }

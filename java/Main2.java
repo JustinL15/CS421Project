@@ -398,10 +398,11 @@ public class Main2 {
         //tables
         List<Table> tables = new ArrayList<Table>();
         String where = null;
+        String orderby = null;
         //System.out.println(arguments[arg_counter].charAt(arguments[arg_counter].length() - 1));
         // while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
         boolean end = false;  
-        while( end == false && arguments[arg_counter].equals("where") == false){
+        while( end == false && arguments[arg_counter].equals("where") == false && arguments[arg_counter].equals("orderby") == false){
             String curr_val = arguments[arg_counter];
             Table table;
             String tableName;
@@ -436,7 +437,7 @@ public class Main2 {
         
         }
         if(end){
-            parser.select_statment(tables,columns,where);
+            parser.select_statment(tables,columns,where,orderby);
             System.out.println("SUCCESS");
             return;
         }
@@ -460,7 +461,16 @@ public class Main2 {
             where = where.trim();
         }
 
-        parser.select_statment(tables,columns,where);
+        regexString = "orderby(.*?);";
+        pattern = Pattern.compile(regexString);
+        matcher = pattern.matcher(argumentline);
+        if(matcher.find()) {
+            //System.out.println(matcher.group(1));
+            orderby = matcher.group(1);
+            orderby = orderby.trim();
+        }
+
+        parser.select_statment(tables,columns,where,orderby);
 
         System.out.println("SUCCESS");
     }
