@@ -1,6 +1,6 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
+import java.util.Stack;
 import java.util.List;
 
 public class LogicNode {
@@ -96,6 +96,7 @@ public class LogicNode {
                         return 1;
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     throw new Exception("Type Mismatch");
                 }
             case "Double":
@@ -127,7 +128,7 @@ public class LogicNode {
     }
 
     public static LogicNode build(String conditions) throws Exception {
-        Deque<LogicNode> stack = new ArrayDeque<>();
+        Stack<LogicNode> stack = new Stack<>();
         for (int i = 0; i < conditions.length(); i++) {
             String type = "";
             StringBuilder tokenBuilder = new StringBuilder();
@@ -155,7 +156,7 @@ public class LogicNode {
                         } else {
                             LogicNode newNode = new LogicNode(type, token);
                             newNode.left = lastNode;
-                            stack.add(newNode);
+                            stack.push(newNode);
                         }
                     }
                     break;
@@ -168,7 +169,7 @@ public class LogicNode {
                         if (lastNode.operation.equals("Comparison") && lastNode.right != null) {
                             LogicNode newNode = new LogicNode(type);
                             newNode.left = lastNode;
-                            stack.add(newNode);
+                            stack.push(newNode);
                         } else {
                             throw new Exception("Invalid syntax for where condition.");
                         }
@@ -184,7 +185,7 @@ public class LogicNode {
                             if (stack.isEmpty()) {
                                 LogicNode newNode = new LogicNode(type);
                                 newNode.left = lastNode;
-                                stack.add(newNode);
+                                stack.push(newNode);
                             } else {
                                 LogicNode nextNode = stack.pop();
                                 while (nextNode.operation.equals("And")) {
@@ -197,11 +198,11 @@ public class LogicNode {
                                     }
                                 }
                                 if (nextNode != null) {
-                                    stack.add(nextNode);
+                                    stack.push(nextNode);
                                 }
                                 LogicNode newNode = new LogicNode(type);
                                 newNode.left = lastNode;
-                                stack.add(newNode);
+                                stack.push(newNode);
                             }
                         } else {
                             throw new Exception("Invalid syntax for where condition.");
@@ -211,24 +212,24 @@ public class LogicNode {
                 default:
                     if (isValidBoolean(token)) {
                         type = "Boolean";
-                    } else if (isValidDouble(token)) {
-                        type = "Double";
                     } else if (isValidIntegerInRange(token)) {
                         type = "Integer";
+                    } else if (isValidDouble(token)) {
+                        type = "Double";
                     } else if (isValidString(token)) {
                         type = "String";
                     } else {
                         type = "Attribute";
                     }
                     if (stack.isEmpty()) {
-                        stack.add(new LogicNode(type, token));
+                        stack.push(new LogicNode(type, token));
                     } else {
                         LogicNode lastNode = stack.peek();
                         if (lastNode.operation.equals("Comparison")) {
                             lastNode.right = new LogicNode(type, token);
                         }
                         else if (lastNode.operation.equals("And") || lastNode.operation.equals("Or")) {
-                            stack.add(new LogicNode(type, token));
+                            stack.push(new LogicNode(type, token));
                         } else {
                             throw new Exception("Invalid syntax for where condition.");
                         }
