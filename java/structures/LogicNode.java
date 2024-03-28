@@ -137,7 +137,7 @@ public class LogicNode {
                 i++;
             }
             String token = tokenBuilder.toString();
-            switch (token) {
+            switch (token.toLowerCase()) {
                 case "<":
                 case ">":
                 case "=":
@@ -160,7 +160,7 @@ public class LogicNode {
                         }
                     }
                     break;
-                case "And":
+                case "and":
                     type = "And";
                     if (stack.isEmpty()) {
                         throw new Exception("Invalid syntax for where condition.");
@@ -175,7 +175,7 @@ public class LogicNode {
                         }
                     }
                     break;
-                case "Or":
+                case "or":
                     type = "Or";
                     if (stack.isEmpty()) {
                         throw new Exception("Invalid syntax for where condition.");
