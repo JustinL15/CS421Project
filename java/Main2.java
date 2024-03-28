@@ -269,11 +269,13 @@ public class Main2 {
                                 }
                                 break;
                             case '"':
+                                word.append('"');
                                 i++;
                                 while (icommand.charAt(i) != '"') {
                                     word.append(icommand.charAt(i));
                                     i++;
                                 }
+                                word.append('"');
                                 if (icommand.charAt(i + 1) != ' ') {
                                     throw new Exception(" Error parsing insert command.");
                                 }
