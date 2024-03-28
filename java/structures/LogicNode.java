@@ -83,6 +83,15 @@ public class LogicNode {
     }
 
     private static int comparison(Record record, LogicNode leftNode, LogicNode rightNode) throws Exception {
+        if (leftNode.operation.equals("Attribute")) {
+            leftNode = convertType(leftNode, record);
+        }
+        if (rightNode.operation.equals("Attribute")) {
+            rightNode = convertType(rightNode, record);
+        }
+        if (!leftNode.operation.equals(rightNode.operation)) {
+            throw new Exception("Type Mismatch");
+        }
         switch (leftNode.operation) {
             case "Integer":
                 try {
