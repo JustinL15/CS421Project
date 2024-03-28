@@ -218,6 +218,7 @@ public class LogicNode {
                         type = "Double";
                     } else if (isValidString(token)) {
                         type = "String";
+                        token = cleanString(token);
                     } else {
                         type = "Attribute";
                     }
@@ -303,5 +304,22 @@ public class LogicNode {
             }
         }
         throw new Exception("Attribute " + node.value + " not found");
+    }
+
+    private static String cleanString(String s) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int quotes = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '"') {
+                quotes++;
+                if (quotes > 1) {
+                    break;
+                }
+            } else {
+                stringBuilder.append(c);
+            }
+        }
+        return stringBuilder.toString();
     }
 }
