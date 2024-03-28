@@ -347,6 +347,7 @@ public class Parser {
         List<Attribute> new_attr = new ArrayList<Attribute>();; 
         Table newtemplate = tables.get(0);
         List<Record> new_rec = new ArrayList<Record>();
+        List<String> new_columns = new ArrayList<String>();
         if(tables.size() > 1){
             new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
             newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
@@ -357,9 +358,18 @@ public class Parser {
                 Record newrecord = new Record(newtemplate, all_obj);
                 new_rec.add(newrecord);
             }
+            new_columns = columns;
         }
         else{
             new_rec = allrec;
+            
+            if(columns != null){
+                for(int i = 0; i < columns.size(); i++) {
+                    if (columns.get(i).startsWith(tables.get(i).getName()+".")){
+                        new_columns.add(columns.get(i).substring(tables.get(i).getName().length()+1));
+                    }
+                }
+            }
         }
 
         // should probably use new_rec instead of allrec in this loop
@@ -367,10 +377,10 @@ public class Parser {
             List<Attribute> all_attr = new ArrayList<Attribute>(); 
             all_attr.addAll(new_rec.get(0).getTemplate().getAttributes());
             all_attr.addAll(   adjust_attrbute_names(tables.get(i).getName(), tables.get(i).getAttributes())   );
-            Table new_template =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
+            newtemplate =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
 
             List<Record> allrec_2 = sM.getRecords_tablenumber(tables.get(i).getNumber()); 
-            new_rec = Cart_product(new_rec,allrec_2,new_template);
+            new_rec = Cart_product(new_rec,allrec_2,newtemplate);
         }
         if(where != null){
             new_rec = where(new_rec, where);
@@ -382,7 +392,7 @@ public class Parser {
             printing_out_records(new_rec, newtemplate);
         }
         else {
-            printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate);
+            printing_out_records(new_rec, new_columns, new_rec.get(0).getValues().size(), newtemplate);
         }
     }
 

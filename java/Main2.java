@@ -378,10 +378,10 @@ public class Main2 {
         else{
             while(arguments[arg_counter].equals("from") == false  ){
                 String curr_val = arguments[arg_counter];
-                if(curr_val == ","){
-                    continue;
+                if(curr_val.equals( ",")){
+                    //nothing
                 } 
-                if (curr_val.substring(curr_val.length() - 1) == "," ){
+                else if (curr_val.substring(curr_val.length() - 1) == "," ){
                     columns.add(curr_val.substring(0, curr_val.length() - 1));
                 }
                 else if(curr_val.substring(0,1) == "," ){
@@ -407,10 +407,10 @@ public class Main2 {
             Table table;
             String tableName;
             
-                if(curr_val == ","){
+                if(curr_val.equals(",")){
                     continue;
                 } 
-                else if (curr_val == ";"){
+                else if (curr_val.equals(";")){
                     end = true;
                     break;
                 }
@@ -443,8 +443,8 @@ public class Main2 {
         }
         
         //where
-        String regexString =  "where(.*?);";
-        String regexString2 =  "where(.*?)orderby";
+        String regexString = "where(.*?)orderby";
+        String regexString2 =  "where(.*?);";
         Pattern pattern = Pattern.compile(regexString);
         Pattern pattern2 = Pattern.compile(regexString2);
 	    // text contains the full text that you want to extract data
