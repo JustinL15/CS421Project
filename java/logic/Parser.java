@@ -89,7 +89,7 @@ public class Parser {
        sM.dropTable(name);   
     }
 
-    public void add_table_column(Table table, Attribute newAttr,String defaulttoken){
+    public void add_table_column(Table table, Attribute newAttr,String defaulttoken) throws Exception{
         
         Object defaultval = null;
         if (defaulttoken != null){
@@ -347,6 +347,7 @@ public class Parser {
         List<Attribute> new_attr = new ArrayList<Attribute>();; 
         Table newtemplate = tables.get(0);
         List<Record> new_rec = new ArrayList<Record>();
+        List<String> new_columns = new ArrayList<String>();
         if(tables.size() > 1){
             new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
             newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
@@ -357,9 +358,18 @@ public class Parser {
                 Record newrecord = new Record(newtemplate, all_obj);
                 new_rec.add(newrecord);
             }
+            new_columns = columns;
         }
         else{
             new_rec = allrec;
+            
+            if(columns != null){
+                for(int i = 0; i < columns.size(); i++) {
+                    if (columns.get(i).startsWith(tables.get(i).getName()+".")){
+                        new_columns.add(columns.get(i).substring(tables.get(i).getName().length()+1));
+                    }
+                }
+            }
         }
 
         // should probably use new_rec instead of allrec in this loop
@@ -367,10 +377,10 @@ public class Parser {
             List<Attribute> all_attr = new ArrayList<Attribute>(); 
             all_attr.addAll(new_rec.get(0).getTemplate().getAttributes());
             all_attr.addAll(   adjust_attrbute_names(tables.get(i).getName(), tables.get(i).getAttributes())   );
-            Table new_template =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
+            newtemplate =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
 
             List<Record> allrec_2 = sM.getRecords_tablenumber(tables.get(i).getNumber()); 
-            new_rec = Cart_product(new_rec,allrec_2,new_template);
+            new_rec = Cart_product(new_rec,allrec_2,newtemplate);
         }
         if(where != null){
             new_rec = where(new_rec, where);
@@ -382,33 +392,31 @@ public class Parser {
             printing_out_records(new_rec, newtemplate);
         }
         else {
-            printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate);
+            printing_out_records(new_rec, new_columns, new_rec.get(0).getValues().size(), newtemplate);
         }
     }
 
     // This is the delete command for the table
-    public void delete_statment(Table table, List<String> conditions){
+    public void delete_statment(Table table, String conditions) throws Exception {
         // We start by gathering all the records in the table
         List<Record> tableRecords = sM.getRecords_tablenumber(table.getNumber());
         // Then we collect the attributes
         List<Attribute> attr = table.getAttributes();
 
+        // Goes through each record for the condition
+        if (conditions != null) {
+            tableRecords = where(tableRecords, conditions);
+        }
+
         // This iterates through all the records
         for (Record record : tableRecords) {
-            List<Object> values = record.getValues(); //This gets the values stored in the record
-            // Create a loop that goes through each column name to find the condition
-            int index = 0;
-            for (Attribute attribute : attr) {
-                if (/*Insert the where method here when it is complete */attribute.getName() == "boolean") {
-                    // This uses the delete Record function to remove the record. 
-                    Object primeKey = values.get(index);
-                    sM.deleteRecord_primarykey(table, primeKey);
-                    break;
-                }
-                index += 1;
-            }
+            // This uses the delete Record function to remove the record. 
+            Object primeKey = record.getPrimaryKey();
+            sM.deleteRecord_primarykey(table, primeKey);
+
         }
     }
+
 
     private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
         List<Record> new_list = new ArrayList<Record>();
@@ -576,6 +584,7 @@ public class Parser {
     }
 
     public List<Record> where(List<Record> records, String conditions) throws Exception {
+        System.out.println(conditions);
         List<Record> result = new ArrayList<>();
         LogicNode logicTree = LogicNode.build(conditions);
 

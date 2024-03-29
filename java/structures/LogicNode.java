@@ -83,6 +83,15 @@ public class LogicNode {
     }
 
     private static int comparison(Record record, LogicNode leftNode, LogicNode rightNode) throws Exception {
+        if (leftNode.operation.equals("Attribute")) {
+            leftNode = convertType(leftNode, record);
+        }
+        if (rightNode.operation.equals("Attribute")) {
+            rightNode = convertType(rightNode, record);
+        }
+        if (!leftNode.operation.equals(rightNode.operation)) {
+            throw new Exception("Type Mismatch");
+        }
         switch (leftNode.operation) {
             case "Integer":
                 try {
@@ -137,7 +146,7 @@ public class LogicNode {
                 i++;
             }
             String token = tokenBuilder.toString();
-            switch (token) {
+            switch (token.toLowerCase()) {
                 case "<":
                 case ">":
                 case "=":
@@ -160,7 +169,7 @@ public class LogicNode {
                         }
                     }
                     break;
-                case "And":
+                case "and":
                     type = "And";
                     if (stack.isEmpty()) {
                         throw new Exception("Invalid syntax for where condition.");
@@ -175,7 +184,7 @@ public class LogicNode {
                         }
                     }
                     break;
-                case "Or":
+                case "or":
                     type = "Or";
                     if (stack.isEmpty()) {
                         throw new Exception("Invalid syntax for where condition.");
@@ -218,6 +227,7 @@ public class LogicNode {
                         type = "Double";
                     } else if (isValidString(token)) {
                         type = "String";
+                        token = cleanString(token);
                     } else {
                         type = "Attribute";
                     }
@@ -303,5 +313,22 @@ public class LogicNode {
             }
         }
         throw new Exception("Attribute " + node.value + " not found");
+    }
+
+    private static String cleanString(String s) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int quotes = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '"') {
+                quotes++;
+                if (quotes > 1) {
+                    break;
+                }
+            } else {
+                stringBuilder.append(c);
+            }
+        }
+        return stringBuilder.toString();
     }
 }

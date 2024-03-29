@@ -115,10 +115,9 @@ public class StorageManager {
         }
     }
 
-    public void insertSingleRecord(Table table, Record newRecord) {
-        if (newRecord.spacedUsed() >= catalog.getPageSize()) {
-            System.out.println("Record size larger than page size");
-            return;
+    public void insertSingleRecord(Table table, Record newRecord) throws Exception {
+        if (newRecord.spacedUsed() + 4 > catalog.getPageSize()) {
+            throw new Exception("Record size larger than page size");
         }
         if (table.getPagecount() == 0) {
             Page page = buffer.read(table.getName(), 0);
@@ -135,27 +134,13 @@ public class StorageManager {
                 }
                 for (int j = 0; j < records.size(); j++) {
                     if (insertRecord_table_helper(table, newRecord, records.get(j))) {
-                        if (page.bytesUsed() + newRecord.spacedUsed() >= catalog.getPageSize()) {
-                            buffer.splitPage(table.getName(), i);
-                            table.setPageCount(table.getPagecount() + 1);
-                            i = i - 1;
-                            break;
-                        } else {
-                            page.getRecords().add(j, newRecord);
-                            return;
-                        }
+                        page.getRecords().add(j, newRecord);
+                        return;
                     }
                 }
                 if (i + 1 == table.getPagecount()) {
-                    if (page.bytesUsed() + newRecord.spacedUsed() > catalog.getPageSize()) {
-                        Page newPage = buffer.read(table.getName(), table.getPagecount());
-                        newPage.getRecords().add(newRecord);
-                        table.setPageCount(table.getPagecount() + 1);
-                        return;
-                    } else {
-                        page.getRecords().add(newRecord);
-                        return;
-                    }
+                    page.getRecords().add(newRecord);
+                    return;
                 }
             }
         }
@@ -190,7 +175,7 @@ public class StorageManager {
             }
         }
     }
-    public void updateRecord_primarykey(Object pKey, Record record){
+    public void updateRecord_primarykey(Object pKey, Record record) throws Exception{
         deleteRecord_primarykey(record.getTemplate(), pKey);
         insertSingleRecord(record.getTemplate(), record);
     }
@@ -272,14 +257,11 @@ public class StorageManager {
         return -1;
     }
 
-    public void add_table_column(Table table, Attribute newAttr, Object defaultval) {
-        List<Attribute> attrlist =  table.getAttributes();
-        attrlist.add(newAttr);
-        table.setAttributes(attrlist);
+    public void add_table_column(Table table, Attribute newAttr, Object defaultval) throws Exception {
         int pageCount = table.getPagecount();
 
         List<Record> recordsToUpdate = new ArrayList<>();
-
+        System.out.println(catalog.getTables());
         for (int i = 0; i < pageCount; i++) {
             Page page = buffer.read(table.getName(), i);
             List<Record> records = page.getRecords();
@@ -291,10 +273,14 @@ public class StorageManager {
             recordsToUpdate.addAll(records);
         }
         buffer.purge();
+        buffer.cleanTable(table);
         table.setPageCount(0);
         for (Record r: recordsToUpdate) {
             insertSingleRecord(table, r);
         }
+        List<Attribute> attrlist =  table.getAttributes();
+        attrlist.add(newAttr);
+        table.setAttributes(attrlist);
     }
 
     public void delete_table_column(Table table, String deleteAttribute, int index) {
@@ -316,7 +302,7 @@ public class StorageManager {
  
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Catalog catalog = new Catalog(4, 40, new ArrayList<Table>());
         StorageManager sM = new StorageManager(catalog, "resources");
         Attribute name = new Attribute("name", Type.Varchar, 10, false, false, false);
