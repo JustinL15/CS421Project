@@ -404,7 +404,7 @@ public class Parser {
         if(order != null){
             new_rec = orderby(newtemplate, neworder, "asc", new_rec);
         }
-        if(new_columns == null){
+        if(columns == null){
             printing_out_records(new_rec, newtemplate, print);
         }
         else {
