@@ -141,7 +141,7 @@ public class Main2 {
                     try {
                         parseSelect(arguments,input,parser);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        System.out.println(e.getMessage());
                     }
                     break;
                 case ("create"):
@@ -156,7 +156,6 @@ public class Main2 {
                         parseAlter(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 case ("drop"):
@@ -171,7 +170,6 @@ public class Main2 {
                         parseInsert(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 case ("display"):
@@ -225,7 +223,6 @@ public class Main2 {
         if (arguments.length > 3 && arguments[3].equals("where")) {
             StringBuilder sb = new StringBuilder();
             for (int i = 4; i < arguments.length; i++) {
-                System.out.println(arguments[i]);
                 sb.append(arguments[i]);
                 sb.append(' ');
             }
@@ -233,6 +230,7 @@ public class Main2 {
         }
 
         parser.delete_statment(table, conditions);
+        System.out.println("SUCCESS");
     }
 
     private static void help() {
@@ -330,6 +328,7 @@ public class Main2 {
                     parser.insert_values(table.getName(), r);
                 }
             }
+            System.out.println("SUCCESS");
         } catch (Exception e) {
             throw e;
         }
@@ -410,11 +409,15 @@ public class Main2 {
 
     private static void parseSelect(String[] arguments, String argumentline, Parser parser) throws Exception {
         Catalog myCatalog = parser.sM.catalog; 
+        convertAttributes(arguments, myCatalog);
 
-        for (String str : convertAttributes(arguments, myCatalog)) {
-            System.out.print(str);
-            System.out.print(" ");
+        StringBuilder sb = new StringBuilder();
+        sb.append(arguments[0]);
+        for (int i = 1; i < arguments.length; i++) {
+            sb.append(' ');
+            sb.append(arguments[i]);
         }
+        argumentline = sb.toString();
 
         int arg_counter = 1;
         List<String> columns = new ArrayList<String>();
@@ -549,12 +552,16 @@ public class Main2 {
         conditions = conditions.strip();
 
         parser.update(arguments[1], arguments[3], arguments[5], conditions);
+        System.out.println("SUCCESS");
     }
 
     public static String[] convertAttributes(String[] arguments, Catalog catalog) throws Exception {
         List<Table> tables = new ArrayList<>();
-        for (int i = 2; i < arguments.length;) {
-            while (!arguments[i + 1].equals("where") && !arguments[i + 1].equals("orderby")) {
+        for (int i = 0; i < arguments.length;) {
+            while (i < arguments.length && !arguments[i].equals("from")) {
+                i++;
+            }
+            while (i < arguments.length && !arguments[i + 1].equals("where") && !arguments[i + 1].equals("orderby")) {
                 String[] tableargs = arguments[i + 1].split(",");
                 for (String arg : tableargs) {
                     tables.add(convertStringTable(arg, catalog));   
@@ -569,8 +576,12 @@ public class Main2 {
         }
 
         boolean attrnext = true;
+        if (arguments[0].toLowerCase().equals("update")) {
+            attrnext = false;
+            tables.add(convertStringTable(arguments[1], catalog));
+        }
         for (int i = 1; i < arguments.length; i++) {
-            switch (arguments[i]) {
+            switch (arguments[i].toLowerCase()) {
                 case "from":
                     attrnext = false;
                     break;
@@ -579,6 +590,12 @@ public class Main2 {
                     break;
                 case "orderby":
                     attrnext = true;
+                    break;
+                case "set":
+                    attrnext = true;
+                    break;
+                case "and":
+                case "or":
                     break;
                 default:
                     boolean isAlpha = Character.isAlphabetic(arguments[i].charAt(0));
@@ -592,6 +609,9 @@ public class Main2 {
                     if (attrnext && isAlpha && !alreadyTabled) {
                         String curAttr = arguments[i];
                         if (curAttr.endsWith(";")) {
+                            curAttr = curAttr.substring(0, curAttr.length() - 1);
+                        }
+                        else if (curAttr.endsWith(",")) {
                             curAttr = curAttr.substring(0, curAttr.length() - 1);
                         }
                         String tableName = null;
