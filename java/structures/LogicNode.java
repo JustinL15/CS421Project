@@ -136,7 +136,7 @@ public class LogicNode {
         }
     }
 
-    public static LogicNode build(String conditions) throws Exception {
+    public static LogicNode build(String conditions, boolean cart) throws Exception {
         Stack<LogicNode> stack = new Stack<>();
         for (int i = 0; i < conditions.length(); i++) {
             String type = "";
@@ -230,7 +230,10 @@ public class LogicNode {
                         token = cleanString(token);
                     } else {
                         type = "Attribute";
-                        token = token.substring(token.lastIndexOf(".") + 1);
+                        if(cart == false){
+                            token = token.substring(token.lastIndexOf(".") + 1);  
+                        }
+                        
                     }
                     if (stack.isEmpty()) {
                         stack.push(new LogicNode(type, token));
