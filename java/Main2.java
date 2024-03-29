@@ -412,30 +412,25 @@ public class Main2 {
         int arg_counter = 1;
         List<String> columns = new ArrayList<String>();
         //columns
-        if(arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0){
+        if (arguments[1].equals("*") && arguments[2].equals("from")) {
             columns = null;
             arg_counter = 2;
-        }
-        else{
-            while(arguments[arg_counter].equals("from") == false  ){
-                String curr_val = arguments[arg_counter];
-                if(curr_val.equals( ",")){
-                    //nothing
-                } 
-                else if (curr_val.substring(curr_val.length() - 1).equals(",") ){
-                    columns.add(curr_val.substring(0, curr_val.length() - 1));
+        } else {
+            while (!arguments[arg_counter].equals("from")) {
+                String curr_val = arguments[arg_counter].trim(); 
+                if (!curr_val.isEmpty()) {
+                    if (curr_val.equals(",")) {
+                        // Do nothing
+                    } else if (curr_val.endsWith(",")) {
+                        columns.add(curr_val.substring(0, curr_val.length() - 1));
+                    } else {
+                        columns.add(curr_val);
+                    }
                 }
-                else if(curr_val.substring(0,1).equals(",") ){
-                    columns.add(curr_val.substring(1, curr_val.length()));
-                }
-                else{
-                    columns.add(arguments[arg_counter]);
-                }
-                arg_counter = arg_counter +1;
+                arg_counter++;
             }
-            
         }
-        arg_counter = arg_counter +1;
+        arg_counter++;
         //tables
         List<Table> tables = new ArrayList<Table>();
         String where = null;
