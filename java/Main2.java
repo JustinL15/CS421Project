@@ -539,4 +539,47 @@ public class Main2 {
         parser.update(arguments[1], arguments[3], arguments[5], conditions);
     }
 
+    public static String[] convertAttributes(String[] arguments, List<Table> tables) throws Exception {
+        boolean attrnext = true;
+        for (int i = 1; i < arguments.length; i++) {
+            switch (arguments[i]) {
+                case "from":
+                    attrnext = false;
+                    break;
+                case "where":
+                    attrnext = true;
+                case "orderby":
+                    attrnext = true;
+                default:
+                    boolean isAlpha = Character.isAlphabetic(arguments[i].charAt(0));
+                    boolean alreadyTabled = false;
+                    for (Table table: tables) {
+                        if (arguments[i].startsWith(table.getName() + ".")) {
+                            alreadyTabled = true;
+                            break;
+                        }
+                    }
+                    if (attrnext && isAlpha && !alreadyTabled) {
+                        String tableName = null;
+                        for (Table table: tables) {
+                            for (Attribute attr: table.getAttributes()) {
+                                if (attr.getName().equals(arguments[i])) {
+                                    if (tableName == null) {
+                                        tableName = table.getName();
+                                    } else {
+                                        throw new Exception(arguments[i] + "is too ambiguous");
+                                    }
+                                }
+                            }
+                        }
+                        if (tableName == null) {
+                            throw new Exception("Attribute does not exist");
+                        }
+                        arguments[i] = tableName + "." + arguments[i];
+                    }
+                    break;
+            }
+        }
+        return arguments;
+    }
 }
