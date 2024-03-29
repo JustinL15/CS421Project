@@ -550,7 +550,7 @@ public class Main2 {
 
     public static String[] convertAttributes(String[] arguments, Catalog catalog) throws Exception {
         List<Table> tables = new ArrayList<>();
-        for (int i = 2; i < arguments.length; i++) {
+        for (int i = 2; i < arguments.length;) {
             while (!arguments[i + 1].equals("where") && !arguments[i + 1].equals("orderby")) {
                 String[] tableargs = arguments[i + 1].split(",");
                 for (String arg : tableargs) {
