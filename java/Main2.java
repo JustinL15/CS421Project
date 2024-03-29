@@ -450,7 +450,7 @@ public class Main2 {
         // while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
  
         String regexString = "from(.*?)where";
-        String regexString2 =  "from(.*?)orderby;";
+        String regexString2 =  "from(.*?)orderby";
         String regexString3 =  "from(.*?);";
         Pattern pattern = Pattern.compile(regexString);
         Pattern pattern2 = Pattern.compile(regexString2);
