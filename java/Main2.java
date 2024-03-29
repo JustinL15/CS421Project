@@ -587,22 +587,30 @@ public class Main2 {
                         }
                     }
                     if (attrnext && isAlpha && !alreadyTabled) {
+                        String curAttr = arguments[i];
+                        if (curAttr.endsWith(";")) {
+                            curAttr = curAttr.substring(0, curAttr.length() - 1);
+                        }
                         String tableName = null;
                         for (Table table: tables) {
                             for (Attribute attr: table.getAttributes()) {
-                                if (attr.getName().equals(arguments[i])) {
+                                if (attr.getName().equals(table.getName() + "." + curAttr)) {
                                     if (tableName == null) {
                                         tableName = table.getName();
                                     } else {
-                                        throw new Exception(arguments[i] + " is ambiguous");
+                                        throw new Exception(curAttr + " is ambiguous");
                                     }
                                 }
                             }
                         }
                         if (tableName == null) {
-                            throw new Exception("Attribute " + arguments[i] + " does not exist");
+                            throw new Exception("Attribute " + curAttr + " does not exist");
                         }
-                        arguments[i] = tableName + "." + arguments[i];
+                        if (arguments[i].endsWith(";")) {
+                            arguments[i] = tableName + "." + curAttr + ";";
+                        } else {
+                            arguments[i] = tableName + "." + curAttr;
+                        }
                     }
                     break;
             }

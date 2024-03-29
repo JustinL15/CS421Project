@@ -73,7 +73,7 @@ public class Parser {
                 System.out.println("Invalid data type \"" + ATTRTYPE + "\"");
                 return;
             }
-            Attribute new_attr = new Attribute(ATTRname, attrtype1, length, nullable, primkey, unique);
+            Attribute new_attr = new Attribute(name + "." + ATTRname, attrtype1, length, nullable, primkey, unique);
             AttrList.add(new_attr);
 
         }
@@ -292,12 +292,9 @@ public class Parser {
         System.out.println("number of records: " + numRecords);
     }
 
-    public void printing_out_records(List<Record> records, Table template,boolean print) {
+    public void printing_out_records(List<Record> records, Table template) {
         System.out.println("-------");
         String vals ="";
-        if(print){
-            vals = template.getName()+".";
-        }
         for (Attribute attribute : template.getAttributes()) {
             System.out.print("| " + vals+attribute.getName() + " ");
         }
@@ -314,13 +311,10 @@ public class Parser {
         }
     }
 
-    public void printing_out_records(List<Record> records, List<String> columns,int size, Table template, boolean print) {
+    public void printing_out_records(List<Record> records, List<String> columns,int size, Table template) {
          boolean print_array[] = new boolean[size];
         System.out.println("-------");
         String vals ="";
-        if(print){
-            vals = template.getName()+".";
-        }
         int x = 0;
         for (Attribute attribute : template.getAttributes()) {
             if( columns.contains(attribute.getName()) ){
@@ -393,7 +387,7 @@ public class Parser {
             new_rec = orderby(newtemplate, neworder, "asc", new_rec);
         }
         if(columns == null){
-            printing_out_records(new_rec, newtemplate, print);
+            printing_out_records(new_rec, newtemplate);
         }
         else {
             String allin = newtemplate.getAttributes().toString(); 
@@ -402,7 +396,7 @@ public class Parser {
                     throw new Exception(columns.get(i)+ " not found");
                 }
             }
-            printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate, print);
+            printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate);
         }
     }
 
