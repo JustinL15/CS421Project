@@ -302,7 +302,7 @@ public class StorageManager {
  
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Catalog catalog = new Catalog(4, 40, new ArrayList<Table>());
         StorageManager sM = new StorageManager(catalog, "resources");
         Attribute name = new Attribute("name", Type.Varchar, 10, false, false, false);

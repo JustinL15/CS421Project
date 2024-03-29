@@ -292,11 +292,14 @@ public class Parser {
         System.out.println("number of records: " + numRecords);
     }
 
-    public void printing_out_records(List<Record> records, Table template) {
+    public void printing_out_records(List<Record> records, Table template,boolean print) {
         System.out.println("-------");
-        
+        String vals ="";
+        if(print){
+            vals = template.getName()+".";
+        }
         for (Attribute attribute : template.getAttributes()) {
-            System.out.print("| " + attribute.getName() + " ");
+            System.out.print("| " + vals+attribute.getName() + " ");
         }
         
         System.out.println("|");
@@ -311,14 +314,17 @@ public class Parser {
         }
     }
 
-    public void printing_out_records(List<Record> records, List<String> columns,int size, Table template) {
-        boolean print_array[] = new boolean[size];
+    public void printing_out_records(List<Record> records, List<String> columns,int size, Table template, boolean print) {
+         boolean print_array[] = new boolean[size];
         System.out.println("-------");
-
+        String vals ="";
+        if(print){
+            vals = template.getName()+".";
+        }
         int x = 0;
         for (Attribute attribute : template.getAttributes()) {
             if( columns.contains(attribute.getName()) ){
-                System.out.print("| " + attribute.getName() + " ");     
+                System.out.print("| " + vals+attribute.getName() + " ");     
                 print_array[x] = true;
             }
             x = x + 1;
@@ -347,6 +353,9 @@ public class Parser {
         List<Attribute> new_attr = new ArrayList<Attribute>();; 
         Table newtemplate = tables.get(0);
         List<Record> new_rec = new ArrayList<Record>();
+        List<String> new_columns = new ArrayList<String>();
+        boolean print= false;
+        String neworder = order;
         if(tables.size() > 1){
             new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
             newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
@@ -357,9 +366,24 @@ public class Parser {
                 Record newrecord = new Record(newtemplate, all_obj);
                 new_rec.add(newrecord);
             }
+            new_columns = columns;
         }
         else{
             new_rec = allrec;
+            print = true;
+            if (order != null && order.startsWith(tables.get(0).getName()+".")){
+                neworder = order.substring(tables.get(0).getName().length()+1);
+            }
+            if(columns != null){
+                for(int i = 0; i < columns.size(); i++) {
+                    if (columns.get(i).startsWith(tables.get(0).getName()+".")){
+                        new_columns.add(columns.get(i).substring(tables.get(0).getName().length()+1));
+                    }
+                    else{
+                        new_columns.add(columns.get(i));
+                    }
+                }
+            }
         }
 
         // should probably use new_rec instead of allrec in this loop
@@ -367,46 +391,46 @@ public class Parser {
             List<Attribute> all_attr = new ArrayList<Attribute>(); 
             all_attr.addAll(new_rec.get(0).getTemplate().getAttributes());
             all_attr.addAll(   adjust_attrbute_names(tables.get(i).getName(), tables.get(i).getAttributes())   );
-            Table new_template =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
+            newtemplate =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
 
             List<Record> allrec_2 = sM.getRecords_tablenumber(tables.get(i).getNumber()); 
-            new_rec = Cart_product(new_rec,allrec_2,new_template);
+            new_rec = Cart_product(new_rec,allrec_2,newtemplate);
         }
         if(where != null){
             new_rec = where(new_rec, where);
         }
         if(order != null){
-            new_rec = orderby(newtemplate, order, "asc", new_rec);
+            new_rec = orderby(newtemplate, neworder, "asc", new_rec);
         }
-        if(columns == null){
-            printing_out_records(new_rec, newtemplate);
+        if(new_columns == null){
+            printing_out_records(new_rec, newtemplate, print);
         }
         else {
-            printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate);
+            printing_out_records(new_rec, new_columns, new_rec.get(0).getValues().size(), newtemplate, print);
         }
     }
 
     // This is the delete command for the table
-    public void delete_statment(Table table, String conditions) throws Exception{
+    public void delete_statment(Table table, String conditions) throws Exception {
         // We start by gathering all the records in the table
         List<Record> tableRecords = sM.getRecords_tablenumber(table.getNumber());
         // Then we collect the attributes
         List<Attribute> attr = table.getAttributes();
-        // Then the records and conditions are put through the where to find the ones to delete
-        List<Record> recordsToDelete = where(tableRecords, conditions);
-        // The list is iterated through, finding the primary key index in the record, then calling the sM delete function
-        for (Record record : recordsToDelete) {
-            List<Object> values = record.getValues();
-            int i = 0;
-            for (Attribute attribute : attr) {
-                if (attribute.isKey()) {
-                    sM.deleteRecord_primarykey(table, values.get(i));
-                    break;
-                }
-                i += 1;
-            }
+
+        // Goes through each record for the condition
+        if (conditions != null) {
+            tableRecords = where(tableRecords, conditions);
+        }
+
+        // This iterates through all the records
+        for (Record record : tableRecords) {
+            // This uses the delete Record function to remove the record. 
+            Object primeKey = record.getPrimaryKey();
+            sM.deleteRecord_primarykey(table, primeKey);
+
         }
     }
+
 
     private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
         List<Record> new_list = new ArrayList<Record>();
@@ -447,23 +471,25 @@ public class Parser {
         return stringBuilder.toString();
     }
 
-    public Integer update(String tableName, String attributeName, Object value, String conditions) throws Exception {
+    public Integer update(String tableName, String attributeName, String value, String conditions) throws Exception {
         Table table = sM.catalog.getTableByName(tableName);
         if (table == null) {
             throw new Exception("Table of name " + tableName + " does not exist");
         }
 
         List<Record> records = sM.getRecords_tablenumber(table.getNumber());
-        // if (conditions.length() > 0) {
-        //     records = where(records, conditions);
-        // }
+        if (conditions.length() > 0) {
+            records = where(records, conditions);
+        }
 
         List<Attribute> attributes = table.getAttributes();
         Integer attributeIndex = null;
+        Type attributeType = null;
         Integer keyIndex = null;
         for (Attribute attribute : attributes) {
             if (attribute.getName().equals(attributeName)) {
                 attributeIndex = attributes.indexOf(attribute);
+                attributeType = attribute.getDataType();
             }
             if (attribute.isKey()) {
                 keyIndex = attributes.indexOf(attribute);
@@ -472,11 +498,52 @@ public class Parser {
         if (attributeIndex == null) {
             throw new Exception("Attribute of name " + attributeName + " does not exist");
         }
-        // Error check: value type matches attribute type
 
+        Object castedValue = null;
+        switch (attributeType) {
+            case Varchar, Char:
+                if (LogicNode.isValidString(value)) {
+                    castedValue = value.replace("\"", "");
+                } else {
+                    throw new Exception("Improper format for String attribute " + attributeName);
+                }
+                break;
+            case Boolean:
+                if (value.equals("true")) {
+                    castedValue = true;
+                }
+                else if (value.equals("false")) {
+                    castedValue = false;
+                }
+                else {
+                    throw new Exception("Improper format for Boolean attribute " + attributeName);
+                }
+                break;
+            case Double:
+                if (LogicNode.isValidDouble(value)) {
+                    castedValue = Double.parseDouble(value);
+                }
+                else {
+                    throw new Exception("Improper format for Double attribute " + attributeName);
+                }
+                break;
+            case Integer:
+                if (LogicNode.isValidIntegerInRange(value)) {
+                    castedValue = Integer.parseInt(value);
+                }
+                else {
+                    throw new Exception("Improper format for Integer attribute " + attributeName);
+                }
+                break;
+        }
+
+        if (attributes.get(attributeIndex).isUnique() || attributes.get(attributeIndex).isKey()) {
+            if (sM.checkUnique(table, attributeIndex, castedValue) != -1 || records.size() > 1) {
+                throw new Exception("Attribute '" + attributes.get(attributeIndex).getName() + "' has to be unique");
+            }
+        }
         for (Record record : records) {
-            // Not doing deep copy of the record might be a problem but should be ok
-            record.getValues().set(attributeIndex, value);
+            record.getValues().set(attributeIndex, castedValue);
             sM.updateRecord_primarykey(record.getValues().get(keyIndex), record);
         }
 
@@ -535,6 +602,7 @@ public class Parser {
     }
 
     public List<Record> where(List<Record> records, String conditions) throws Exception {
+        System.out.println(conditions);
         List<Record> result = new ArrayList<>();
         LogicNode logicTree = LogicNode.build(conditions);
 

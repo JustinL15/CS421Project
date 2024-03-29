@@ -83,6 +83,15 @@ public class LogicNode {
     }
 
     private static int comparison(Record record, LogicNode leftNode, LogicNode rightNode) throws Exception {
+        if (leftNode.operation.equals("Attribute")) {
+            leftNode = convertType(leftNode, record);
+        }
+        if (rightNode.operation.equals("Attribute")) {
+            rightNode = convertType(rightNode, record);
+        }
+        if (!leftNode.operation.equals(rightNode.operation)) {
+            throw new Exception("Type Mismatch");
+        }
         switch (leftNode.operation) {
             case "Integer":
                 try {
@@ -218,8 +227,10 @@ public class LogicNode {
                         type = "Double";
                     } else if (isValidString(token)) {
                         type = "String";
+                        token = cleanString(token);
                     } else {
                         type = "Attribute";
+                        // token = token.substring(token.lastIndexOf(".") + 1);
                     }
                     if (stack.isEmpty()) {
                         stack.push(new LogicNode(type, token));
@@ -251,10 +262,10 @@ public class LogicNode {
         }
     }
 
-    private static boolean isValidBoolean(String str) {
+    public static boolean isValidBoolean(String str) {
         return str.equals("true") || str.equals("false"); 
     }
-    private static boolean isValidString(String str) {
+    public static boolean isValidString(String str) {
         if (str.length() < 2) {
             return false;
         }
@@ -273,7 +284,7 @@ public class LogicNode {
         return false;
     }
 
-    private static boolean isValidIntegerInRange(String str) {
+    public static boolean isValidIntegerInRange(String str) {
         try {
             int value = Integer.parseInt(str);
             return value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE;
@@ -282,7 +293,7 @@ public class LogicNode {
         }
     }
 
-    private static boolean isValidDouble(String str) {
+    public static boolean isValidDouble(String str) {
         try {
             Double.parseDouble(str);
             return true;
@@ -303,5 +314,22 @@ public class LogicNode {
             }
         }
         throw new Exception("Attribute " + node.value + " not found");
+    }
+
+    private static String cleanString(String s) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int quotes = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '"') {
+                quotes++;
+                if (quotes > 1) {
+                    break;
+                }
+            } else {
+                stringBuilder.append(c);
+            }
+        }
+        return stringBuilder.toString();
     }
 }

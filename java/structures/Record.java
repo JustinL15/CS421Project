@@ -5,6 +5,7 @@ import java.util.List;
 public class Record {
     private List<Object> values;
     private Table template;
+    private Object pkey = null;
 
     public Record(Table template, List<Object> values) {
         this.values = values;
@@ -142,6 +143,20 @@ public class Record {
     }
     public void setTemplate(Table template){
         this.template = template;
+    }
+
+    public Object getPrimaryKey() throws Exception {
+        if (pkey != null) {
+            return pkey;
+        }
+        List<Attribute> attr = this.template.getAttributes();
+        for (int i = 0; i < attr.size(); i++) {
+            if (attr.get(i).isKey()) {
+                pkey = this.values.get(i);
+                return this.values.get(i);
+            }
+        }
+        throw new Exception("No primary key for table: " + template.getName());
     }
 
     public int spacedUsed() {

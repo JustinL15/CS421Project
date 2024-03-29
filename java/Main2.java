@@ -1,3 +1,4 @@
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -184,12 +185,50 @@ public class Main2 {
                         System.out.println(e.getMessage());
                     }
                     break;
+                case "delete":
+                    try{
+                        parseDelete(arguments, parser);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
                 default:
                     System.out.println("Invalid command.");
                     break;
             }
             command = "";
         }
+    }
+
+    private static void parseDelete(String[] arguments, Parser parser) throws Exception {
+        if (!arguments[1].equals("from")) {
+            throw new Exception("Bad Command");
+        }
+
+        int length = arguments.length;
+        arguments[length - 1] =  arguments[length - 1].substring(0, arguments[length - 1].length() - 1);
+
+        StorageManager sM = parser.sM;
+        Catalog myCatalog = sM.catalog;
+
+        String conditions = null;
+
+        Table table = myCatalog.getTableByName(arguments[2]);
+        if (table == null) {
+            System.out.println("No such table " + arguments[2]);
+        }
+
+        if (arguments.length > 3 && arguments[3].equals("where")) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 4; i < arguments.length; i++) {
+                System.out.println(arguments[i]);
+                sb.append(arguments[i]);
+                sb.append(' ');
+            }
+            conditions = sb.toString();
+        }
+
+        parser.delete_statment(table, conditions);
     }
 
     private static void help() {
@@ -269,13 +308,11 @@ public class Main2 {
                                 }
                                 break;
                             case '"':
-                                word.append('"');
                                 i++;
                                 while (icommand.charAt(i) != '"') {
                                     word.append(icommand.charAt(i));
                                     i++;
                                 }
-                                word.append('"');
                                 if (icommand.charAt(i + 1) != ' ') {
                                     throw new Exception(" Error parsing insert command.");
                                 }
@@ -380,13 +417,13 @@ public class Main2 {
         else{
             while(arguments[arg_counter].equals("from") == false  ){
                 String curr_val = arguments[arg_counter];
-                if(curr_val == ","){
-                    continue;
+                if(curr_val.equals( ",")){
+                    //nothing
                 } 
-                if (curr_val.substring(curr_val.length() - 1) == "," ){
+                else if (curr_val.substring(curr_val.length() - 1).equals(",") ){
                     columns.add(curr_val.substring(0, curr_val.length() - 1));
                 }
-                else if(curr_val.substring(0,1) == "," ){
+                else if(curr_val.substring(0,1).equals(",") ){
                     columns.add(curr_val.substring(1, curr_val.length()));
                 }
                 else{
@@ -409,10 +446,10 @@ public class Main2 {
             Table table;
             String tableName;
             
-                if(curr_val == ","){
+                if(curr_val.equals(",")){
                     continue;
                 } 
-                else if (curr_val == ";"){
+                else if (curr_val.equals(";")){
                     end = true;
                     break;
                 }
@@ -445,8 +482,8 @@ public class Main2 {
         }
         
         //where
-        String regexString =  "where(.*?);";
-        String regexString2 =  "where(.*?)orderby";
+        String regexString = "where(.*?)orderby";
+        String regexString2 =  "where(.*?);";
         Pattern pattern = Pattern.compile(regexString);
         Pattern pattern2 = Pattern.compile(regexString2);
 	    // text contains the full text that you want to extract data
@@ -485,6 +522,9 @@ public class Main2 {
             throw new Exception("Syntax error for update command");
         }
 
+        if (arguments[arguments.length-1].endsWith(";")) {
+            arguments[arguments.length-1] = arguments[arguments.length-1].substring(0, arguments[arguments.length-1].length() - 1);
+        }
         String conditions = "";
         if (arguments.length >= 8 && arguments[6].equals("where")) {
             for (int i = 7; i < arguments.length; i++) {
@@ -492,10 +532,8 @@ public class Main2 {
             }
         }
         conditions = conditions.strip();
-        if (conditions.endsWith(";")) {
-            conditions = conditions.substring(0, conditions.length() - 1);
-        }
 
         parser.update(arguments[1], arguments[3], arguments[5], conditions);
     }
+
 }
