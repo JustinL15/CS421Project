@@ -603,7 +603,6 @@ public class Parser {
     }
 
     public List<Record> where(List<Record> records, String conditions, boolean cart) throws Exception {
-        System.out.println(conditions);
         List<Record> result = new ArrayList<>();
         LogicNode logicTree = LogicNode.build(conditions, cart);
 
