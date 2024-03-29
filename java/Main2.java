@@ -482,7 +482,7 @@ public class Main2 {
                 throw new Exception("please format with commas");
             }
             else{
-                table = myCatalog.getTableByName(tablename);
+                table = myCatalog.getTableByName(tablename.trim());
                 if (table == null){
                     throw new Exception("Table of name " + tablename + " does not exist");
                 }
