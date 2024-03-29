@@ -230,7 +230,7 @@ public class LogicNode {
                         token = cleanString(token);
                     } else {
                         type = "Attribute";
-                        token = token.substring(token.lastIndexOf(".") + 1);
+                        // token = token.substring(token.lastIndexOf(".") + 1);
                     }
                     if (stack.isEmpty()) {
                         stack.push(new LogicNode(type, token));
