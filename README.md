@@ -5,4 +5,4 @@ javac -d out java/*.java java/structures/*.java  java/logic/*.java
 
 cd out 
 
-java Main [Database Path] [Page Size] [Buffer Size]
+java Main2 [Database Path] [Page Size] [Buffer Size]
