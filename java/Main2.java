@@ -420,10 +420,10 @@ public class Main2 {
                 if(curr_val.equals( ",")){
                     //nothing
                 } 
-                else if (curr_val.substring(curr_val.length() - 1) == "," ){
+                else if (curr_val.substring(curr_val.length() - 1).equals(",") ){
                     columns.add(curr_val.substring(0, curr_val.length() - 1));
                 }
-                else if(curr_val.substring(0,1) == "," ){
+                else if(curr_val.substring(0,1).equals(",") ){
                     columns.add(curr_val.substring(1, curr_val.length()));
                 }
                 else{

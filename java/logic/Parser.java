@@ -292,11 +292,14 @@ public class Parser {
         System.out.println("number of records: " + numRecords);
     }
 
-    public void printing_out_records(List<Record> records, Table template) {
+    public void printing_out_records(List<Record> records, Table template,boolean print) {
         System.out.println("-------");
-        
+        String vals ="";
+        if(print){
+            vals = template.getName()+".";
+        }
         for (Attribute attribute : template.getAttributes()) {
-            System.out.print("| " + attribute.getName() + " ");
+            System.out.print("| " + vals+attribute.getName() + " ");
         }
         
         System.out.println("|");
@@ -311,14 +314,17 @@ public class Parser {
         }
     }
 
-    public void printing_out_records(List<Record> records, List<String> columns,int size, Table template) {
-        boolean print_array[] = new boolean[size];
+    public void printing_out_records(List<Record> records, List<String> columns,int size, Table template, boolean print) {
+         boolean print_array[] = new boolean[size];
         System.out.println("-------");
-
+        String vals ="";
+        if(print){
+            vals = template.getName()+".";
+        }
         int x = 0;
         for (Attribute attribute : template.getAttributes()) {
             if( columns.contains(attribute.getName()) ){
-                System.out.print("| " + attribute.getName() + " ");     
+                System.out.print("| " + vals+attribute.getName() + " ");     
                 print_array[x] = true;
             }
             x = x + 1;
@@ -348,6 +354,7 @@ public class Parser {
         Table newtemplate = tables.get(0);
         List<Record> new_rec = new ArrayList<Record>();
         List<String> new_columns = new ArrayList<String>();
+        boolean print= false;
         String neworder = order;
         if(tables.size() > 1){
             new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
@@ -363,6 +370,7 @@ public class Parser {
         }
         else{
             new_rec = allrec;
+            print = true;
             if (order != null && order.startsWith(tables.get(0).getName()+".")){
                 neworder = order.substring(tables.get(0).getName().length()+1);
             }
@@ -370,6 +378,9 @@ public class Parser {
                 for(int i = 0; i < columns.size(); i++) {
                     if (columns.get(i).startsWith(tables.get(0).getName()+".")){
                         new_columns.add(columns.get(i).substring(tables.get(0).getName().length()+1));
+                    }
+                    else{
+                        new_columns.add(columns.get(i));
                     }
                 }
             }
@@ -391,11 +402,11 @@ public class Parser {
         if(order != null){
             new_rec = orderby(newtemplate, neworder, "asc", new_rec);
         }
-        if(columns == null){
-            printing_out_records(new_rec, newtemplate);
+        if(new_columns == null){
+            printing_out_records(new_rec, newtemplate, print);
         }
         else {
-            printing_out_records(new_rec, new_columns, new_rec.get(0).getValues().size(), newtemplate);
+            printing_out_records(new_rec, new_columns, new_rec.get(0).getValues().size(), newtemplate, print);
         }
     }
 
