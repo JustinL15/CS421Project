@@ -353,12 +353,11 @@ public class Parser {
         List<Attribute> new_attr = new ArrayList<Attribute>();; 
         Table newtemplate = tables.get(0);
         List<Record> new_rec = new ArrayList<Record>();
-        List<String> new_columns = new ArrayList<String>();
         boolean print= false;
         boolean cart = false;
         String neworder = order;
         if(tables.size() > 1){
-            new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
+            new_attr =  tables.get(0).getAttributes();//adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
             newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
             for ( Record i : allrec) {
                 List<Object> all_obj = new ArrayList<Object>(); 
@@ -367,7 +366,6 @@ public class Parser {
                 Record newrecord = new Record(newtemplate, all_obj);
                 new_rec.add(newrecord);
             }
-            new_columns = columns;
             cart = true;
         }
         else{
@@ -376,23 +374,13 @@ public class Parser {
             if (order != null && order.startsWith(tables.get(0).getName()+".")){
                 neworder = order.substring(tables.get(0).getName().length()+1);
             }
-            if(columns != null){
-                for(int i = 0; i < columns.size(); i++) {
-                    if (columns.get(i).startsWith(tables.get(0).getName()+".")){
-                        new_columns.add(columns.get(i).substring(tables.get(0).getName().length()+1));
-                    }
-                    else{
-                        new_columns.add(columns.get(i));
-                    }
-                }
-            }
         }
 
         // should probably use new_rec instead of allrec in this loop
         for (int i = 1; i < tables.size(); i++) {
             List<Attribute> all_attr = new ArrayList<Attribute>(); 
             all_attr.addAll(new_rec.get(0).getTemplate().getAttributes());
-            all_attr.addAll(   adjust_attrbute_names(tables.get(i).getName(), tables.get(i).getAttributes())   );
+            all_attr.addAll( tables.get(i).getAttributes());  // adjust_attrbute_names(tables.get(i).getName(), tables.get(i).getAttributes())   );
             newtemplate =  new Table(allrec.get(0).getTemplate().getName() +" x "+ tables.get(i).getName(), -1, all_attr, -1);
 
             List<Record> allrec_2 = sM.getRecords_tablenumber(tables.get(i).getNumber()); 
@@ -409,12 +397,12 @@ public class Parser {
         }
         else {
             String allin = newtemplate.getAttributes().toString(); 
-            for (int i = 0; i < new_columns.size(); i++) {
-                if(allin.contains("attribute name: "+new_columns.get(i)) == false){
-                    throw new Exception("Atttribute "+new_columns.get(i)+ " not found");
+            for (int i = 0; i < columns.size(); i++) {
+                if(allin.contains(columns.get(i)) == false){
+                    throw new Exception(columns.get(i)+ " not found");
                 }
             }
-            printing_out_records(new_rec, new_columns, new_rec.get(0).getValues().size(), newtemplate, print);
+            printing_out_records(new_rec, columns, new_rec.get(0).getValues().size(), newtemplate, print);
         }
     }
 
