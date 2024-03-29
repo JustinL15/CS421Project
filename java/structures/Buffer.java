@@ -57,7 +57,6 @@ public class Buffer {
         }
 
         Page page = new Page(table, bytes, pageNumber);
-        System.out.println("Make Page "+ pageNumber);
         pages.add(page);
         if (pages.size() > catalog.getBufferSize()) {
             Page lruPage = pages.remove();
@@ -122,7 +121,6 @@ public class Buffer {
         }
 
         Table table = catalog.getTableByName(tableName);
-        System.out.println(pagesToSplit.size());
         List<Page> pagesToAdd = new ArrayList<>(pagesToSplit);
         for (int i = pageNumber + 1; i < table.getPagecount(); i++) {
             Page next = read(tableName, i);
@@ -130,9 +128,6 @@ public class Buffer {
         }
         for (int i = 0; i < pagesToAdd.size(); i++) {
             pagesToAdd.get(i).setPageNumber(pageNumber + i);
-            for (Record r :pagesToAdd.get(i).getRecords()) {
-                System.out.println(r.getValues());
-            }
             write(pagesToAdd.get(i));
             table.setPageCount(table.getPagecount() + pagesToAdd.size() - 1);
         }

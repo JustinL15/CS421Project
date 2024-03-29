@@ -261,7 +261,6 @@ public class StorageManager {
         int pageCount = table.getPagecount();
 
         List<Record> recordsToUpdate = new ArrayList<>();
-        System.out.println(catalog.getTables());
         for (int i = 0; i < pageCount; i++) {
             Page page = buffer.read(table.getName(), i);
             List<Record> records = page.getRecords();
