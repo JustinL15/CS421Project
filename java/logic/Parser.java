@@ -387,25 +387,23 @@ public class Parser {
     }
 
     // This is the delete command for the table
-    public void delete_statment(Table table, List<String> conditions){
+    public void delete_statment(Table table, String conditions) throws Exception{
         // We start by gathering all the records in the table
         List<Record> tableRecords = sM.getRecords_tablenumber(table.getNumber());
         // Then we collect the attributes
         List<Attribute> attr = table.getAttributes();
-
-        // This iterates through all the records
-        for (Record record : tableRecords) {
-            List<Object> values = record.getValues(); //This gets the values stored in the record
-            // Create a loop that goes through each column name to find the condition
-            int index = 0;
+        // Then the records and conditions are put through the where to find the ones to delete
+        List<Record> recordsToDelete = where(tableRecords, conditions);
+        // The list is iterated through, finding the primary key index in the record, then calling the sM delete function
+        for (Record record : recordsToDelete) {
+            List<Object> values = record.getValues();
+            int i = 0;
             for (Attribute attribute : attr) {
-                if (/*Insert the where method here when it is complete */attribute.getName() == "boolean") {
-                    // This uses the delete Record function to remove the record. 
-                    Object primeKey = values.get(index);
-                    sM.deleteRecord_primarykey(table, primeKey);
+                if (attribute.isKey()) {
+                    sM.deleteRecord_primarykey(table, values.get(i));
                     break;
                 }
-                index += 1;
+                i += 1;
             }
         }
     }
