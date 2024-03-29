@@ -365,9 +365,6 @@ public class Parser {
         else{
             new_rec = allrec;
             print = true;
-            if (order != null && order.startsWith(tables.get(0).getName()+".")){
-                neworder = order.substring(tables.get(0).getName().length()+1);
-            }
         }
 
         // should probably use new_rec instead of allrec in this loop
