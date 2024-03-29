@@ -434,6 +434,9 @@ public class Main2 {
                     }
                 }
                 arg_counter++;
+                if(arg_counter == arguments.length){
+                    throw new Exception("Invalid select statement");
+                }
             }
         }
         arg_counter++;
@@ -441,57 +444,63 @@ public class Main2 {
         List<Table> tables = new ArrayList<Table>();
         String where = null;
         String orderby = null;
+        String from = null;
         //System.out.println(arguments[arg_counter].charAt(arguments[arg_counter].length() - 1));
         // while(arguments[arg_counter] != "where" && arguments[arg_counter].charAt(arguments[arg_counter].length() - 1) != ';' ){
-        boolean end = false;  
-        while( end == false && arguments[arg_counter].equals("where") == false && arguments[arg_counter].equals("orderby") == false){
-            String curr_val = arguments[arg_counter];
-            Table table;
-            String tableName;
-            
-                if(curr_val.equals(",")){
-                    continue;
-                } 
-                else if (curr_val.equals(";")){
-                    end = true;
-                    break;
-                }
-                if (curr_val.substring(curr_val.length() - 1).compareTo(",") == 0){
-                    tableName = curr_val.substring(0, curr_val.length() - 1);
-                }
-                else if( curr_val.substring(curr_val.length() - 1).compareTo(";") == 0){
-                    tableName = curr_val.substring(0, curr_val.length() - 1);
-                    end = true;
-                }
-                else if(curr_val.substring(0,1).compareTo(",") == 0){
-                    tableName = curr_val.substring(1, curr_val.length());
-                }
-                else{
-                    tableName = arguments[arg_counter];
-                }
-
-                table = myCatalog.getTableByName(tableName);
-                if (table == null){
-                    throw new Exception("Table of name " + tableName + " does not exist");
-                }
-                tables.add(table);
-                arg_counter = arg_counter +1;
-        
-        }
-        if(end){
-            parser.select_statment(tables,columns,where,orderby);
-            System.out.println("SUCCESS");
-            return;
-        }
-        
-        //where
-        String regexString = "where(.*?)orderby";
-        String regexString2 =  "where(.*?);";
+ 
+        String regexString = "from(.*?)where";
+        String regexString2 =  "from(.*?)orderby;";
+        String regexString3 =  "from(.*?);";
         Pattern pattern = Pattern.compile(regexString);
         Pattern pattern2 = Pattern.compile(regexString2);
-	    // text contains the full text that you want to extract data
+        Pattern pattern3 = Pattern.compile(regexString3);
 	    Matcher matcher = pattern.matcher(argumentline);
         Matcher matcher2 = pattern2.matcher(argumentline);
+        Matcher matcher3 = pattern3.matcher(argumentline);
+        if(matcher.find()) {
+            from = matcher.group(1);
+            from = from.trim();
+        }
+        else if(matcher2.find()){
+            from = matcher2.group(1);
+            from = from.trim();
+        }
+        else if(matcher3.find()){
+            from = matcher3.group(1);
+            from = from.trim();
+        }
+        if(from == null ){
+            throw new Exception("Invalid select statement");
+        }
+        String[] tablenames = from.split(",");
+        for ( String tablename : tablenames) {
+            Table table;
+            if(tablename.equals("")){
+                throw new Exception("please format with commas");
+            }
+            else if(tablename.trim().contains(" ")){
+                throw new Exception("please format with commas");
+            }
+            else{
+                table = myCatalog.getTableByName(tablename);
+                if (table == null){
+                    throw new Exception("Table of name " + tablename + " does not exist");
+                }
+                tables.add(table);
+                }
+        }
+
+        if(tables.size() == 0){
+            throw new Exception("No valid tables in statement");
+        }
+        //where
+        regexString = "where(.*?)orderby";
+        regexString2 =  "where(.*?);";
+        pattern = Pattern.compile(regexString);
+        pattern2 = Pattern.compile(regexString2);
+	    // text contains the full text that you want to extract data
+	    matcher = pattern.matcher(argumentline);
+        matcher2 = pattern2.matcher(argumentline);
         if(matcher.find()) {
             //System.out.println(matcher.group(1));
             where = matcher.group(1);
