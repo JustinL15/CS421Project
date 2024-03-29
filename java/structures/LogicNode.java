@@ -251,10 +251,10 @@ public class LogicNode {
         }
     }
 
-    private static boolean isValidBoolean(String str) {
+    public static boolean isValidBoolean(String str) {
         return str.equals("true") || str.equals("false"); 
     }
-    private static boolean isValidString(String str) {
+    public static boolean isValidString(String str) {
         if (str.length() < 2) {
             return false;
         }
@@ -273,7 +273,7 @@ public class LogicNode {
         return false;
     }
 
-    private static boolean isValidIntegerInRange(String str) {
+    public static boolean isValidIntegerInRange(String str) {
         try {
             int value = Integer.parseInt(str);
             return value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE;
@@ -282,7 +282,7 @@ public class LogicNode {
         }
     }
 
-    private static boolean isValidDouble(String str) {
+    public static boolean isValidDouble(String str) {
         try {
             Double.parseDouble(str);
             return true;

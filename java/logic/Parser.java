@@ -449,23 +449,25 @@ public class Parser {
         return stringBuilder.toString();
     }
 
-    public Integer update(String tableName, String attributeName, Object value, String conditions) throws Exception {
+    public Integer update(String tableName, String attributeName, String value, String conditions) throws Exception {
         Table table = sM.catalog.getTableByName(tableName);
         if (table == null) {
             throw new Exception("Table of name " + tableName + " does not exist");
         }
 
         List<Record> records = sM.getRecords_tablenumber(table.getNumber());
-        // if (conditions.length() > 0) {
-        //     records = where(records, conditions);
-        // }
+        if (conditions.length() > 0) {
+            records = where(records, conditions);
+        }
 
         List<Attribute> attributes = table.getAttributes();
         Integer attributeIndex = null;
+        Type attributeType = null;
         Integer keyIndex = null;
         for (Attribute attribute : attributes) {
             if (attribute.getName().equals(attributeName)) {
                 attributeIndex = attributes.indexOf(attribute);
+                attributeType = attribute.getDataType();
             }
             if (attribute.isKey()) {
                 keyIndex = attributes.indexOf(attribute);
@@ -474,11 +476,48 @@ public class Parser {
         if (attributeIndex == null) {
             throw new Exception("Attribute of name " + attributeName + " does not exist");
         }
-        // Error check: value type matches attribute type
+
+        Object castedValue = null;
+        switch (attributeType) {
+            case Varchar, Char:
+                if (LogicNode.isValidString(value)) {
+                    castedValue = value.replace("\"", "");
+                } else {
+                    throw new Exception("Improper format for String attribute " + attributeName);
+                }
+                break;
+            case Boolean:
+                if (value.equals("true")) {
+                    castedValue = true;
+                }
+                else if (value.equals("false")) {
+                    castedValue = false;
+                }
+                else {
+                    throw new Exception("Improper format for Boolean attribute " + attributeName);
+                }
+                break;
+            case Double:
+                if (LogicNode.isValidDouble(value)) {
+                    castedValue = Double.parseDouble(value);
+                }
+                else {
+                    throw new Exception("Improper format for Double attribute " + attributeName);
+                }
+                break;
+            case Integer:
+                if (LogicNode.isValidIntegerInRange(value)) {
+                    castedValue = Integer.parseInt(value);
+                }
+                else {
+                    throw new Exception("Improper format for Integer attribute " + attributeName);
+                }
+                break;
+        }
 
         for (Record record : records) {
             // Not doing deep copy of the record might be a problem but should be ok
-            record.getValues().set(attributeIndex, value);
+            record.getValues().set(attributeIndex, castedValue);
             sM.updateRecord_primarykey(record.getValues().get(keyIndex), record);
         }
 
