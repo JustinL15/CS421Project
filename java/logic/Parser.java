@@ -432,8 +432,7 @@ public class Parser {
 
         }
     }
-
-
+    
     private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
         List<Record> new_list = new ArrayList<Record>();
         
