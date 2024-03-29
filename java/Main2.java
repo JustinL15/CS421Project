@@ -121,6 +121,9 @@ public class Main2 {
         while (!breakflag) { //program loop
             System.out.print("\nDB>");
             String input = scanner.nextLine();
+            if(!input.endsWith(";")) {
+                input += " ";
+            }
             command += input; //INSTRUCTOR FIX
             if(!input.endsWith(";"))
                 continue;
