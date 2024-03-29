@@ -408,6 +408,12 @@ public class Parser {
             printing_out_records(new_rec, newtemplate, print);
         }
         else {
+            String allin = newtemplate.getAttributes().toString(); 
+            for (int i = 0; i < new_columns.size(); i++) {
+                if(allin.contains("attribute name: "+new_columns.get(i)) == false){
+                    throw new Exception("Atttribute "+new_columns.get(i)+ "not found");
+                }
+            }
             printing_out_records(new_rec, new_columns, new_rec.get(0).getValues().size(), newtemplate, print);
         }
     }
