@@ -204,15 +204,16 @@ public class Main2 {
     }
 
     private static void parseDelete(String[] arguments, Parser parser) throws Exception {
+        StorageManager sM = parser.sM;
+        Catalog myCatalog = sM.catalog;
+
+        convertAttributes(arguments, myCatalog);
         if (!arguments[1].equals("from")) {
             throw new Exception("Bad Command");
         }
 
         int length = arguments.length;
         arguments[length - 1] =  arguments[length - 1].substring(0, arguments[length - 1].length() - 1);
-
-        StorageManager sM = parser.sM;
-        Catalog myCatalog = sM.catalog;
 
         String conditions = null;
 
@@ -527,6 +528,8 @@ public class Main2 {
     }
 
     private static void parseUpdate(String[] arguments, Parser parser) throws Exception {
+        convertAttributes(arguments, parser.sM.catalog);
+
         if (arguments.length < 6) {
             throw new Exception("Syntax error for update command: Not enough arguments");
         }
