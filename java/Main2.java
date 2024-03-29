@@ -409,6 +409,12 @@ public class Main2 {
 
     private static void parseSelect(String[] arguments, String argumentline, Parser parser) throws Exception {
         Catalog myCatalog = parser.sM.catalog; 
+        
+        for (String str : convertAttributes(arguments, myCatalog)) {
+            System.out.print(str);
+            System.out.print(" ");
+        }
+
         int arg_counter = 1;
         List<String> columns = new ArrayList<String>();
         //columns
@@ -533,17 +539,45 @@ public class Main2 {
         parser.update(arguments[1], arguments[3], arguments[5], conditions);
     }
 
-    public static String[] convertAttributes(String[] arguments, List<Table> tables) throws Exception {
+    public static String[] convertAttributes(String[] arguments, Catalog catalog) throws Exception {
+        List<Table> tables = new ArrayList<>();
+
         boolean attrnext = true;
         for (int i = 1; i < arguments.length; i++) {
             switch (arguments[i]) {
                 case "from":
-                    attrnext = false;
+                    boolean notWhere = !(arguments[i + 1].equals("where"));
+                    boolean notOrderby = !arguments[i + 1].equals("orderby");
+                    while (notWhere && notOrderby) {
+                        if (arguments[i + 1].endsWith(",") || arguments[i + 1].endsWith(";")) {
+                            String tablename = arguments[i + 1].substring(0, arguments[i + 1].length() - 1);
+                            Table table = catalog.getTableByName(tablename);
+                            if (table == null) {
+                                throw new Exception("Table of name " +  tablename + " does not exist");
+                            } else {
+                                tables.add(table);
+                            }
+                            i++;
+                            if (arguments[i].endsWith(";")) {
+                                break;
+                            }
+                        } else {
+                            Table table = catalog.getTableByName(arguments[i + 1]);
+                            if (table == null) {
+                                throw new Exception("Table of name " +  arguments[i + 1] + " does not exist");
+                            } else {
+                                tables.add(table);
+                            }
+                            i++;
+                        }
+                    }
                     break;
                 case "where":
                     attrnext = true;
+                    break;
                 case "orderby":
                     attrnext = true;
+                    break;
                 default:
                     boolean isAlpha = Character.isAlphabetic(arguments[i].charAt(0));
                     boolean alreadyTabled = false;
@@ -561,13 +595,13 @@ public class Main2 {
                                     if (tableName == null) {
                                         tableName = table.getName();
                                     } else {
-                                        throw new Exception(arguments[i] + "is too ambiguous");
+                                        throw new Exception(arguments[i] + " is ambiguous");
                                     }
                                 }
                             }
                         }
                         if (tableName == null) {
-                            throw new Exception("Attribute does not exist");
+                            throw new Exception("Attribute " + arguments[i] + " does not exist");
                         }
                         arguments[i] = tableName + "." + arguments[i];
                     }
