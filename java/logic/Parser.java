@@ -355,6 +355,7 @@ public class Parser {
         List<Record> new_rec = new ArrayList<Record>();
         List<String> new_columns = new ArrayList<String>();
         boolean print= false;
+        boolean cart = false;
         String neworder = order;
         if(tables.size() > 1){
             new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
@@ -367,6 +368,7 @@ public class Parser {
                 new_rec.add(newrecord);
             }
             new_columns = columns;
+            cart = true;
         }
         else{
             new_rec = allrec;
@@ -397,7 +399,7 @@ public class Parser {
             new_rec = Cart_product(new_rec,allrec_2,newtemplate);
         }
         if(where != null){
-            new_rec = where(new_rec, where);
+            new_rec = where(new_rec, where, cart);
         }
         if(order != null){
             new_rec = orderby(newtemplate, neworder, "asc", new_rec);
@@ -419,7 +421,7 @@ public class Parser {
 
         // Goes through each record for the condition
         if (conditions != null) {
-            tableRecords = where(tableRecords, conditions);
+            tableRecords = where(tableRecords, conditions,false);
         }
 
         // This iterates through all the records
@@ -430,8 +432,7 @@ public class Parser {
 
         }
     }
-
-
+    
     private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
         List<Record> new_list = new ArrayList<Record>();
         
@@ -479,7 +480,7 @@ public class Parser {
 
         List<Record> records = sM.getRecords_tablenumber(table.getNumber());
         if (conditions.length() > 0) {
-            records = where(records, conditions);
+            records = where(records, conditions,false);
         }
 
         List<Attribute> attributes = table.getAttributes();
@@ -601,10 +602,10 @@ public class Parser {
         return records;
     }
 
-    public List<Record> where(List<Record> records, String conditions) throws Exception {
+    public List<Record> where(List<Record> records, String conditions, boolean cart) throws Exception {
         System.out.println(conditions);
         List<Record> result = new ArrayList<>();
-        LogicNode logicTree = LogicNode.build(conditions);
+        LogicNode logicTree = LogicNode.build(conditions, cart);
 
         for (int i = 0; i < records.size(); i++){
             if(logicTree.evaluate(records.get(i))) {
