@@ -348,6 +348,7 @@ public class Parser {
         Table newtemplate = tables.get(0);
         List<Record> new_rec = new ArrayList<Record>();
         List<String> new_columns = new ArrayList<String>();
+        String neworder = order;
         if(tables.size() > 1){
             new_attr = adjust_attrbute_names(tables.get(0).getName(), tables.get(0).getAttributes());
             newtemplate =  new Table(tables.get(0).getName(), -1, new_attr, -1);
@@ -362,11 +363,13 @@ public class Parser {
         }
         else{
             new_rec = allrec;
-            
+            if (order != null && order.startsWith(tables.get(0).getName()+".")){
+                neworder = order.substring(tables.get(0).getName().length()+1);
+            }
             if(columns != null){
                 for(int i = 0; i < columns.size(); i++) {
-                    if (columns.get(i).startsWith(tables.get(i).getName()+".")){
-                        new_columns.add(columns.get(i).substring(tables.get(i).getName().length()+1));
+                    if (columns.get(i).startsWith(tables.get(0).getName()+".")){
+                        new_columns.add(columns.get(i).substring(tables.get(0).getName().length()+1));
                     }
                 }
             }
@@ -386,7 +389,7 @@ public class Parser {
             new_rec = where(new_rec, where);
         }
         if(order != null){
-            new_rec = orderby(newtemplate, order, "asc", new_rec);
+            new_rec = orderby(newtemplate, neworder, "asc", new_rec);
         }
         if(columns == null){
             printing_out_records(new_rec, newtemplate);
