@@ -397,28 +397,26 @@ public class Parser {
     }
 
     // This is the delete command for the table
-    public void delete_statment(Table table, List<String> conditions){
+    public void delete_statment(Table table, String conditions) throws Exception {
         // We start by gathering all the records in the table
         List<Record> tableRecords = sM.getRecords_tablenumber(table.getNumber());
         // Then we collect the attributes
         List<Attribute> attr = table.getAttributes();
 
+        // Goes through each record for the condition
+        if (conditions != null) {
+            tableRecords = where(tableRecords, conditions);
+        }
+
         // This iterates through all the records
         for (Record record : tableRecords) {
-            List<Object> values = record.getValues(); //This gets the values stored in the record
-            // Create a loop that goes through each column name to find the condition
-            int index = 0;
-            for (Attribute attribute : attr) {
-                if (/*Insert the where method here when it is complete */attribute.getName() == "boolean") {
-                    // This uses the delete Record function to remove the record. 
-                    Object primeKey = values.get(index);
-                    sM.deleteRecord_primarykey(table, primeKey);
-                    break;
-                }
-                index += 1;
-            }
+            // This uses the delete Record function to remove the record. 
+            Object primeKey = record.getPrimaryKey();
+            sM.deleteRecord_primarykey(table, primeKey);
+
         }
     }
+
 
     private List<Record> Cart_product(List<Record> allrec_1, List<Record> allrec_2, Table template) {
         List<Record> new_list = new ArrayList<Record>();
@@ -547,6 +545,7 @@ public class Parser {
     }
 
     public List<Record> where(List<Record> records, String conditions) throws Exception {
+        System.out.println(conditions);
         List<Record> result = new ArrayList<>();
         LogicNode logicTree = LogicNode.build(conditions);
 
