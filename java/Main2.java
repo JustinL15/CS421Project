@@ -522,6 +522,9 @@ public class Main2 {
             throw new Exception("Syntax error for update command");
         }
 
+        if (arguments[arguments.length-1].endsWith(";")) {
+            arguments[arguments.length-1] = arguments[arguments.length-1].substring(0, arguments[arguments.length-1].length() - 1);
+        }
         String conditions = "";
         if (arguments.length >= 8 && arguments[6].equals("where")) {
             for (int i = 7; i < arguments.length; i++) {
@@ -529,9 +532,6 @@ public class Main2 {
             }
         }
         conditions = conditions.strip();
-        if (conditions.endsWith(";")) {
-            conditions = conditions.substring(0, conditions.length() - 1);
-        }
 
         parser.update(arguments[1], arguments[3], arguments[5], conditions);
     }
