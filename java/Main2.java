@@ -266,18 +266,17 @@ public class Main2 {
         System.out.println("SUCCESS");
         return;
     }
-
     private static void parseInsert(String[] arguments, Parser parser) throws Exception {
         Catalog catalog = parser.sM.catalog;
         try {
-            if(arguments.length >= 5 && arguments[1].equals("into") && arguments[3].startsWith("values")) {
+            if (arguments.length >= 5 && arguments[1].equals("into") && arguments[3].startsWith("values")) {
                 Table table = catalog.getTableByName(arguments[2]);
                 if (table == null) {
                     throw new Exception("Table " + arguments[2] + " does not exist.");
                 }
                 List<List<String>> records = new ArrayList<>();
                 StringBuilder values = new StringBuilder();
-                for (int i = 3; i < arguments.length; i++) {
+                for (int i = 4; i < arguments.length; i++) { // Start from index 4
                     values.append(' ');
                     values.append(arguments[i]);
                 }
@@ -286,7 +285,7 @@ public class Main2 {
                 List<String> record = new ArrayList<>();
                 StringBuilder word = new StringBuilder();
                 for (int i = 0; i < icommand.length(); i++) {
-                    if (open == false &&  icommand.charAt(i) == '(') {
+                    if (open == false && icommand.charAt(i) == '(') {
                         open = true;
                     } else if (open == true) {
                         switch (icommand.charAt(i)) {
@@ -297,7 +296,7 @@ public class Main2 {
                                     record.add(word.toString());
                                     word = new StringBuilder();
                                 }
-                                records.add(record);;
+                                records.add(record);
                                 record = new ArrayList<>();
                                 open = false;
                                 break;
@@ -316,7 +315,7 @@ public class Main2 {
                                     word.append(icommand.charAt(i));
                                     i++;
                                 }
-                                if (icommand.charAt(i + 1) != ' ') {
+                                if (icommand.charAt(i + 1) != ' ' && icommand.charAt(i + 1) != ',') {
                                     throw new Exception(" Error parsing insert command.");
                                 }
                                 break;
@@ -326,11 +325,11 @@ public class Main2 {
                         }
                     }
                 }
-                for (List<String> r: records) {
+                for (List<String> r : records) {
                     parser.insert_values(table.getName(), r);
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -413,30 +412,25 @@ public class Main2 {
         int arg_counter = 1;
         List<String> columns = new ArrayList<String>();
         //columns
-        if(arguments[1].compareTo("*") == 0 && arguments[2].compareTo("from") == 0){
+        if (arguments[1].equals("*") && arguments[2].equals("from")) {
             columns = null;
             arg_counter = 2;
-        }
-        else{
-            while(arguments[arg_counter].equals("from") == false  ){
-                String curr_val = arguments[arg_counter];
-                if(curr_val.equals( ",")){
-                    //nothing
-                } 
-                else if (curr_val.substring(curr_val.length() - 1).equals(",") ){
-                    columns.add(curr_val.substring(0, curr_val.length() - 1));
+        } else {
+            while (!arguments[arg_counter].equals("from")) {
+                String curr_val = arguments[arg_counter].trim(); 
+                if (!curr_val.isEmpty()) {
+                    if (curr_val.equals(",")) {
+                        // Do nothing
+                    } else if (curr_val.endsWith(",")) {
+                        columns.add(curr_val.substring(0, curr_val.length() - 1));
+                    } else {
+                        columns.add(curr_val);
+                    }
                 }
-                else if(curr_val.substring(0,1).equals(",") ){
-                    columns.add(curr_val.substring(1, curr_val.length()));
-                }
-                else{
-                    columns.add(arguments[arg_counter]);
-                }
-                arg_counter = arg_counter +1;
+                arg_counter++;
             }
-            
         }
-        arg_counter = arg_counter +1;
+        arg_counter++;
         //tables
         List<Table> tables = new ArrayList<Table>();
         String where = null;
