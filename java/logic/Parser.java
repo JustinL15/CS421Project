@@ -523,8 +523,12 @@ public class Parser {
                 break;
         }
 
+        if (attributes.get(attributeIndex).isUnique() || attributes.get(attributeIndex).isKey()) {
+            if (sM.checkUnique(table, attributeIndex, castedValue) != -1 || records.size() > 1) {
+                throw new Exception("Attribute '" + attributes.get(attributeIndex).getName() + "' has to be unique");
+            }
+        }
         for (Record record : records) {
-            // Not doing deep copy of the record might be a problem but should be ok
             record.getValues().set(attributeIndex, castedValue);
             sM.updateRecord_primarykey(record.getValues().get(keyIndex), record);
         }
