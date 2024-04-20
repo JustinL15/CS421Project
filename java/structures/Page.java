@@ -2,7 +2,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Page {
+public class Page implements HardwarePage {
     private List<Record> records;
     private Table template;
     private int pageNumber;
