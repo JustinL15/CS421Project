@@ -11,13 +11,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+// Queue of HardwarePages
+// write is abstract
+// read and readNode
+// identify with table and number but verify type for each method
 public class Buffer {
-    private Queue<Page> pages;
+    private Queue<HardwarePage> pages;
     private Catalog catalog;
     private String databaseLocation;
 
     public Buffer(Catalog catalog, String databaseLocation) {
-        this.pages = new LinkedList<Page>();
+        this.pages = new LinkedList<HardwarePage>();
         this.catalog = catalog;
         this.databaseLocation = databaseLocation;
     }
@@ -25,11 +29,11 @@ public class Buffer {
     public Page read(String tableName, int pageNumber) {
         //System.out.println("Read");
         Table table = catalog.getTableByName(tableName);
-        for (Page page : pages) {
-            if (page.getPageNumber() == pageNumber && page.getTemplate() == table) {
+        for (HardwarePage page : pages) {
+            if (page.getPageNumber() == pageNumber && page.getTemplate() == table && page.getClass().equals(Page.class)) {
                 pages.remove(page);
                 pages.add(page);
-                return page;
+                return (Page)page;
             }
         }
 
@@ -59,15 +63,15 @@ public class Buffer {
         Page page = new Page(table, bytes, pageNumber);
         pages.add(page);
         if (pages.size() > catalog.getBufferSize()) {
-            Page lruPage = pages.remove();
+            Page lruPage = (Page)pages.remove();
             write(lruPage);
         }
         return page;
     }
 
-    private void write(Page page) {
-        if (page.bytesUsed() > catalog.getPageSize()) {
-            splitPage(page.getTemplate().getName(), page);
+    private void write(HardwarePage page) {
+        if (page.bytesUsed() > catalog.getPageSize() && page.getClass().equals(Page.class)) {
+            splitPage(page.getTemplate().getName(), (Page)page);
             return;
         }
         byte[] bytes = page.toByte(catalog.getPageSize());
@@ -134,10 +138,10 @@ public class Buffer {
     }
 
     public void purge() {
-        for (Page page : pages){
+        for (HardwarePage page : pages){
             write(page);
         }
-        pages = new LinkedList<Page>();
+        pages = new LinkedList<HardwarePage>();
     }
     
     public void cleanTable(Table table) {
@@ -157,31 +161,44 @@ public class Buffer {
     }
     public static void main(String[] args) 
     {
-        Attribute a1 = new Attribute("name", Type.Varchar, 10, false, false, false);
-        Attribute a2 = new Attribute("number", Type.Integer, 0, false, false, false);
-        ArrayList<Attribute> as = new ArrayList<Attribute>();
-        as.set(0, a1);
-        as.set(1, a2);
+        // Attribute a1 = new Attribute("name", Type.Varchar, 10, false, false, false);
+        // Attribute a2 = new Attribute("number", Type.Integer, 0, false, false, false);
+        // ArrayList<Attribute> as = new ArrayList<Attribute>();
+        // as.set(0, a1);
+        // as.set(1, a2);
 
-        Table table = new Table("test", 0, as,0);
+        // Table table = new Table("test", 0, as,0);
 
-        ArrayList<Table> tables = new ArrayList<Table>();
-        tables.add(table);
-        Catalog cat = new Catalog(1, 20, tables);
+        // ArrayList<Table> tables = new ArrayList<Table>();
+        // tables.add(table);
+        // Catalog cat = new Catalog(1, 20, tables);
 
-        Buffer buffer = new Buffer(cat, "Database-System-Implementation-Project\\resources");
-        Page page0 = buffer.read(table.getName(), 0);
-        List<Object> lst = new ArrayList<Object>();
-        lst.add("john".toCharArray());
-        lst.add(7);
-        page0.getRecords().add(new Record(table, lst));
-        buffer.purge();
-        Page page1 = buffer.read(table.getName(), 0);
-        char[] got = (char[]) page1.getRecords().get(0).getValues().get(0);
-        for (char c : got) {
-            System.out.print(c);
+        // Buffer buffer = new Buffer(cat, "Database-System-Implementation-Project\\resources");
+        // Page page0 = buffer.read(table.getName(), 0);
+        // List<Object> lst = new ArrayList<Object>();
+        // lst.add("john".toCharArray());
+        // lst.add(7);
+        // page0.getRecords().add(new Record(table, lst));
+        // buffer.purge();
+        // Page page1 = buffer.read(table.getName(), 0);
+        // char[] got = (char[]) page1.getRecords().get(0).getValues().get(0);
+        // for (char c : got) {
+        //     System.out.print(c);
+        // }
+        // System.out.println();
+        // System.out.println((int) page1.getRecords().get(0).getValues().get(1));
+
+        Queue<HardwarePage> pages = new LinkedList<>();
+        // Table table = new Table("name", 0, null, 0);
+        pages.add(new BPlusTreeNode(false));
+        pages.add(new Page(null, new ArrayList<>(), 0));
+        int i = 0;
+        for (HardwarePage page : pages) {
+            i++;
+            System.out.println(i);
+            if (page.getPageNumber() == 0 && page.getTemplate() == null && page.getClass().equals(Page.class)) {
+                System.out.println("here");
+            }
         }
-        System.out.println();
-        System.out.println((int) page1.getRecords().get(0).getValues().get(1));
     }
 }

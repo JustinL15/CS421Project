@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class BPlusTreeNode {
+public class BPlusTreeNode implements HardwarePage {
     private boolean isLeaf;
     private List<Integer> keys;
     private List<Integer> values;
@@ -93,4 +93,10 @@ public class BPlusTreeNode {
         }
 
     }
+
+    public byte[] toByte(int max_size){return null;}
+    public int bytesUsed(){return 0;}
+    public Table getTemplate(){return null;}
+    public int getPageNumber(){return 0;}
+    public void setPageNumber(int number){}
 }
