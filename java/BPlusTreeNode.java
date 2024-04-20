@@ -4,14 +4,14 @@ import java.util.List;
 public class BPlusTreeNode implements HardwarePage {
     private boolean isLeaf;
     private List<Integer> keys;
-    private List<Integer> values;
+    private List<int[]> pointers;
     private BPlusTreeNode parent;
     private List<BPlusTreeNode> children;
 
     public BPlusTreeNode(boolean isLeaf) {
         this.isLeaf = isLeaf;
         this.keys = new ArrayList<>();
-        this.values = new ArrayList<>();
+        this.pointers = new ArrayList<>();
         this.parent = null;
         this.children = new ArrayList<>();
     }
@@ -32,12 +32,12 @@ public class BPlusTreeNode implements HardwarePage {
         this.keys = keys;
     }
 
-    public List<Integer> getValues() {
-        return values;
+    public List<int[]> getPointers() {
+        return pointers;
     }
 
-    public void setValues(List<Integer> values) {
-        this.values = values;
+    public void setPointers(List<int[]> pointers) {
+        this.pointers = pointers;
     }
 
     public BPlusTreeNode getParent() {
@@ -57,20 +57,20 @@ public class BPlusTreeNode implements HardwarePage {
     }
 
     
-    public void insert(int key, int value) {
+    public void insert(int key, int[] pointer) {
         if (isLeaf) {
             int index = 0;
             while (index < keys.size() && keys.get(index) < key) {
                 index++;
             }
             keys.add(index, key);
-            values.add(index, value);
+            pointers.add(index, value);
         } else {
             int index = 0;
             while (index < keys.size() && keys.get(index) < key) {
                 index++;
             }
-            children.get(index).insert(key, value);
+            children.get(index).insert(key, pointers);
         }
 
     }
@@ -83,7 +83,7 @@ public class BPlusTreeNode implements HardwarePage {
         
         if (isLeaf) {
             int index = keys.indexOf(key);
-            return (index != -1) ? values.get(index) : -1;
+            return (index != -1) ? pointers.get(index) : -1;
         } else {
             int index = 0;
             while (index < keys.size() && keys.get(index) <= key) {
