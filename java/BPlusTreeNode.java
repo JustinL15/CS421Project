@@ -58,7 +58,21 @@ public class BPlusTreeNode {
 
     
     public void insert(int key, int value) {
-        
+        if (isLeaf) {
+            int index = 0;
+            while (index < keys.size() && keys.get(index) < key) {
+                index++;
+            }
+            keys.add(index, key);
+            values.add(index, value);
+        } else {
+            int index = 0;
+            while (index < keys.size() && keys.get(index) < key) {
+                index++;
+            }
+            children.get(index).insert(key, value);
+        }
+
     }
 
     public void delete(int key) {
