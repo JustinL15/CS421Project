@@ -79,7 +79,18 @@ public class BPlusTreeNode {
         
     }
 
-    public void search(int key) {
+    public int search(int key) {
         
+        if (isLeaf) {
+            int index = keys.indexOf(key);
+            return (index != -1) ? values.get(index) : -1;
+        } else {
+            int index = 0;
+            while (index < keys.size() && keys.get(index) <= key) {
+                index++;
+            }
+            return children.get(index).search(key);
+        }
+
     }
 }
