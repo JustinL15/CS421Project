@@ -11,10 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-// Queue of HardwarePages
-// write is abstract
-// read and readNode
-// identify with table and number but verify type for each method
 public class Buffer {
     private Queue<HardwarePage> pages;
     private Catalog catalog;
@@ -26,27 +22,35 @@ public class Buffer {
         this.databaseLocation = databaseLocation;
     }
 
-    public Page read(String tableName, int pageNumber) {
+    public HardwarePage read(String tableName, int pageNumber, boolean readingNode) {
         //System.out.println("Read");
+        Object pageClass = readingNode ? BPlusTreeNode.class : Page.class;
         Table table = catalog.getTableByName(tableName);
         for (HardwarePage page : pages) {
-            if (page.getPageNumber() == pageNumber && page.getTemplate() == table && page.getClass().equals(Page.class)) {
+            if (page.getPageNumber() == pageNumber && page.getTemplate() == table && page.getClass().equals(pageClass)) {
                 pages.remove(page);
                 pages.add(page);
-                return (Page)page;
+                return page;
             }
         }
 
         int tableNumber = table.getNumber();
-        String tableLocation = databaseLocation + File.separator + "tables" + File.separator + tableNumber;
+        String tableLocation = databaseLocation + File.separator + (readingNode ? "trees" : "tables") + File.separator + tableNumber;
         File tableFile = new File(tableLocation);
         RandomAccessFile tableAccessFile;
         try {
             tableAccessFile = new RandomAccessFile(tableFile, "r");
         } catch (FileNotFoundException e) {
-            Page np = new Page(table, new ArrayList<Record>(), pageNumber);
-            pages.add(np);
-            return np;
+            if (!readingNode) {
+                Page np = new Page(table, new ArrayList<Record>(), pageNumber);
+                pages.add(np);
+                return np;
+            }
+            else {
+                System.err.println("Tree not found for page number " + pageNumber + " and table name " + tableName);
+                System.err.println(e);
+                return null;
+            }
         }
 
         int pageSize = catalog.getPageSize();
@@ -60,10 +64,17 @@ public class Buffer {
             return null;
         }
 
-        Page page = new Page(table, bytes, pageNumber);
+        HardwarePage page;
+        if (!readingNode) {
+            page = new Page(table, bytes, pageNumber);
+        }
+        else {
+            // TODO replace with decoding constructor
+            page = new BPlusTreeNode(true);
+        }
         pages.add(page);
         if (pages.size() > catalog.getBufferSize()) {
-            Page lruPage = (Page)pages.remove();
+            HardwarePage lruPage = pages.remove();
             write(lruPage);
         }
         return page;
@@ -77,7 +88,7 @@ public class Buffer {
         byte[] bytes = page.toByte(catalog.getPageSize());
         Table table = page.getTemplate();
         int tableNumber = table.getNumber();
-        String tableLocation = databaseLocation + File.separator + "tables" + File.separator + tableNumber;
+        String tableLocation = databaseLocation + File.separator + (page.getClass().equals(Page.class) ? "tables" : "trees") + File.separator + tableNumber;
         File tableFile = new File(tableLocation);
         RandomAccessFile tableAccessFile;
         try {
@@ -127,7 +138,7 @@ public class Buffer {
         Table table = catalog.getTableByName(tableName);
         List<Page> pagesToAdd = new ArrayList<>(pagesToSplit);
         for (int i = pageNumber + 1; i < table.getPagecount(); i++) {
-            Page next = read(tableName, i);
+            Page next = (Page)read(tableName, i, false);
             next.setPageNumber(i + pagesToAdd.size() - 1);
         }
         for (int i = 0; i < pagesToAdd.size(); i++) {

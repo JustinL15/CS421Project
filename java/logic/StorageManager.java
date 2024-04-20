@@ -33,7 +33,7 @@ public class StorageManager {
         int pageCount = table.getPagecount();
     
         for (int i = 0; i < pageCount; i++) {
-            Page page = buffer.read(table.getName(), i);
+            Page page = (Page)buffer.read(table.getName(), i, false);
             List<Record> records = page.getRecords();
     
             for (Record record : records) {
@@ -60,7 +60,7 @@ public class StorageManager {
     }
     
     public Page getPage(String tableName, int pageNumber) {
-        return buffer.read(tableName, pageNumber);
+        return (Page)buffer.read(tableName, pageNumber, false);
     }
 
     public List<Record> getRecords_tablenumber(int tableNumber) {
@@ -75,7 +75,7 @@ public class StorageManager {
         int pageCount = table.getPagecount();
 
         for (int i = 0; i < pageCount; i++) {
-            Page page = buffer.read(table.getName(), i);
+            Page page = (Page)buffer.read(table.getName(), i, false);
 
             if (page == null) {
                 continue;
@@ -120,13 +120,13 @@ public class StorageManager {
             throw new Exception("Record size larger than page size");
         }
         if (table.getPagecount() == 0) {
-            Page page = buffer.read(table.getName(), 0);
+            Page page = (Page)buffer.read(table.getName(), 0, false);
             page.getRecords().add(newRecord);
             table.setPageCount(1);
             return;
         } else {
             for (int i = 0; i < table.getPagecount(); i++) {
-                Page page = buffer.read(table.getName(), i);
+                Page page = (Page)buffer.read(table.getName(), i, false);
                 List<Record> records = page.getRecords();
                 if (records.size() == 0) {
                     records.add(newRecord);
@@ -151,7 +151,7 @@ public class StorageManager {
         int pageCount = table.getPagecount();
 
         for (int i = 0; i < pageCount; i++) {
-            Page page = buffer.read(table.getName(), i);
+            Page page = (Page)buffer.read(table.getName(), i, false);
             List<Record> records = page.getRecords();
     
             for (Record record : records) {
@@ -207,7 +207,7 @@ public class StorageManager {
             case Integer:
                 int ival = (int) value;
                 for (int i = 0; i < table.getPagecount(); i++) {
-                    Page page = buffer.read(table.getName(), i);
+                    Page page = (Page)buffer.read(table.getName(), i, false);
                     for (Record r : page.getRecords()) {
                         int compare = (int) r.getValues().get(attrCol);
                         if (compare == ival) {
@@ -219,7 +219,7 @@ public class StorageManager {
             case Double:
                 double dval = (double) value;
                 for (int i = 0; i < table.getPagecount(); i++) {
-                    Page page = buffer.read(table.getName(), i);
+                    Page page = (Page)buffer.read(table.getName(), i, false);
                     for (Record r : page.getRecords()) {
                         double compare = (double) r.getValues().get(attrCol);
                         if (compare == dval) {
@@ -231,7 +231,7 @@ public class StorageManager {
             case Boolean:
                 boolean bval = (boolean) value;
                 for (int i = 0; i < table.getPagecount(); i++) {
-                    Page page = buffer.read(table.getName(), i);
+                    Page page = (Page)buffer.read(table.getName(), i, false);
                     for (Record r : page.getRecords()) {
                         boolean compare = (boolean) r.getValues().get(attrCol);
                         if (compare == bval) {
@@ -244,7 +244,7 @@ public class StorageManager {
             case Varchar:
                 String val = (String) value;
                 for (int i = 0; i < table.getPagecount(); i++) {
-                    Page page = buffer.read(table.getName(), i);
+                    Page page = (Page)buffer.read(table.getName(), i, false);
                     for (Record r : page.getRecords()) {
                         String compare = (String) r.getValues().get(attrCol);
                         if ((compare.equals(val))) {
@@ -262,7 +262,7 @@ public class StorageManager {
 
         List<Record> recordsToUpdate = new ArrayList<>();
         for (int i = 0; i < pageCount; i++) {
-            Page page = buffer.read(table.getName(), i);
+            Page page = (Page)buffer.read(table.getName(), i, false);
             List<Record> records = page.getRecords();
             for (Record record : records) {  
                 List<Object> recordvals = record.getValues();
@@ -289,7 +289,7 @@ public class StorageManager {
         int pageCount = table.getPagecount();
 
         for (int i = 0; i < pageCount; i++) {
-            Page page = buffer.read(table.getName(), i);
+            Page page = (Page)buffer.read(table.getName(), i, false);
             List<Record> records = page.getRecords();
             for (Record record : records) {
                 List<Object> recordvals = record.getValues();
@@ -328,7 +328,7 @@ public class StorageManager {
         // }
         for (int i = 0; i < table.getPagecount(); i++) {
             System.out.println("Page " + i);
-            Page page = sM.buffer.read(table.getName(), i);
+            Page page = (Page)sM.buffer.read(table.getName(), i, false);
             for (Record record : page.getRecords()) {
                 System.out.println(record.getValues());
             }
@@ -338,7 +338,7 @@ public class StorageManager {
         sM.insertSingleRecord(table, nw);
         for (int i = 0; i < table.getPagecount(); i++) {
             System.out.println("Page " + i);
-            Page page = sM.buffer.read(table.getName(), i);
+            Page page = (Page)sM.buffer.read(table.getName(), i, false);
             System.out.println(page.getRecords().size());
             for (Record record : page.getRecords()) {
                 System.out.println(record.getValues());
@@ -351,7 +351,7 @@ public class StorageManager {
         sM.insertSingleRecord(table, new Record(table, newVals));
         for (int i = 0; i < table.getPagecount(); i++) {
             System.out.println("Page " + i);
-            Page page = sM.buffer.read(table.getName(), i);
+            Page page = (Page)sM.buffer.read(table.getName(), i, false);
             for (Record record : page.getRecords()) {
                 System.out.println(record.getValues());
             }
@@ -372,7 +372,7 @@ public class StorageManager {
         // }
         for (int i = 0; i < table.getPagecount(); i++) {
             System.out.println("Page " + i);
-            Page page = sM.buffer.read(table.getName(), i);
+            Page page = (Page)sM.buffer.read(table.getName(), i, false);
             for (Record record : page.getRecords()) {
                 System.out.println(record.getValues());
             }
