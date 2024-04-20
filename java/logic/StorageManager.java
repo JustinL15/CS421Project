@@ -30,6 +30,7 @@ public class StorageManager {
     // Buffer requires the Catalog and databaseLocation. consider creating Buffer in Main and passing it to a constructor.
 
     public Record getRecordByPrimaryKey(Table table, Object primaryKey) {
+        // TODO if indexing is on, then use the tree to find the record
         int pageCount = table.getPagecount();
     
         for (int i = 0; i < pageCount; i++) {
@@ -116,6 +117,7 @@ public class StorageManager {
     }
 
     public void insertSingleRecord(Table table, Record newRecord) throws Exception {
+        // TODO insert into tree
         if (newRecord.spacedUsed() + 4 > catalog.getPageSize()) {
             throw new Exception("Record size larger than page size");
         }
@@ -148,6 +150,7 @@ public class StorageManager {
 
     
     public void deleteRecord_primarykey(Table table, Object primaryKey) {
+        // TODO delete from tree
         int pageCount = table.getPagecount();
 
         for (int i = 0; i < pageCount; i++) {
@@ -180,12 +183,14 @@ public class StorageManager {
         insertSingleRecord(record.getTemplate(), record);
     }
     public Table createTable(String name, int number, List<Attribute> TableAttr) {
+        // TODO create tree
         Table New_Table = new Table(name,number,TableAttr, 0);
         catalog.createTable(New_Table);
         return New_Table;
     }
     
     public void dropTable(String tablenamePassed) { 
+        // TODO delete tree
         int droptableNum = catalog.getTableByName(tablenamePassed).getNumber();
         int moveTableNum = catalog.getTables().size() - 1;
         File fileToDelete = new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum);
