@@ -7,13 +7,15 @@ public class BPlusTreeNode implements HardwarePage {
     private List<int[]> pointers;
     private BPlusTreeNode parent;
     private List<BPlusTreeNode> children;
+    private int maxSize;
 
-    public BPlusTreeNode(boolean isLeaf) {
+    public BPlusTreeNode(boolean isLeaf, int maxSize) {
         this.isLeaf = isLeaf;
         this.keys = new ArrayList<>();
         this.pointers = new ArrayList<>();
         this.parent = null;
         this.children = new ArrayList<>();
+        this.maxSize = maxSize;
     }
 
     public boolean isLeaf() {
@@ -57,20 +59,48 @@ public class BPlusTreeNode implements HardwarePage {
     }
 
     
-    public void insert(int key, int[] pointer) {
+    public BPlusTreeNode insert(int key, int[] pointer) {
         if (isLeaf) {
-            int index = 0;
-            while (index < keys.size() && keys.get(index) < key) {
-                index++;
+            int index = binaryInsert(this.keys, key);
+            this.keys.add(index, key);
+            this.pointers.add(index, key);
+            if (keys.size() > maxSize) {
+                List<List<object>> splitKeys = splitArrayList(keys);
+                List<List<int[]>> splitPointers = splitArrayList(pointers)
+                this.keys = splitKeys.get(0);
+                this.pointers = splitPointers.get(0);
+                BPlusTreeNode newNode = new BPlusTreeNode(this.isLeaf, this.maxSize);
+                newNode.setKeys(splitKeys.get(1));
+                newNode.setPointers(splitPointers.get(1));
+                newNode.setParent(this.parent);
+                return newNode;
             }
-            keys.add(index, key);
-            pointers.add(index, value);
+            return null;
         } else {
-            int index = 0;
-            while (index < keys.size() && keys.get(index) < key) {
-                index++;
+            int index = binaryInsert(this.keys, key);
+            int[] pointer = pointers.get(index);
+            // retrieved node from buffer using pointer
+            BPlusTreeNode retrievedNode = new BPlusTreeNode(null, null);
+            BPlusTreeNode newNode = retrievedNode.insert(key, pointer);
+            if (newNode != null) {
+                this.keys.add(index, newNode.keys.get(0));
+                if (index + 1 = this.keys.size()) {
+                    //new node pointer
+                }
+                //new node pointer
+                if (keys.size() > maxSize - 1) {
+                    List<List<object>> splitKeys = splitArrayList(keys);
+                    List<List<int[]>> splitPointers = splitArrayList(pointers)
+                    this.keys = splitKeys.get(0);
+                    this.pointers = splitPointers.get(0);
+                    BPlusTreeNode newNode = new BPlusTreeNode(this.isLeaf, this.maxSize);
+                    newNode.setKeys(splitKeys.get(1));
+                    newNode.setPointers(splitPointers.get(1));
+                    newNode.setParent(this.parent);
+                    return newNode;
+                }
             }
-            children.get(index).insert(key, pointers);
+            return null;
         }
 
     }
@@ -99,4 +129,39 @@ public class BPlusTreeNode implements HardwarePage {
     public Table getTemplate(){return null;}
     public int getPageNumber(){return 0;}
     public void setPageNumber(int number){}
+
+    public static <T extends Comparable<? super T>> int binaryInsert(ArrayList<T> arrayList, T value) {
+        if (arrayList.isEmpty()) {
+            return 0;
+        }
+
+        int left = 0;
+        int right = arrayList.size() - 1;
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            T midValue = arrayList.get(mid);
+
+            int comparison = value.compareTo(midValue);
+
+            if (comparison == 0) {
+                return mid + 1;
+            } else if (comparison < 0) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+
+    public static <T> List<List<T>> splitArrayList(ArrayList<T> arrayList) {
+        int mid = arrayList.size() / 2;
+        
+        List<List<T>> result = new ArrayList<>();
+        result.add(arrayList.subList(0, mid));
+        result.add(arrayList.subList(mid, arrayList.size()));
+        return result;
+    }
 }
