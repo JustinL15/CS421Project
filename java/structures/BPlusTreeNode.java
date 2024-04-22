@@ -81,7 +81,7 @@ public class BPlusTreeNode implements HardwarePage {
         } else {
             int index = binarySearch(keys, key);
             int[] pointerFromIndex = pointers.get(index);
-            BPlusTreeNode retrievedNode = buffer.read(template.getName(), pointerFromIndex[0], true);
+            BPlusTreeNode retrievedNode = (BPlusTreeNode) buffer.read(template.getName(), pointerFromIndex[0], true);
             BPlusTreeNode newNode = retrievedNode.insert(key, pointer, buffer);
             if (newNode != null) {
                 keys.add(index, newNode.keys.get(0));
@@ -95,11 +95,11 @@ public class BPlusTreeNode implements HardwarePage {
                     List<List<int[]>> splitPointers = splitArrayList(pointers);
                     this.keys = splitKeys.get(0);
                     this.pointers = splitPointers.get(0);
-                    BPlusTreeNode newNode = new BPlusTreeNode(this.isLeaf, this.maxSize, this.template);
-                    newNode.setKeys(splitKeys.get(1));
-                    newNode.setPointers(splitPointers.get(1));
-                    newNode.setParent(this.parent);
-                    return newNode;
+                    BPlusTreeNode newNode2 = new BPlusTreeNode(this.isLeaf, this.maxSize, this.template);
+                    newNode2.setKeys(splitKeys.get(1));
+                    newNode2.setPointers(splitPointers.get(1));
+                    newNode2.setParent(this.parent);
+                    return newNode2;
                 }
             }
             return null;
@@ -207,33 +207,4 @@ public class BPlusTreeNode implements HardwarePage {
         return result;
     }
 
-    @Override
-    public byte[] toByte(int max_size) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'toByte'");
-    }
-
-    @Override
-    public int bytesUsed() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'bytesUsed'");
-    }
-
-    @Override
-    public Table getTemplate() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTemplate'");
-    }
-
-    @Override
-    public int getPageNumber() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPageNumber'");
-    }
-
-    @Override
-    public void setPageNumber(int number) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPageNumber'");
-    }
 }
