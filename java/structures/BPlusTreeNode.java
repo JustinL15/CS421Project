@@ -159,7 +159,6 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         return -(left + 1);
     }
 
-    // Implementation of HardwarePage interface methods
     @Override
     public int getPageNumber() {
         return pageNumber;
@@ -172,14 +171,47 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
 
     @Override
     public int bytesUsed() {
-        // Implementation of bytesUsed method
-        return 0;
+        int size = 0;
+        
+        for (T key : keys) {
+            size += key.toString().getBytes().length;
+        }
+        
+        for (int[] pointer : pointers) {
+            size += pointer.length * Integer.BYTES;
+        }
+        
+        for (BPlusTreeNode<T> child : children) {
+            size += child.bytesUsed();
+        }
+        return size;
     }
 
-    @Override
     public byte[] toBytes() {
-        // Implementation of toBytes method
-        return new byte[0];
+        List<Byte> byteList = new ArrayList<>();
+
+        for (T key : keys) {
+            byte[] keyBytes = key.toString().getBytes();
+            for (byte b : keyBytes) {
+                byteList.add(b);
+            }
+        }
+
+        for (int[] pointer : pointers) {
+            for (int value : pointer) {
+                byteList.add((byte) (value >> 24));
+                byteList.add((byte) (value >> 16));
+                byteList.add((byte) (value >> 8));
+                byteList.add((byte) value);
+            }
+        }
+
+        byte[] byteArray = new byte[byteList.size()];
+        for (int i = 0; i < byteList.size(); i++) {
+            byteArray[i] = byteList.get(i);
+        }
+
+        return byteArray;
     }
 
     public boolean delete(T key, Buffer buffer, List<T> keysDisplaced, List<int[]> pointersDisplaced) throws Exception {
