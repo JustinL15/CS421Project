@@ -118,12 +118,13 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             return (index != -1) ? pointers.get(index)[0] : -1;
         } else {
             int index = 0;
-            while (index < keys.size() && keys.get(index) <= key) {
+            while (index < keys.size() && ((Integer) keys.get(index)) <= key) {
                 index++;
             }
             return children.get(index).search(key);
         }
     }
+    
 
     public void collectChildren(List<T> keysCollected, List<int[]> pointersCollected, Buffer buffer) {
         if (isLeaf) {
