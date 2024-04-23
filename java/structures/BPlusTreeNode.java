@@ -2,12 +2,12 @@ package structures;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BPlusTreeNode implements HardwarePage {
+public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
     private boolean isLeaf;
-    private List<Integer> keys;
+    private List<T> keys;
     private List<int[]> pointers;
-    private BPlusTreeNode parent;
-    private List<BPlusTreeNode> children;
+    private BPlusTreeNode<T> parent;
+    private List<BPlusTreeNode<T>> children;
     private int maxSize;
     private Table template;
 
@@ -29,11 +29,11 @@ public class BPlusTreeNode implements HardwarePage {
         isLeaf = leaf;
     }
 
-    public List<Integer> getKeys() {
+    public List<T> getKeys() {
         return keys;
     }
 
-    public void setKeys(List<Integer> keys) {
+    public void setKeys(List<T> keys) {
         this.keys = keys;
     }
 
@@ -61,7 +61,7 @@ public class BPlusTreeNode implements HardwarePage {
         this.children = children;
     }
 
-    public BPlusTreeNode insert(int key, int[] pointer, Buffer buffer) {
+    public BPlusTreeNode insert(Object key, int[] pointer, Buffer buffer) {
         if (isLeaf) {
             int index = binarySearch(keys, key);
             keys.add(index, key);
@@ -106,7 +106,7 @@ public class BPlusTreeNode implements HardwarePage {
         }
     }
 
-    public boolean delete(int key, Buffer buffer, List<Object> keysDisplaced, List<Object> pointersDisplaced) throws Exception {
+    public boolean delete(int key, Buffer buffer, List<Object> keysDisplaced, List<int[]> pointersDisplaced) throws Exception {
         if (isLeaf) {
             int index = keys.indexOf(key);
             if (index != -1) {
@@ -135,7 +135,7 @@ public class BPlusTreeNode implements HardwarePage {
                     keys.remove(index);
                 }
                 for (int i = 0; i < keysD.size(); i++) {
-                    BPlusTreeNode newNode = this.insert();
+                    BPlusTreeNode newNode = this.insert(keysD.get(i), pointersD.get(i), buffer);
                     if (newNode != null) {
                         // Write it to buffer
                         // Add to keys and pointers
@@ -165,7 +165,7 @@ public class BPlusTreeNode implements HardwarePage {
         }
     }
 
-    public void collectChildren(List<Object> keysCollected, List<Object> pointersCollected, Buffer buffer) {
+    public void collectChildren(List<Object> keysCollected, List<int[]> pointersCollected, Buffer buffer) {
         if (isLeaf) {
             for (int i = 0; i < keys.size(); i++) {
                 keysCollected.add(keys.get(i));
@@ -179,25 +179,28 @@ public class BPlusTreeNode implements HardwarePage {
         }
     }
 
-    public static int binarySearch(List<Integer> arrayList, int value) {
+    public static <T extends Comparable<T>> int binarySearch(List<T> arrayList, T value) {
         if (arrayList.isEmpty()) {
-            return 0;
+            return -1;
         }
         int left = 0;
         int right = arrayList.size() - 1;
         while (left <= right) {
             int mid = (left + right) / 2;
-            int midValue = arrayList.get(mid);
-            if (midValue == value) {
+            T midValue = arrayList.get(mid);
+            int comparison = midValue.compareTo(value);
+            if (comparison == 0) {
                 return mid;
-            } else if (midValue < value) {
+            } else if (comparison < 0) {
                 left = mid + 1;
             } else {
                 right = mid - 1;
             }
         }
-        return left;
+        return -(left + 1);
     }
+    
+    
 
     public static <T> List<List<T>> splitArrayList(List<T> arrayList) {
         int mid = arrayList.size() / 2;
