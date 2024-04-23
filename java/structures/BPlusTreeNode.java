@@ -67,43 +67,47 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             keys.add(index, key);
             pointers.add(index, pointer);
             if (keys.size() > maxSize) {
-                List<List<T>> splitKeys = splitArrayList(keys);
-                List<List<int[]>> splitPointers = splitArrayList(pointers);
-                this.keys = splitKeys.get(0);
-                this.pointers = splitPointers.get(0);
-                BPlusTreeNode<T> newNode = new BPlusTreeNode<T>(this.isLeaf, this.maxSize, this.template);
-                newNode.setKeys(splitKeys.get(1));
-                newNode.setPointers(splitPointers.get(1));
-                newNode.setParent(this.parent);
-                return newNode;
+                return splitLeafNode();
             }
-            return null;
         } else {
             int index = binarySearch(keys, key);
-            int[] pointerFromIndex = pointers.get(index);
-            BPlusTreeNode<T> retrievedNode = buffer.read(template.getName(), pointerFromIndex[0], true);
+            BPlusTreeNode<T> retrievedNode = buffer.read(template.getName(), pointers.get(index), true);
             BPlusTreeNode<T> newNode = retrievedNode.insert(key, pointer, buffer);
             if (newNode != null) {
                 keys.add(index, newNode.keys.get(0));
-                if (index + 1 == keys.size()) {
-                    pointers.add(newNode.pointers.get(0));
-                } else {
-                    pointers.add(index + 1, newNode.pointers.get(0));
-                }
+                //gen pointer
                 if (keys.size() > maxSize - 1) {
-                    List<List<T>> splitKeys = splitArrayList(keys);
-                    List<List<int[]>> splitPointers = splitArrayList(pointers);
-                    this.keys = splitKeys.get(0);
-                    this.pointers = splitPointers.get(0);
-                    BPlusTreeNode<T> newNode2 = new BPlusTreeNode<T>(this.isLeaf, this.maxSize, this.template);
-                    newNode2.setKeys(splitKeys.get(1));
-                    newNode2.setPointers(splitPointers.get(1));
-                    newNode2.setParent(this.parent);
-                    return newNode2;
+                    return splitInternalNode();
                 }
             }
-            return null;
         }
+    }
+
+
+    private BPlusTreeNode<T> splitLeafNode() {
+        int splitIndex = keys.size() / 2;
+        List<T> newKeys = keys.subList(splitIndex, keys.size());
+        List<int[]> newPointers = pointers.subList(splitIndex, pointers.size());
+        keys.subList(splitIndex, keys.size()).clear();
+        pointers.subList(splitIndex, pointers.size()).clear();
+        BPlusTreeNode<T> newNode = new BPlusTreeNode<>(true, maxSize, template);
+        newNode.setKeys(newKeys);
+        newNode.setPointers(newPointers);
+        newNode.setParent(this.parent);
+        return newNode;
+    }
+    
+    private BPlusTreeNode<T> splitInternalNode() {
+        int splitIndex = (keys.size() + 1) / 2;
+        List<T> newKeys = keys.subList(splitIndex, keys.size());
+        List<int[]> newPointers = pointers.subList(splitIndex, pointers.size());
+        keys.subList(splitIndex, keys.size()).clear();
+        pointers.subList(splitIndex, pointers.size()).clear();
+        BPlusTreeNode<T> newNode = new BPlusTreeNode<>(false, maxSize, template);
+        newNode.setKeys(newKeys);
+        newNode.setPointers(newPointers);
+        newNode.setParent(this.parent);
+        return newNode;
     }
 
     public boolean delete(T key, Buffer buffer, List<T> keysDisplaced, List<int[]> pointersDisplaced) throws Exception {
@@ -199,15 +203,6 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         }
         return -(left + 1);
     }
-    
-    
 
-    public static <T> List<List<T>> splitArrayList(List<T> arrayList) {
-        int mid = arrayList.size() / 2;
-        List<List<T>> result = new ArrayList<>();
-        result.add(arrayList.subList(0, mid));
-        result.add(arrayList.subList(mid, arrayList.size()));
-        return result;
-    }
 
 }
