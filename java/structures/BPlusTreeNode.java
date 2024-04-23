@@ -170,6 +170,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         } else {
             int index = binarySearch(keys, key);
             BPlusTreeNode<T> nextNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index)[0], true);
+            nextNode.parent = this.pageNumber;
             if (nextNode.delete(key, buffer)) {
                 keys.remove(index);
                 pointers.remove(index);
