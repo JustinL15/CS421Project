@@ -43,13 +43,21 @@ public class Buffer {
         } catch (FileNotFoundException e) {
             if (!readingNode) {
                 Page np = new Page(table, new ArrayList<Record>(), pageNumber);
-                pages.add(np);
+                addPage(np);
                 return np;
             }
             else {
-                System.err.println("Tree not found for page number " + pageNumber + " and table name " + tableName);
-                System.err.println(e);
-                return null;
+                List<Attribute> attributes = table.getAttributes();
+                int keyLength = 0;
+                for (Attribute attribute : attributes) {
+                    if (attribute.isKey()) {
+                        keyLength = attribute.getMaxLength();
+                        break;
+                    }
+                }
+                BPlusTreeNode newNode = new BPlusTreeNode(true, (catalog.getPageSize()/(keyLength + 8)), table);
+                addPage(newNode);
+                return newNode;
             }
         }
 
@@ -70,14 +78,19 @@ public class Buffer {
         }
         else {
             // TODO replace with decoding constructor
-            page = new BPlusTreeNode(true);
+            // page = new BPlusTreeNode(byte[] byteBuffer);
+            page = null;
         }
+        addPage(page);
+        return page;
+    }
+
+    private void addPage(HardwarePage page) {
         pages.add(page);
         if (pages.size() > catalog.getBufferSize()) {
             HardwarePage lruPage = pages.remove();
             write(lruPage);
         }
-        return page;
     }
 
     private void write(HardwarePage page) {
@@ -201,7 +214,7 @@ public class Buffer {
 
         Queue<HardwarePage> pages = new LinkedList<>();
         // Table table = new Table("name", 0, null, 0);
-        pages.add(new BPlusTreeNode(false));
+        // pages.add(new BPlusTreeNode(false));
         pages.add(new Page(null, new ArrayList<>(), 0));
         int i = 0;
         for (HardwarePage page : pages) {
