@@ -31,6 +31,13 @@ public class StorageManager {
 
     public Record getRecordByPrimaryKey(Table table, Object primaryKey) {
         // TODO if indexing is on, then use the tree to find the record
+        if (true) {
+            // int[] recordPointer = ((BPlusTreeNode)buffer.read(table.getName(), 0, true)).search((Integer)primaryKey);
+            int[] recordPointer = new int[2];
+            Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
+            List<Record> records = page.getRecords();
+            return records.get(recordPointer[1]);
+        }
         int pageCount = table.getPagecount();
     
         for (int i = 0; i < pageCount; i++) {
@@ -117,9 +124,19 @@ public class StorageManager {
     }
 
     public void insertSingleRecord(Table table, Record newRecord) throws Exception {
-        // TODO insert into tree
         if (newRecord.spacedUsed() + 4 > catalog.getPageSize()) {
             throw new Exception("Record size larger than page size");
+        }
+        // TODO if indexing is on
+        if (true) {
+            BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), 0, true);
+            BPlusTreeNode leaf = tree.insert((int)newRecord.getPrimaryKey(), null, buffer);
+            int index = BPlusTreeNode.binarySearch(leaf.getKeys(), (int)newRecord.getPrimaryKey());
+            int[] recordPointer = leaf.getPointers().get(index);
+            Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
+            List<Record> records = page.getRecords();
+            records.add(recordPointer[1], newRecord);
+            return;
         }
         if (table.getPagecount() == 0) {
             Page page = (Page)buffer.read(table.getName(), 0, false);
@@ -149,8 +166,18 @@ public class StorageManager {
     }
 
     
-    public void deleteRecord_primarykey(Table table, Object primaryKey) {
-        // TODO delete from tree
+    public void deleteRecord_primarykey(Table table, Object primaryKey) throws Exception {
+        // TODO if indexing is on
+        if (true) {
+            BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), 0, true);
+            // int[] recordPointer = tree.search((int)primaryKey);
+            int[] recordPointer = new int[2];
+            Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
+            List<Record> records = page.getRecords();
+            records.remove(recordPointer[1]);
+            tree.delete((int)primaryKey, buffer, null, null);
+            return;
+        }
         int pageCount = table.getPagecount();
 
         for (int i = 0; i < pageCount; i++) {
@@ -183,14 +210,16 @@ public class StorageManager {
         insertSingleRecord(record.getTemplate(), record);
     }
     public Table createTable(String name, int number, List<Attribute> TableAttr) {
-        // TODO create tree
         Table New_Table = new Table(name,number,TableAttr, 0);
         catalog.createTable(New_Table);
+        // TODO if indexing is on, create tree
+        if (true) {
+            buffer.read(name, 0, true);
+        }
         return New_Table;
     }
     
     public void dropTable(String tablenamePassed) { 
-        // TODO delete tree
         int droptableNum = catalog.getTableByName(tablenamePassed).getNumber();
         int moveTableNum = catalog.getTables().size() - 1;
         File fileToDelete = new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum);
@@ -201,9 +230,19 @@ public class StorageManager {
         }
         if (fileToRename.exists()) {
             fileToRename.renameTo(new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum));
-        } // else {
-        //     System.err.println("Deletion error for file: " + tablenamePassed);
-        // }
+        }
+        
+        // TODO if indexing is on, delete tree
+        if (true) {
+            fileToDelete = new File(databaseLocation + File.separator + "trees" + File.separator + droptableNum);
+            fileToRename = new File(databaseLocation + File.separator + "trees" + File.separator + moveTableNum);
+            if (fileToDelete.exists()) {
+                fileToDelete.delete();
+            }
+            if (fileToRename.exists()) {
+                fileToRename.renameTo(new File(databaseLocation + File.separator + "trees" + File.separator + droptableNum));
+            }
+        }
 
     }
 
