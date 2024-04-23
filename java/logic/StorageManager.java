@@ -1,20 +1,20 @@
-import java.io.BufferedReader;
+// import java.io.BufferedReader;
 import java.io.File;  // Import the File class
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;  // Import the IOException class to handle errors
-import java.io.ObjectOutputStream;
-import java.nio.ByteBuffer;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+// import java.io.FileInputStream;
+// import java.io.FileOutputStream;
+// import java.io.FileReader;
+// import java.io.IOException;  // Import the IOException class to handle errors
+// import java.io.ObjectOutputStream;
+// import java.nio.ByteBuffer;
+// import java.sql.Connection;
+// import java.sql.PreparedStatement;
+// import java.sql.ResultSet;
+// import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+// import java.util.Arrays;
 import java.util.List;
 
-import javax.print.DocFlavor.BYTE_ARRAY;
+// import javax.print.DocFlavor.BYTE_ARRAY;
 
 public class StorageManager {
     public Buffer buffer;
@@ -136,7 +136,7 @@ public class StorageManager {
             Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
             List<Record> records = page.getRecords();
             records.add(recordPointer[1], newRecord);
-            return;
+            // return;
         }
         if (table.getPagecount() == 0) {
             Page page = (Page)buffer.read(table.getName(), 0, false);
