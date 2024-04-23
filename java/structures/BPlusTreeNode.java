@@ -1,4 +1,5 @@
-package structures;import java.util.ArrayList;
+package structures;import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
@@ -187,6 +188,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         return size;
     }
 
+
     public byte[] toBytes() {
         List<Byte> byteList = new ArrayList<>();
 
@@ -260,6 +262,38 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             }
             return false;
         }
+    }
+
+
+    @Override
+    public byte[] toByte(int max_size) {
+        int bytesPerKey = max_size / keys.size(); 
+        int totalBytes = keys.size() * bytesPerKey + pointers.size() * 4;
+
+        ByteBuffer buffer = ByteBuffer.allocate(totalBytes);
+        for (T key : keys) {
+            String keyString = key.toString();
+            byte[] keyBytes = keyString.getBytes();
+            buffer.put(keyBytes);
+        
+            for (int i = keyBytes.length; i < bytesPerKey; i++) {
+                buffer.put((byte) 0);
+            }
+        }
+
+        for (int[] pointer : pointers) {
+            for (int value : pointer) {
+                buffer.putInt(value);
+            }
+        }
+
+        return buffer.array();
+    }
+    }
+
+    @Override
+    public Table getTemplate() {
+        return this.template;        
     }
     
 }
