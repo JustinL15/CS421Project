@@ -1,5 +1,4 @@
-package structures;
-import java.util.ArrayList;
+package structures;import java.util.ArrayList;
 import java.util.List;
 
 public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
@@ -10,6 +9,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
     private List<BPlusTreeNode<T>> children;
     private int maxSize;
     private Table template;
+    private int pageNumber;
 
     public BPlusTreeNode(boolean isLeaf, int maxSize, Table template) {
         this.isLeaf = isLeaf;
@@ -19,6 +19,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         this.children = new ArrayList<>();
         this.maxSize = maxSize;
         this.template = template;
+        this.pageNumber = -1; // Default value
     }
 
     public boolean isLeaf() {
@@ -71,18 +72,18 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             }
         } else {
             int index = binarySearch(keys, key);
-            BPlusTreeNode<T> retrievedNode = buffer.read(template.getName(), pointers.get(index), true);
+            BPlusTreeNode<T> retrievedNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index)[0], true);
             BPlusTreeNode<T> newNode = retrievedNode.insert(key, pointer, buffer);
             if (newNode != null) {
                 keys.add(index, newNode.keys.get(0));
-                //gen pointer
+                // Generate pointer
                 if (keys.size() > maxSize - 1) {
                     return splitInternalNode();
                 }
             }
         }
+        return null; // Return null if no split occurred
     }
-
 
     private BPlusTreeNode<T> splitLeafNode() {
         int splitIndex = keys.size() / 2;
@@ -96,7 +97,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         newNode.setParent(this.parent);
         return newNode;
     }
-    
+
     private BPlusTreeNode<T> splitInternalNode() {
         int splitIndex = (keys.size() + 1) / 2;
         List<T> newKeys = keys.subList(splitIndex, keys.size());
@@ -108,52 +109,6 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         newNode.setPointers(newPointers);
         newNode.setParent(this.parent);
         return newNode;
-    }
-
-    public boolean delete(T key, Buffer buffer, List<T> keysDisplaced, List<int[]> pointersDisplaced) throws Exception {
-        if (isLeaf) {
-            int index = keys.indexOf(key);
-            if (index != -1) {
-                keys.remove(index);
-                pointers.remove(index);
-                if (keys.size() < maxSize / 2) {
-                    if (keysDisplaced != null && pointersDisplaced != null) {
-                        collectChildren(keysDisplaced, pointersDisplaced, buffer);
-                    }
-                    return true;
-                }
-            } else {
-                throw new Exception("Key not found.");
-            }
-            return false;
-        } else {
-            int index = binarySearch(keys, key);
-            BPlusTreeNode<T> nextNode = buffer.read(template.getName(), pointers.get(index)[0], true);
-            ArrayList<T> keysD = new ArrayList<>();
-            ArrayList<int[]> pointersD = new ArrayList<>();
-            if (nextNode.delete(key, buffer, keysD, pointersD)) {
-                pointers.remove(index);
-                if (keys.size() == index) {
-                    keys.remove(index - 1);
-                } else {
-                    keys.remove(index);
-                }
-                for (int i = 0; i < keysD.size(); i++) {
-                    BPlusTreeNode<T> newNode = this.insert(keysD.get(i), pointersD.get(i), buffer);
-                    if (newNode != null) {
-                        // Write it to buffer
-                        // Add to keys and pointers
-                    }
-                }
-                if (keys.size() < maxSize / 2) {
-                    if (keysDisplaced != null && pointersDisplaced != null) {
-                        collectChildren(keysDisplaced, pointersDisplaced, buffer);
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 
     public int search(int key) {
@@ -177,7 +132,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             }
         } else {
             for (int i = 0; i < pointers.size(); i++) {
-                BPlusTreeNode<T> nextNode = buffer.read(template.getName(), pointers.get(i)[0], true);
+                BPlusTreeNode<T> nextNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(i)[0], true);
                 nextNode.collectChildren(keysCollected, pointersCollected, buffer);
             }
         }
@@ -204,5 +159,75 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         return -(left + 1);
     }
 
+    // Implementation of HardwarePage interface methods
+    @Override
+    public int getPageNumber() {
+        return pageNumber;
+    }
 
+    @Override
+    public void setPageNumber(int number) {
+        this.pageNumber = number;
+    }
+
+    @Override
+    public int bytesUsed() {
+        // Implementation of bytesUsed method
+        return 0;
+    }
+
+    @Override
+    public byte[] toBytes() {
+        // Implementation of toBytes method
+        return new byte[0];
+    }
+
+    public boolean delete(T key, Buffer buffer, List<T> keysDisplaced, List<int[]> pointersDisplaced) throws Exception {
+        if (isLeaf) {
+            int index = keys.indexOf(key);
+            if (index != -1) {
+                keys.remove(index);
+                pointers.remove(index);
+                if (keys.size() < maxSize / 2) {
+                    if (keysDisplaced != null && pointersDisplaced != null) {
+                        collectChildren(keysDisplaced, pointersDisplaced, buffer);
+                    }
+                    return true;
+                }
+            } else {
+                throw new Exception("Key not found.");
+            }
+            return false;
+        } else {
+            int index = binarySearch(keys, key);
+            BPlusTreeNode<T> nextNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index)[0], true);
+            List<T> keysD = new ArrayList<>();
+            List<int[]> pointersD = new ArrayList<>();
+            if (nextNode.delete(key, buffer, keysD, pointersD)) {
+                pointers.remove(index);
+                if (keys.size() == index) {
+                    keys.remove(index - 1);
+                } else {
+                    keys.remove(index);
+                }
+                for (int i = 0; i < keysD.size(); i++) {
+                    BPlusTreeNode<T> newNode = this.insert(keysD.get(i), pointersD.get(i), buffer);
+                    if (newNode != null) {
+                        // Write it to buffer
+                        buffer.write(newNode); // Write the new node to buffer
+                        keys.add(keys.indexOf(keysD.get(i)), newNode.getKeys().get(0)); // Add new key to keys
+                        pointers.add(keys.indexOf(keysD.get(i)), new int[]{newNode.getPageNumber()}); // Add new pointer to pointers
+                    }
+                }
+                if (keys.size() < maxSize / 2) {
+                    if (keysDisplaced != null && pointersDisplaced != null) {
+                        collectChildren(keysDisplaced, pointersDisplaced, buffer);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    
 }

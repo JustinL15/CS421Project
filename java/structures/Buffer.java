@@ -85,7 +85,7 @@ public class Buffer {
         return page;
     }
 
-    private void addPage(HardwarePage page) {
+    public void addPage(HardwarePage page) {
         pages.add(page);
         if (pages.size() > catalog.getBufferSize()) {
             HardwarePage lruPage = pages.remove();
@@ -93,7 +93,7 @@ public class Buffer {
         }
     }
 
-    private void write(HardwarePage page) {
+    public void write(HardwarePage page) {
         if (page.bytesUsed() > catalog.getPageSize() && page.getClass().equals(Page.class)) {
             splitPage(page.getTemplate().getName(), (Page)page);
             return;
