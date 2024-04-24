@@ -7,7 +7,6 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
     private List<T> keys;
     private List<int[]> pointers;
     private int parent;
-    private List<BPlusTreeNode<T>> children;
     private int maxSize;
     private Table template;
     private int pageNumber;
@@ -20,7 +19,6 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             pointers.add(new int[] {-1, -1}); //next pointer initalized to "null"
         }
         this.parent = -1;
-        this.children = new ArrayList<>();
         this.maxSize = maxSize;
         this.template = template;
         this.pageNumber = template.getNextFreePage();
@@ -56,14 +54,6 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
 
     public void setParent(int parent) {
         this.parent = parent;
-    }
-
-    public List<BPlusTreeNode<T>> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<BPlusTreeNode<T>> children) {
-        this.children = children;
     }
 
     public void insert(T key, Buffer buffer) {
@@ -191,16 +181,38 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         }
     }
 
-    public int search(int key) {
+    // public int search(int key) {
+    //     if (isLeaf) {
+    //         int index = keys.indexOf(key);
+    //         return (index != -1) ? pointers.get(index)[0] : -1;
+    //     } else {
+    //         int index = 0;
+    //         while (index < keys.size() && ((Integer) keys.get(index)) <= key) {
+    //             index++;
+    //         }
+    //         return children.get(index).search(key);
+    //     }
+    // }
+
+    // returns pointer [-1, -1] if key does not exist in the tree
+    public int[] search(T key, Buffer buffer) {
         if (isLeaf) {
-            int index = keys.indexOf(key);
-            return (index != -1) ? pointers.get(index)[0] : -1;
+            int index = binarySearch(keys, key);
+            if (index != -1) {
+                return pointers.get(index);
+            } else {
+                int[] dummyPointer = new int[2];
+                dummyPointer[0] = -1;
+                dummyPointer[1] = -1;
+                return dummyPointer;
+            }
         } else {
             int index = 0;
-            while (index < keys.size() && ((Integer) keys.get(index)) <= key) {
+            while (index < keys.size() && keys.get(index).compareTo(key) <= 0) {
                 index++;
             }
-            return children.get(index).search(key);
+            BPlusTreeNode<T> child = (BPlusTreeNode<T>)buffer.read(template.getName(), pointers.get(index)[0], true);
+            return child.search(key, buffer);
         }
     }
 
@@ -246,10 +258,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         for (int[] pointer : pointers) {
             size += pointer.length * Integer.BYTES;
         }
-        
-        for (BPlusTreeNode<T> child : children) {
-            size += child.bytesUsed();
-        }
+
         return size;
     }
 
