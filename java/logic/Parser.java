@@ -610,7 +610,7 @@ public class Parser {
         Table t1 = new Table("test", 0, aL, 0);
         List<Table> tL = new ArrayList<>();
         tL.add(t1);
-        Catalog c1 = new Catalog(100, 100, tL);
+        Catalog c1 = new Catalog(100, 100, tL,false);
         StorageManager sM = new StorageManager(c1, "resources");
         Parser p = new Parser(sM);
         List<Object> v1 = new ArrayList<>();

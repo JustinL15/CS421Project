@@ -31,10 +31,10 @@ public class StorageManager {
 
     public Record getRecordByPrimaryKey(Table table, Object primaryKey) {
         // TODO if indexing is on, then use the tree to find the record
-        if (true) {
+        if (catalog.getBPlusIndex()) {
             // int[] recordPointer = ((BPlusTreeNode)buffer.read(table.getName(), 0, true)).search((Integer)primaryKey);
             int[] recordPointer = new int[2];
-            Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
+            Page page = (Page)buffer.read(table.getName(), recordPointer[0], true);
             List<Record> records = page.getRecords();
             return records.get(recordPointer[1]);
         }
@@ -127,8 +127,8 @@ public class StorageManager {
         if (newRecord.spacedUsed() + 4 > catalog.getPageSize()) {
             throw new Exception("Record size larger than page size");
         }
-        // TODO if indexing is on
-        if (true) {
+        //if indexing is on
+        if (catalog.getBPlusIndex()) {
             BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), 0, true);
             BPlusTreeNode leaf = tree.insert((int)newRecord.getPrimaryKey(), null, buffer);
             int index = BPlusTreeNode.binarySearch(leaf.getKeys(), (int)newRecord.getPrimaryKey());
@@ -136,7 +136,7 @@ public class StorageManager {
             Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
             List<Record> records = page.getRecords();
             records.add(recordPointer[1], newRecord);
-            // return;
+            return;
         }
         if (table.getPagecount() == 0) {
             Page page = (Page)buffer.read(table.getName(), 0, false);
@@ -167,8 +167,8 @@ public class StorageManager {
 
     
     public void deleteRecord_primarykey(Table table, Object primaryKey) throws Exception {
-        // TODO if indexing is on
-        if (true) {
+        // if indexing is on
+        if (catalog.getBPlusIndex()) {
             BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), 0, true);
             // int[] recordPointer = tree.search((int)primaryKey);
             int[] recordPointer = new int[2];
@@ -212,8 +212,8 @@ public class StorageManager {
     public Table createTable(String name, int number, List<Attribute> TableAttr) {
         Table New_Table = new Table(name,number,TableAttr, 0);
         catalog.createTable(New_Table);
-        // TODO if indexing is on, create tree
-        if (true) {
+        // if indexing is on, create tree
+        if (catalog.getBPlusIndex()) {
             buffer.read(name, 0, true);
         }
         return New_Table;
@@ -233,7 +233,7 @@ public class StorageManager {
         }
         
         // TODO if indexing is on, delete tree
-        if (true) {
+        if (catalog.getBPlusIndex()) {
             fileToDelete = new File(databaseLocation + File.separator + "trees" + File.separator + droptableNum);
             fileToRename = new File(databaseLocation + File.separator + "trees" + File.separator + moveTableNum);
             if (fileToDelete.exists()) {
@@ -346,7 +346,7 @@ public class StorageManager {
     }
 
     public static void main(String[] args) throws Exception {
-        Catalog catalog = new Catalog(4, 40, new ArrayList<Table>());
+        Catalog catalog = new Catalog(4, 40, new ArrayList<Table>(),false);
         StorageManager sM = new StorageManager(catalog, "resources");
         Attribute name = new Attribute("name", Type.Varchar, 10, false, false, false);
         Attribute age = new Attribute("age", Type.Integer, 0, false, false, false);

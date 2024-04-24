@@ -8,11 +8,13 @@ public class Catalog {
     private int pageSize;
     private List<Table> tables;
     private HashMap<String, Integer> tableMap;
+    private boolean BPlusindex;
 
-    public Catalog(int bufferSize, int pageSize, List<Table> tables) {
+    public Catalog(int bufferSize, int pageSize, List<Table> tables, boolean indexing) {
         this.bufferSize = bufferSize;
         this.pageSize = pageSize;
         this.tables = tables;
+        this.BPlusindex = indexing;
         this.tableMap = new HashMap<>();
         for (int i = 0; i < tables.size(); i++) {
             this.tableMap.put(tables.get(i).getName(), i);
@@ -20,9 +22,10 @@ public class Catalog {
     }
 
     // creates a Catalog by deserializing a ByteBuffer
-    public Catalog(int bufferSize, ByteBuffer buffer) {
+    public Catalog(int bufferSize, ByteBuffer buffer,boolean indexing) {
         this.bufferSize = bufferSize;
         this.pageSize = buffer.getInt();
+        this.BPlusindex = indexing;
         int tables_length = buffer.getInt();
         this.tables = new ArrayList<Table>();
         for (int i = 0; i < tables_length; i++) {
@@ -89,6 +92,10 @@ public class Catalog {
         return bufferSize;
     }
 
+    public boolean getBPlusIndex(){
+        return BPlusindex;
+    }
+
     public void createTable(Table table) {
         tables.add(table);
         tableMap.put(table.getName(), table.getNumber());
@@ -113,12 +120,12 @@ public class Catalog {
         atts.add(new Attribute("id", Type.Integer, 1, false, false, false));
         List<Table> tables = new ArrayList<>();
         tables.add(new Table("test", 0, atts,0));
-        Catalog catalog = new Catalog(1, 1, tables);
+        Catalog catalog = new Catalog(1, 1, tables,false);
         System.out.println(catalog);
         byte[] bytes = catalog.toBinary();
         System.out.println(bytes);
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        Catalog catalogTheseus = new Catalog(1, buffer);
+        Catalog catalogTheseus = new Catalog(1, buffer,false);
         System.out.println(catalogTheseus);
     }
 }
