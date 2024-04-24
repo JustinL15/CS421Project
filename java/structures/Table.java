@@ -10,6 +10,7 @@ public class Table {
     private List<Integer> freeTreePages;
     private int nextTreePageNum;
     private int rootLocation;
+    private int pkeyindex = -1;
 
 
     public Table(String name, int number, List<Attribute> attributes, int pagecount) {
@@ -131,5 +132,19 @@ public class Table {
 
     public void setRootPage(int pageNum) {
         rootLocation = pageNum;
+    }
+
+    public int getPrimaryKeyIndex() {
+        if (pkeyindex != -1) {
+            return pkeyindex;
+        }
+        List<Attribute> attr = this.getAttributes();
+        for (int i = 0; i < attr.size(); i++) {
+            if (attr.get(i).isKey()) {
+                pkeyindex = i;
+                return i;
+            }
+        }
+        return -1;
     }
 }

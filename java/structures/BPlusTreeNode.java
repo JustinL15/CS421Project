@@ -2,9 +2,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
+public class BPlusTreeNode implements HardwarePage {
     private boolean isLeaf;
-    private List<T> keys;
+    private List<Object> keys;
     private List<int[]> pointers;
     private int parent;
     private int maxSize;
@@ -32,11 +32,11 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         isLeaf = leaf;
     }
 
-    public List<T> getKeys() {
+    public List<Object> getKeys() {
         return keys;
     }
 
-    public void setKeys(List<T> keys) {
+    public void setKeys(List<Object> keys) {
         this.keys = keys;
     }
 
@@ -56,7 +56,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         this.parent = parent;
     }
 
-    public void insert(T key, Buffer buffer) {
+    public void insert(Object key, Buffer buffer) throws Exception {
         if (isLeaf) {
             int index = binarySearch(keys, key);
             keys.add(index, key);
@@ -80,7 +80,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             }
         } else {
             int index = binarySearch(keys, key);
-            BPlusTreeNode<T> retrievedNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index)[0], true);
+            BPlusTreeNode retrievedNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index)[0], true);
             retrievedNode.parent = pageNumber;
             retrievedNode.insert(key, buffer);
             if (pointers.size() > maxSize) {
@@ -91,17 +91,17 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
 
     private void splitLeafNode(Buffer buffer, int index) {
         int splitIndex = keys.size() / 2;
-        List<T> newKeys = keys.subList(splitIndex, keys.size());
+        List<Object> newKeys = keys.subList(splitIndex, keys.size());
         List<int[]> newPointers = pointers.subList(splitIndex, pointers.size() - 1);
         keys.subList(splitIndex, keys.size()).clear();
         pointers.subList(splitIndex, pointers.size() - 1).clear();
-        BPlusTreeNode<T> newNode = new BPlusTreeNode<>(true, maxSize, template);
+        BPlusTreeNode newNode = new BPlusTreeNode(true, maxSize, template);
         newNode.setKeys(newKeys);
         newNode.setPointers(newPointers);
         newNode.getPointers().get(newNode.getPointers().size() - 1)[0] = this.pointers.get(pointers.size() - 1)[0];
         this.pointers.get(pointers.size() - 1)[0] = newNode.getPageNumber();
         if (this.parent == -1) {
-            BPlusTreeNode<T> newRoot = new BPlusTreeNode<>(false, maxSize, template);
+            BPlusTreeNode newRoot = new BPlusTreeNode(false, maxSize, template);
             newRoot.keys.add(newNode.keys.get(0));
             newRoot.pointers.add(new int[] {this.pageNumber, -1});
             newRoot.pointers.add(new int[] {newNode.pageNumber, -1});
@@ -110,7 +110,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             template.setRootPage(newRoot.pageNumber);
             buffer.addPage(newRoot);
         } else {
-            BPlusTreeNode<T> nodeParent = (BPlusTreeNode<T>) buffer.read(template.getName(), this.parent, true);
+            BPlusTreeNode nodeParent = (BPlusTreeNode) buffer.read(template.getName(), this.parent, true);
             nodeParent.keys.add(index + 1, newNode.keys.get(0));
             nodeParent.pointers.add(index + 1, new int[] {newNode.pageNumber, -1});
         }
@@ -119,16 +119,16 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
 
     private void splitInternalNode(Buffer buffer, int index) {
         int splitIndex = keys.size() / 2;
-        T midVal = keys.get(splitIndex);
-        List<T> newKeys = keys.subList(splitIndex + 1, keys.size());
+        Object midVal = keys.get(splitIndex);
+        List<Object> newKeys = keys.subList(splitIndex + 1, keys.size());
         List<int[]> newPointers = pointers.subList(splitIndex, pointers.size());
         keys.subList(splitIndex, keys.size()).clear();
         pointers.subList(splitIndex, pointers.size()).clear();
-        BPlusTreeNode<T> newNode = new BPlusTreeNode<>(false, maxSize, template);
+        BPlusTreeNode newNode = new BPlusTreeNode(false, maxSize, template);
         newNode.setKeys(newKeys);
         newNode.setPointers(newPointers);
         if (this.parent == -1) {
-            BPlusTreeNode<T> newRoot = new BPlusTreeNode<>(false, maxSize, template);
+            BPlusTreeNode newRoot = new BPlusTreeNode(false, maxSize, template);
             newRoot.keys.add(midVal);
             newRoot.pointers.add(new int[] {this.pageNumber, -1});
             newRoot.pointers.add(new int[] {newNode.pageNumber, -1});
@@ -137,14 +137,14 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             template.setRootPage(newRoot.pageNumber);
             buffer.addPage(newRoot);
         } else {
-            BPlusTreeNode<T> nodeParent = (BPlusTreeNode<T>) buffer.read(template.getName(), this.parent, true);
+            BPlusTreeNode nodeParent = (BPlusTreeNode) buffer.read(template.getName(), this.parent, true);
             nodeParent.keys.add(index + 1, newNode.keys.get(0));
             nodeParent.pointers.add(index + 1, new int[] {newNode.pageNumber, -1});
         }
         buffer.addPage(newNode);
     }
 
-    public boolean delete(T key, Buffer buffer) throws Exception {
+    public boolean delete(Object key, Buffer buffer) throws Exception {
         if (isLeaf) {
             int index = keys.indexOf(key);
             if (index != -1) {
@@ -159,7 +159,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             return false;
         } else {
             int index = binarySearch(keys, key);
-            BPlusTreeNode<T> nextNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index)[0], true);
+            BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index)[0], true);
             nextNode.parent = this.pageNumber;
             if (nextNode.delete(key, buffer)) {
                 keys.remove(index);
@@ -195,7 +195,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
     // }
 
     // returns pointer [-1, -1] if key does not exist in the tree
-    public int[] search(T key, Buffer buffer) {
+    public int[] search(Object key, Buffer buffer) throws Exception {
         if (isLeaf) {
             int index = binarySearch(keys, key);
             if (index != -1) {
@@ -208,15 +208,15 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             }
         } else {
             int index = 0;
-            while (index < keys.size() && keys.get(index).compareTo(key) <= 0) {
+            while (index < keys.size() && compareVals(keys.get(index), (key)) <= 0) {
                 index++;
             }
-            BPlusTreeNode<T> child = (BPlusTreeNode<T>)buffer.read(template.getName(), pointers.get(index)[0], true);
+            BPlusTreeNode child = (BPlusTreeNode)buffer.read(template.getName(), pointers.get(index)[0], true);
             return child.search(key, buffer);
         }
     }
 
-    public static <T extends Comparable<T>> int binarySearch(List<T> arrayList, T value) {
+    public int binarySearch(List<Object> arrayList, Object key) throws Exception {
         if (arrayList.isEmpty()) {
             return -1;
         }
@@ -224,8 +224,8 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         int right = arrayList.size() - 1;
         while (left <= right) {
             int mid = (left + right) / 2;
-            T midValue = arrayList.get(mid);
-            int comparison = midValue.compareTo(value);
+            Object midValue = arrayList.get(mid);
+            int comparison = compareVals(midValue, key);
             if (comparison == 0) {
                 return mid;
             } else if (comparison < 0) {
@@ -251,7 +251,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
     public int bytesUsed() {
         int size = 0;
         
-        for (T key : keys) {
+        for (Object key : keys) {
             size += key.toString().getBytes().length;
         }
         
@@ -266,7 +266,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
     public byte[] toBytes() {
         List<Byte> byteList = new ArrayList<>();
 
-        for (T key : keys) {
+        for (Object key : keys) {
             byte[] keyBytes = key.toString().getBytes();
             for (byte b : keyBytes) {
                 byteList.add(b);
@@ -296,7 +296,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
         int totalBytes = keys.size() * bytesPerKey + pointers.size() * 4;
 
         ByteBuffer buffer = ByteBuffer.allocate(totalBytes);
-        for (T key : keys) {
+        for (Object key : keys) {
             String keyString = key.toString();
             byte[] keyBytes = keyString.getBytes();
             buffer.put(keyBytes);
@@ -323,7 +323,7 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
     public void updatePointers(int startIndex, int PageNumber, Buffer buffer) {
         for (int i = startIndex; i < pointers.size(); i++) {
             if (pointers.get(i)[1] == -1) {
-                BPlusTreeNode<T> nextNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(i)[0], true);
+                BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(i)[0], true);
                 nextNode.updatePointers(0, PageNumber, buffer);
             } else if (pointers.get(i)[0] == pageNumber) {
                 pointers.get(i)[1] += 1;
@@ -335,8 +335,8 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
 
     public void merge(int index, Buffer buffer) {
         if (index != 0) {
-            BPlusTreeNode<T> underfull = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index)[0], true);
-            BPlusTreeNode<T> mergeNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index - 1)[0], true);
+            BPlusTreeNode underfull = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index)[0], true);
+            BPlusTreeNode mergeNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index - 1)[0], true);
             mergeNode.keys.addAll(underfull.getKeys());
             mergeNode.pointers.addAll(underfull.getPointers());
             template.addFreePage(underfull.pageNumber);
@@ -348,8 +348,8 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
                 }
             }
         } else {
-            BPlusTreeNode<T> underfull = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index)[0], true);
-            BPlusTreeNode<T> mergeNode = (BPlusTreeNode<T>) buffer.read(template.getName(), pointers.get(index + 1)[0], true);
+            BPlusTreeNode underfull = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index)[0], true);
+            BPlusTreeNode mergeNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index + 1)[0], true);
             mergeNode.keys.addAll(underfull.getKeys());
             mergeNode.pointers.addAll(underfull.getPointers());
             template.addFreePage(underfull.pageNumber);
@@ -362,4 +362,21 @@ public class BPlusTreeNode<T extends Comparable<T>> implements HardwarePage {
             }
         }
     }
+
+    public int compareVals(Object x, Object y) throws Exception {
+        switch(template.getAttributes().get(template.getPrimaryKeyIndex()).getDataType()) {
+            case Integer:
+                return ((Integer) x).compareTo((Integer) y); 
+            case Double:
+                return ((Double) x).compareTo((Double) y);
+            case Boolean:
+                return ((Boolean) x).compareTo((Boolean) y);
+            case Char:
+            case Varchar:
+                return ((String) x).compareTo((String) y);
+            default:
+                throw new Exception("Invalid Type for Primary key");
+        }
+    }
+
 }
