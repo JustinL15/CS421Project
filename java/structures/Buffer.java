@@ -140,6 +140,10 @@ public class Buffer {
                     for (int j = 0; j < cur.getRecords().size() / 2; j++) {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }
+                    List<Record> updatedRecords = newPage.getRecords();
+                    // do a for loop
+                    // Update the pointer for removed all records in newPage
+                    // pointer int[2] {0, 0} pagenumber, index
                     pagesToSplit.add(cur);
                     pagesToSplit.add(newPage);
                 } else {
@@ -150,6 +154,7 @@ public class Buffer {
 
         Table table = catalog.getTableByName(tableName);
         List<Page> pagesToAdd = new ArrayList<>(pagesToSplit);
+        /// scrap this section
         for (int i = pageNumber + 1; i < table.getPagecount(); i++) {
             Page next = (Page)read(tableName, i, false);
             next.setPageNumber(i + pagesToAdd.size() - 1);
@@ -159,6 +164,10 @@ public class Buffer {
             write(pagesToAdd.get(i));
             table.setPageCount(table.getPagecount() + pagesToAdd.size() - 1);
         }
+        ///
+        /// for all pages in pages to add assign them a page number at the end of the page list.
+        //make a list in table that keeps track of order.   
+        //jst insert the page number into index of split page plus 1 + index of page in list?
     }
 
     public void purge() {
