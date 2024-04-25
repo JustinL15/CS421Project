@@ -50,9 +50,21 @@ public class Main2 {
         } catch (Exception e) {
             throw e;
         }
+    }
 
-
-
+    public static void initTrees(Path path, Boolean on) throws Exception {
+        if(!on || Files.exists(Path.of(path.toString() + File.separator + "trees"))){
+        }
+        else{
+            System.out.println("Creating B-Tree");
+            //create  B-Tree
+            try {
+                Files.createDirectory((Path.of(path + File.separator + "trees")));
+            } catch (IOException e) {
+                throw new Exception("IO Exception when creating trees directory at " + path);
+            }
+            System.out.println("New B-Tree created successfully");
+        }
     }
 
     // This function should initalize the catalog whether or not there is a catalog
