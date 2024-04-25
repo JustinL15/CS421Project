@@ -130,7 +130,9 @@ public class Buffer {
     public void splitPage(String tableName, Page page) {
         Deque<Page> pagesToSplit = new ArrayDeque<>();
         pagesToSplit.add(page);
+        Table table = catalog.getTableByName(tableName);
         int pageNumber = page.getPageNumber();
+
         while (pagesToSplit.peekFirst().bytesUsed() > catalog.getPageSize()) {
             int numPages = pagesToSplit.size();
             for (int i = 0; i < numPages; i++) {
@@ -141,9 +143,18 @@ public class Buffer {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }
                     List<Record> updatedRecords = newPage.getRecords();
+                    BPlusTreeNode node = (BPlusTreeNode) read(tableName,newPage.getPageNumber(),true);
+                    List<int[]> pointers = node.getPointers();
+                    for (int j = 0; j < pointers.size(); j++) {
+                        pointers.set(j, new int[]{newPage.getPageNumber(), j});
+                    }
+                    node.setPointers(pointers);
+                    
                     // do a for loop
                     // Update the pointer for removed all records in newPage
                     // pointer int[2] {0, 0} pagenumber, index
+
+
                     pagesToSplit.add(cur);
                     pagesToSplit.add(newPage);
                 } else {
@@ -152,17 +163,18 @@ public class Buffer {
             }
         }
 
-        Table table = catalog.getTableByName(tableName);
         List<Page> pagesToAdd = new ArrayList<>(pagesToSplit);
-        /// scrap this section
-        for (int i = pageNumber + 1; i < table.getPagecount(); i++) {
-            Page next = (Page)read(tableName, i, false);
-            next.setPageNumber(i + pagesToAdd.size() - 1);
+        List<Integer> x = table.getPageOrder();
+        
+        int pageordernum = -1;
+        for (int i = 0; i < x.size(); i++){
+            if(x.get(i) == pageNumber){
+                pageordernum = i;
+            }
         }
-        for (int i = 0; i < pagesToAdd.size(); i++) {
-            pagesToAdd.get(i).setPageNumber(pageNumber + i);
-            write(pagesToAdd.get(i));
-            table.setPageCount(table.getPagecount() + pagesToAdd.size() - 1);
+        x.set(pageordernum, pagesToAdd.get(0).getPageNumber());
+        if(pagesToAdd.size() == 2){
+            x.add(pageordernum+1,pagesToAdd.get(1).getPageNumber());
         }
         ///
         /// for all pages in pages to add assign them a page number at the end of the page list.

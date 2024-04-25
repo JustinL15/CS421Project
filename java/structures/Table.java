@@ -1,5 +1,6 @@
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Table {
@@ -11,7 +12,7 @@ public class Table {
     private int nextTreePageNum;
     private int rootLocation;
     private int pkeyindex = -1;
-
+    private List<Integer> pageorder; //index = order , value = pagenumber
 
     public Table(String name, int number, List<Attribute> attributes, int pagecount) {
         this.name = name;
@@ -19,6 +20,7 @@ public class Table {
         this.attributes = attributes;
         this.pagecount = pagecount;
         this.freeTreePages = new ArrayList<>();
+        this.pageorder = new ArrayList<>();
         this.nextTreePageNum = 0;
         this.rootLocation = -1;
     }
@@ -38,6 +40,10 @@ public class Table {
         int free_tree_page_length = buffer.getInt();
         for (int i = 0; i < free_tree_page_length; i++) {
             this.freeTreePages.add(buffer.getInt());
+        }
+        this.pageorder = new ArrayList<>();
+        for (int i = 0; i < pagecount; i++) {
+            this.pageorder.add(buffer.getInt());
         }
         int attributes_length = buffer.getInt();
         this.attributes = new ArrayList<Attribute>();
@@ -81,6 +87,9 @@ public class Table {
         for (int freePageNum : freeTreePages) {
             buffer.putInt(freePageNum);
         }
+        for (int pageordernum : pageorder) {
+            buffer.putInt(pageordernum);
+        }
         buffer.putInt(attributes.size());
         for (Attribute attribute : attributes) {
             attribute.writeBytes(buffer);
@@ -103,6 +112,9 @@ public class Table {
     }
     public int getPagecount(){
         return this.pagecount;
+    }
+    public List<Integer> getPageOrder(){
+        return this.pageorder;
     }
 
     public void setPageCount(int number){
