@@ -27,13 +27,11 @@ public class StorageManager {
         this.buffer = new Buffer(catalog, databaseLocation);
 
     }
-    // Buffer requires the Catalog and databaseLocation. consider creating Buffer in Main and passing it to a constructor.
 
-    public Record getRecordByPrimaryKey(Table table, Object primaryKey) {
-        // TODO if indexing is on, then use the tree to find the record
+    public Record getRecordByPrimaryKey(Table table, Object primaryKey) throws Exception {
+        // if indexing is on, then use the tree to find the record
         if (catalog.getBPlusIndex()) {
-            // int[] recordPointer = ((BPlusTreeNode)buffer.read(table.getName(), 0, true)).search((Integer)primaryKey);
-            int[] recordPointer = new int[2];
+            int[] recordPointer = ((BPlusTreeNode)buffer.read(table.getName(), table.getRootPage(), true)).search(primaryKey, buffer);
             Page page = (Page)buffer.read(table.getName(), recordPointer[0], true);
             List<Record> records = page.getRecords();
             return records.get(recordPointer[1]);
@@ -129,10 +127,11 @@ public class StorageManager {
         }
         //if indexing is on
         if (catalog.getBPlusIndex()) {
-            BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), 0, true);
-            BPlusTreeNode leaf = tree.insert((int)newRecord.getPrimaryKey(), null, buffer);
-            int index = BPlusTreeNode.binarySearch(leaf.getKeys(), (int)newRecord.getPrimaryKey());
-            int[] recordPointer = leaf.getPointers().get(index);
+            BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), table.getRootPage(), true);
+            // BPlusTreeNode leaf = tree.insert(newRecord.getPrimaryKey(), buffer);
+            // int index = leaf.binarySearch(leaf.getKeys(), newRecord.getPrimaryKey());
+            // int[] recordPointer = leaf.getPointers().get(index);
+            int[] recordPointer = tree.insert(newRecord.getPrimaryKey(), buffer);
             Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
             List<Record> records = page.getRecords();
             records.add(recordPointer[1], newRecord);
@@ -169,13 +168,12 @@ public class StorageManager {
     public void deleteRecord_primarykey(Table table, Object primaryKey) throws Exception {
         // if indexing is on
         if (catalog.getBPlusIndex()) {
-            BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), 0, true);
-            // int[] recordPointer = tree.search((int)primaryKey);
-            int[] recordPointer = new int[2];
+            BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), table.getRootPage(), true);
+            int[] recordPointer = tree.search(primaryKey, buffer);
             Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
             List<Record> records = page.getRecords();
             records.remove(recordPointer[1]);
-            tree.delete((int)primaryKey, buffer, null, null);
+            tree.delete(primaryKey, buffer);
             return;
         }
         int pageCount = table.getPagecount();
@@ -232,7 +230,7 @@ public class StorageManager {
             fileToRename.renameTo(new File(databaseLocation + File.separator + "tables" + File.separator + droptableNum));
         }
         
-        // TODO if indexing is on, delete tree
+        // if indexing is on, delete tree
         if (catalog.getBPlusIndex()) {
             fileToDelete = new File(databaseLocation + File.separator + "trees" + File.separator + droptableNum);
             fileToRename = new File(databaseLocation + File.separator + "trees" + File.separator + moveTableNum);
