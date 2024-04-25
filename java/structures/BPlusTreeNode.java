@@ -399,21 +399,21 @@ public class BPlusTreeNode implements HardwarePage {
         }
     }
 
-    public void insertIntoNode(BPlusTreeNode node, Buffer buffer) throws Exception {
-        Object primaryKey = getPrimaryKey();
-        if (primaryKey != null) {
-            node.insert(primaryKey, buffer);
-        } else {
-            throw new Exception();
-        }
-    }
+    //public void insertIntoNode(BPlusTreeNode node, Buffer buffer) throws Exception {
+        //Object primaryKey = getPrimaryKey();
+        //if (primaryKey != null) {
+            //node.insert(primaryKey, buffer);
+        //} else {
+            //throw new Exception();
+        //}
+    //}
 
-    public boolean deleteFromNode(BPlusTreeNode node, Buffer buffer) throws Exception {
-        Object primaryKey = getPrimaryKey();
-        if (primaryKey != null) {
-            return node.delete(primaryKey, buffer);
-        } else {
-            throw new Exception();
-        }
-    }
+    //public boolean deleteFromNode(BPlusTreeNode node, Buffer buffer) throws Exception {
+        //Object primaryKey = getPrimaryKey();
+        //if (primaryKey != null) {
+            //return node.delete(primaryKey, buffer);
+        //} else {
+            //throw new Exception();
+        //}
+    //}
 }
