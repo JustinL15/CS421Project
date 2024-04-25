@@ -18,15 +18,15 @@ import java.util.regex.Pattern;
 public class Main2 {
     public static void main(String[] args) throws Exception {
         try {
-            if (args.length < 3){
-                System.out.println("Expected 3 arguments, got " + args.length);
+            if (args.length < 4){
+                System.out.println("Expected 4 arguments, got " + args.length);
                 return;
             }
             Path path = Path.of(args[0]);
             System.out.println(path.toString());
 
             // If you need to change this do so
-            Catalog myCatalog = initCatalog(path, Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+            Catalog myCatalog = initCatalog(path, Integer.parseInt(args[1]), Integer.parseInt(args[2]), Boolean.parseBoolean(args[3]));
 
             StorageManager sM = new StorageManager(myCatalog,path.toString());
             Parser myParser = new Parser(sM);
@@ -58,7 +58,7 @@ public class Main2 {
     // This function should initalize the catalog whether or not there is a catalog
     // creates database if not
     // Throws exception if catalog file is corrupted/missing somehow
-    public static Catalog initCatalog(Path path, int pageSize, int bufferSize) throws Exception {
+    public static Catalog initCatalog(Path path, int pageSize, int bufferSize, boolean indexing) throws Exception {
         boolean dbfound = Files.exists(path);
         if (!dbfound){
             throw new Exception("Directory does not exist " + path.toString());
@@ -82,7 +82,7 @@ public class Main2 {
                 catalogAccessFile.read(bytes);
                 catalogAccessFile.close();
                 ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-                return new Catalog(bufferSize, byteBuffer);
+                return new Catalog(bufferSize, byteBuffer, indexing);
             } catch (IOException e) {
                 throw new Exception("IO Exception when reading catalog file at " + catalogPath);
             } catch(BufferOverflowException e){
@@ -99,7 +99,7 @@ public class Main2 {
             //create catalog
 
             ArrayList<Table> tablelist = new ArrayList<Table>();
-            Catalog myCatalog = new Catalog(bufferSize,pageSize,tablelist);
+            Catalog myCatalog = new Catalog(bufferSize,pageSize,tablelist,indexing);
 
             try {
                 Files.createFile(Path.of(path + File.separator + "catalog"));
