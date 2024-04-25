@@ -116,6 +116,7 @@ public class Main2 {
             try {
                 Files.createFile(Path.of(path + File.separator + "catalog"));
                 Files.createDirectory(Path.of(path + File.separator + "tables"));
+                initTrees(catalogPath, indexing);
             } catch (IOException e) {
                 throw new Exception("IO Exception when creating catalog file and tables directory at " + path);
             }
