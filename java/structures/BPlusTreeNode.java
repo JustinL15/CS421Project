@@ -1,6 +1,7 @@
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BPlusTreeNode implements HardwarePage {
     private boolean isLeaf;
@@ -56,14 +57,14 @@ public class BPlusTreeNode implements HardwarePage {
         this.parent = parent;
     }
 
-    public void insert(Object key, Buffer buffer) throws Exception {
+    public int[] insert(Object key, Buffer buffer) throws Exception {
         if (isLeaf) {
             int index = binarySearch(keys, key);
             keys.add(index, key);
+            int[] newPointer = new int[]{0, 0};
             if (pointers.size() == 0) {
-                pointers.add(new int[]{0, 0});
+                pointers.add(newPointer);
             } else {
-                int[] newPointer = {0, 0};
                 if (index == pointers.size() - 1) {
                     newPointer[0] = pointers.get(index - 1)[0];
                     newPointer[1] = pointers.get(index - 1)[1] + 1;
@@ -78,14 +79,16 @@ public class BPlusTreeNode implements HardwarePage {
             if (pointers.size() > maxSize) {
                 splitLeafNode(buffer, index);
             }
+            return newPointer;
         } else {
             int index = binarySearch(keys, key);
             BPlusTreeNode retrievedNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index)[0], true);
             retrievedNode.parent = pageNumber;
-            retrievedNode.insert(key, buffer);
+            int[] newPointer = retrievedNode.insert(key, buffer);
             if (pointers.size() > maxSize) {
                 splitInternalNode(buffer, index);
             }
+            return newPointer;
         }
     }
 
@@ -376,6 +379,53 @@ public class BPlusTreeNode implements HardwarePage {
                 return ((String) x).compareTo((String) y);
             default:
                 throw new Exception("Invalid Type for Primary key");
+        }
+    }
+
+    public boolean updateNodePointer(Object key, Buffer buffer) throws Exception {
+        if (isLeaf) {
+            int index = keys.indexOf(key);
+            if (index != -1) {
+                keys.set(index, key);
+                pointers.set(index, );
+                if (keys.size() < maxSize / 2) {
+                    return true;
+                }
+            } else {
+                throw new Exception("Key not found.");
+            }
+            return false;
+        } else {
+            int newIndex = binarySearch(keys, key);
+            BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(newIndex)[0], true);
+            nextNode.parent = this.pageNumber;
+            if (nextNode.delete(key, buffer)) {
+                keys.set(newIndex, key);
+                pointers.set(newIndex, );
+                merge(newIndex, buffer);
+                if (keys.size() < maxSize / 2) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public void insertIntoNode(BPlusTreeNode node, Buffer buffer) throws Exception {
+        Object primaryKey = getPrimaryKey();
+        if (primaryKey != null) {
+            node.insert(primaryKey, buffer);
+        } else {
+            throw new Exception();
+        }
+    }
+
+    public boolean deleteFromNode(BPlusTreeNode node, Buffer buffer) throws Exception {
+        Object primaryKey = getPrimaryKey();
+        if (primaryKey != null) {
+            return node.delete(primaryKey, buffer);
+        } else {
+            throw new Exception();
         }
     }
 }
