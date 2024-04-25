@@ -41,10 +41,12 @@ public class Catalog {
         String string = "";
         string += "buffer size: " + this.bufferSize + "\n";
         string += "page size: " + this.pageSize + "\n";
+        string += "indexing: " + this.BPlusindex + "\n";
         string += "tables:\n";
         for (Table table : tables) {
             string += table.toString();
         }
+        
         return string;
     }
 
