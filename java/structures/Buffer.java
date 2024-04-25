@@ -149,7 +149,7 @@ public class Buffer {
                         pointers.set(j, new int[]{newPage.getPageNumber(), j});
                     }
                     node.setPointers(pointers);
-                    
+                    write(node);
                     // do a for loop
                     // Update the pointer for removed all records in newPage
                     // pointer int[2] {0, 0} pagenumber, index
