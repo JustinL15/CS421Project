@@ -125,7 +125,6 @@ public class BPlusTreeNode implements HardwarePage {
         keys.subList(splitIndex, keys.size()).clear();
         pointers.subList(splitIndex, pointers.size()).clear();
         BPlusTreeNode newNode = new BPlusTreeNode(false, maxSize, template);
-        updatePointersPage(newPointers,newNode.pageNumber);
         newNode.setKeys(newKeys);
         newNode.setPointers(newPointers);
         if (this.parent == -1) {
