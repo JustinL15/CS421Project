@@ -96,7 +96,6 @@ public class BPlusTreeNode implements HardwarePage {
         keys.subList(splitIndex, keys.size()).clear();
         pointers.subList(splitIndex, pointers.size() - 1).clear();
         BPlusTreeNode newNode = new BPlusTreeNode(true, maxSize, template);
-        updatePointersPage(newPointers,newNode.pageNumber);
         newNode.setKeys(newKeys);
         newNode.setPointers(newPointers);
         newNode.getPointers().get(newNode.getPointers().size() - 1)[0] = this.pointers.get(pointers.size() - 1)[0];
@@ -378,14 +377,6 @@ public class BPlusTreeNode implements HardwarePage {
                 return ((String) x).compareTo((String) y);
             default:
                 throw new Exception("Invalid Type for Primary key");
-        }
-    }
-
-    private void updatePointersPage(List<int[]> pointers, int pagenum) {
-        for (int i = 0; i < pointers.size(); i++) {
-            pointers.get(i)[0] = pagenum;
-            pointers.get(i)[1] = i;
-
         }
     }
 }
