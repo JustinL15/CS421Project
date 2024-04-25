@@ -1,6 +1,7 @@
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BPlusTreeNode implements HardwarePage {
     private boolean isLeaf;
@@ -405,6 +406,24 @@ public class BPlusTreeNode implements HardwarePage {
                 }
             }
             return false;
+        }
+    }
+
+    public void insertIntoNode(BPlusTreeNode node, Buffer buffer) throws Exception {
+        Object primaryKey = getPrimaryKey();
+        if (primaryKey != null) {
+            node.insert(primaryKey, buffer);
+        } else {
+            throw new Exception();
+        }
+    }
+
+    public boolean deleteFromNode(BPlusTreeNode node, Buffer buffer) throws Exception {
+        Object primaryKey = getPrimaryKey();
+        if (primaryKey != null) {
+            return node.delete(primaryKey, buffer);
+        } else {
+            throw new Exception();
         }
     }
 }
