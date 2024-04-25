@@ -57,14 +57,14 @@ public class BPlusTreeNode implements HardwarePage {
         this.parent = parent;
     }
 
-    public void insert(Object key, Buffer buffer) throws Exception {
+    public int[] insert(Object key, Buffer buffer) throws Exception {
         if (isLeaf) {
             int index = binarySearch(keys, key);
             keys.add(index, key);
+            int[] newPointer = new int[]{0, 0};
             if (pointers.size() == 0) {
-                pointers.add(new int[]{0, 0});
+                pointers.add(newPointer);
             } else {
-                int[] newPointer = {0, 0};
                 if (index == pointers.size() - 1) {
                     newPointer[0] = pointers.get(index - 1)[0];
                     newPointer[1] = pointers.get(index - 1)[1] + 1;
@@ -79,14 +79,16 @@ public class BPlusTreeNode implements HardwarePage {
             if (pointers.size() > maxSize) {
                 splitLeafNode(buffer, index);
             }
+            return newPointer;
         } else {
             int index = binarySearch(keys, key);
             BPlusTreeNode retrievedNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index)[0], true);
             retrievedNode.parent = pageNumber;
-            retrievedNode.insert(key, buffer);
+            int[] newPointer = retrievedNode.insert(key, buffer);
             if (pointers.size() > maxSize) {
                 splitInternalNode(buffer, index);
             }
+            return newPointer;
         }
     }
 
