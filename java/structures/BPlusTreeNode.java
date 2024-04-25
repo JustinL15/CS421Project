@@ -382,32 +382,20 @@ public class BPlusTreeNode implements HardwarePage {
         }
     }
 
-    public boolean updateNodePointer(Object key, Buffer buffer) throws Exception {
+    public void updateNodePointer(Object key, int[] pointer, Buffer buffer) throws Exception {
         if (isLeaf) {
             int index = keys.indexOf(key);
             if (index != -1) {
                 keys.set(index, key);
-                pointers.set(index, );
-                if (keys.size() < maxSize / 2) {
-                    return true;
-                }
+                pointers.set(index, pointer);
             } else {
                 throw new Exception("Key not found.");
             }
-            return false;
         } else {
             int newIndex = binarySearch(keys, key);
             BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(newIndex)[0], true);
             nextNode.parent = this.pageNumber;
-            if (nextNode.delete(key, buffer)) {
-                keys.set(newIndex, key);
-                pointers.set(newIndex, );
-                merge(newIndex, buffer);
-                if (keys.size() < maxSize / 2) {
-                    return true;
-                }
-            }
-            return false;
+            nextNode.updateNodePointer(key, pointer, buffer);
         }
     }
 
