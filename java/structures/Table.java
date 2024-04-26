@@ -67,7 +67,7 @@ public class Table {
         int size = 0; // total bytes for binary representation
         size += Integer.BYTES + name.length() * 2; // name string w/ string length
         size += Integer.BYTES * 3; // ints number, length of attributes, and page count
-        size += Integer.BYTES * (3 + freeTreePages.size());
+        size += Integer.BYTES * (3 + freeTreePages.size() + pagecount);
         for (Attribute attribute : attributes) {
             size += attribute.totalBytes();
         }
