@@ -127,7 +127,7 @@ public class Buffer {
         }
     }
 
-    public void splitPage(String tableName, Page page) throws Exception {
+    public void splitPage(String tableName, Page page) {
         Deque<Page> pagesToSplit = new ArrayDeque<>();
         pagesToSplit.add(page);
         Table table = catalog.getTableByName(tableName);
@@ -144,10 +144,13 @@ public class Buffer {
                     }
                     
                     BPlusTreeNode root = (BPlusTreeNode) read(tableName, catalog.getTableByName(tableName).getRootPage() ,true);
+                    try{
                     for (int j = 0; j < newPage.getRecords().size(); j++) {
                         root.updateNodePointer(newPage.getRecords().get(j).getPrimaryKey(),new int[]{newPage.getPageNumber(),j},this);
                     }
-
+                    }catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
 
                     pagesToSplit.add(cur);
                     pagesToSplit.add(newPage);
