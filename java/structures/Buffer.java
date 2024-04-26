@@ -138,15 +138,15 @@ public class Buffer {
             for (int i = 0; i < numPages; i++) {
                 Page cur = pagesToSplit.poll();
                 if (cur.bytesUsed() > catalog.getPageSize()) {
-                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), pageNumber);
+                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), table.getNextFreePage());
                     for (int j = 0; j < cur.getRecords().size() / 2; j++) {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }
                     
-                    BPlusTreeNode root = (BPlusTreeNode) read(tableName, catalog.getTableByName(tableName).getRootPage() ,true);
+                    BPlusTreeNode root = (BPlusTreeNode) read(tableName, table.getRootPage() ,true);
                     try{
                     for (int j = 0; j < newPage.getRecords().size(); j++) {
-                        root.updateNodePointer(newPage.getRecords().get(j).getPrimaryKey(),new int[]{newPage.getPageNumber(),j},this);
+                        root.updateNodePointer(newPage.getRecords().get(j).getPrimaryKey(),new int[]{newPage.getPageNumber(),j}, this);
                     }
                     }catch (Exception e) {
                         System.err.println(e.getMessage());
@@ -167,12 +167,14 @@ public class Buffer {
         for (int i = 0; i < x.size(); i++){
             if(x.get(i) == pageNumber){
                 pageordernum = i;
+                break;
             }
         }
-        x.set(pageordernum, pagesToAdd.get(0).getPageNumber());
-        if(pagesToAdd.size() == 2){
-            x.add(pageordernum+1,pagesToAdd.get(1).getPageNumber());
+        
+        for (int i = 1; i < pagesToAdd.size(); i++) {
+            x.add(pageordernum + i, pagesToAdd.get(i).getPageNumber());
         }
+
         ///
         /// for all pages in pages to add assign them a page number at the end of the page list.
         //make a list in table that keeps track of order.   
