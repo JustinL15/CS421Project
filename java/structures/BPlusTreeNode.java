@@ -70,6 +70,7 @@ public class BPlusTreeNode implements HardwarePage {
         }
 
         int pointerSize = buffer.getInt();
+        this.pointers = new ArrayList<>();
 
         for (int i = 0; i < pointerSize; i++) {
             int[] pointer = new int[2];
