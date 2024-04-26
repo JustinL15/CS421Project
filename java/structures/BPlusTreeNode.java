@@ -385,7 +385,7 @@ public class BPlusTreeNode implements HardwarePage {
             if (pointers.get(i)[0] != -1 && pointers.get(i)[1] == -1) {
                 BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(i)[0], true);
                 nextNode.updatePointers(0, PageNumber, buffer);
-            } else if (pointers.get(i)[0] == pageNumber) {
+            } else if (pointers.get(i)[0] == PageNumber) {
                 pointers.get(i)[1] += 1;
             } else {
                 return;
