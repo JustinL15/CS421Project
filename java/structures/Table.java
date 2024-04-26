@@ -8,7 +8,6 @@ public class Table {
     private int number;
     private List<Attribute> attributes;
     private int pagecount;
-    private int treePageCount;
     private List<Integer> freeTreePages;
     private int nextTreePageNum;
     private int rootLocation;
@@ -22,6 +21,7 @@ public class Table {
         this.pagecount = pagecount;
         this.freeTreePages = new ArrayList<>();
         this.pageorder = new ArrayList<>();
+        this.pageorder.add(0);
         this.nextTreePageNum = 0;
         this.rootLocation = 0;
     }
