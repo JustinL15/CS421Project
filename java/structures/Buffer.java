@@ -143,21 +143,14 @@ public class Buffer {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }
                     
-                    BPlusTreeNode node = (BPlusTreeNode) read(tableName,newPage.getPageNumber(),true);
-                    List<Object> keys = node.getKeys();
-                    List<int[]> pointers = node.getPointers();
+                    BPlusTreeNode root = (BPlusTreeNode) read(tableName, catalog.getTableByName(tableName).getRootPage() ,true);
                     try{
-                    for (int j = 0; j < pointers.size(); j++) {
-                        node.updateNodePointer(newPage.getRecords().get(0).getPrimaryKey(),new int[]{newPage.getPageNumber(),j},this);
+                    for (int j = 0; j < newPage.getRecords().size(); j++) {
+                        root.updateNodePointer(newPage.getRecords().get(j).getPrimaryKey(),new int[]{newPage.getPageNumber(),j},this);
                     }
                     }catch (Exception e) {
                         //error
                     }
-                    node.setPointers(pointers);
-                    write(node);
-                    // do a for loop
-                    // Update the pointer for removed all records in newPage
-                    // pointer int[2] {0, 0} pagenumber, index
 
                     pagesToSplit.add(cur);
                     pagesToSplit.add(newPage);
