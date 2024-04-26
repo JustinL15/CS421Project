@@ -132,7 +132,7 @@ public class Buffer {
             for (int i = 0; i < numPages; i++) {
                 Page cur = pagesToSplit.poll();
                 if (cur.bytesUsed() > catalog.getPageSize()) {
-                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), table.getPagecount());
+                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), table.getNextPageCount());
                     for (int j = 0; j < cur.getRecords().size() / 2; j++) {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }

@@ -112,8 +112,7 @@ public class Table {
         this.number = number;
     }
     public int getPagecount(){
-        this.pagecount += 1;
-        return this.pagecount - 1;
+        return this.pagecount;
     }
     public List<Integer> getPageOrder(){
         return this.pageorder;
@@ -136,6 +135,12 @@ public class Table {
         }
     }
     
+    public int getNextPageCount() {
+        int next = getPagecount();
+        setPageCount(next + 1);
+        return next;
+    }
+
     public void addFreePage(int pageNum) {
         freeTreePages.add(pageNum);
     }
