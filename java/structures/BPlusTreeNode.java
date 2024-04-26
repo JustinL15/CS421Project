@@ -230,7 +230,7 @@ public class BPlusTreeNode implements HardwarePage {
                 merge(index, buffer);
                 if (this.parent == -1 && pointers.size() < 2) {
                     if (pointers.size() == 0) {
-                        template.setRootPage(-1);
+                        template.setRootPage(0);
                     } else {
                         template.setRootPage(pointers.get(0)[0]);
                     }
