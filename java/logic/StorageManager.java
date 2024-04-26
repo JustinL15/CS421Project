@@ -321,6 +321,7 @@ public class StorageManager {
         buffer.purge();
         buffer.cleanTable(table);
         table.setPageCount(0);
+        table.setPageOrder(new ArrayList<>());
         for (Record r: recordsToUpdate) {
             insertSingleRecord(table, r);
         }

@@ -117,6 +117,10 @@ public class Table {
         return this.pageorder;
     }
 
+    public void setPageOrder(List<Integer> PageOrder) {
+        this.pageorder = PageOrder;
+    }
+
     public void setPageCount(int number){
         this.pagecount = number;
     }
