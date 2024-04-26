@@ -130,13 +130,13 @@ public class BPlusTreeNode implements HardwarePage {
                     newPointer[0] = pointers.get(index)[0];
                     newPointer[1] = pointers.get(index)[1];
                 }
-                pointers.add(newPointer);
+                pointers.add(index, newPointer);
                 // System.out.println(newPointer[0] + ", " + newPointer[1]);
                 updatePointers(index, newPointer[0], buffer);
             }
 
             if (pointers.size() > maxSize) {
-                splitLeafNode(buffer, index);
+                splitLeafNode(buffer);
             }
             // System.out.println(newPointer[0] + ", " + newPointer[1]);
             return newPointer;
@@ -152,17 +152,16 @@ public class BPlusTreeNode implements HardwarePage {
         }
     }
 
-    private void splitLeafNode(Buffer buffer, int index) {
+    private void splitLeafNode(Buffer buffer) throws Exception {
         int splitIndex = keys.size() / 2;
-        List<Object> newKeys = keys.subList(splitIndex, keys.size());
-        List<int[]> newPointers = pointers.subList(splitIndex, pointers.size() - 1);
+        List<Object> newKeys = new ArrayList<>(keys.subList(splitIndex, keys.size()));
+        List<int[]> newPointers = new ArrayList<>(pointers.subList(splitIndex, pointers.size()));
         keys.subList(splitIndex, keys.size()).clear();
-        pointers.subList(splitIndex, pointers.size() - 1).clear();
+        pointers.subList(splitIndex, pointers.size()).clear();
         BPlusTreeNode newNode = new BPlusTreeNode(true, maxSize, template);
         newNode.setKeys(newKeys);
         newNode.setPointers(newPointers);
-        newNode.getPointers().get(newNode.getPointers().size() - 1)[0] = this.pointers.get(pointers.size() - 1)[0];
-        this.pointers.get(pointers.size() - 1)[0] = newNode.getPageNumber();
+        this.pointers.add(new int[]{newNode.getPageNumber(), -1});
         if (this.parent == -1) {
             BPlusTreeNode newRoot = new BPlusTreeNode(false, maxSize, template);
             newRoot.keys.add(newNode.keys.get(0));
@@ -174,6 +173,7 @@ public class BPlusTreeNode implements HardwarePage {
             buffer.addPage(newRoot);
         } else {
             BPlusTreeNode nodeParent = (BPlusTreeNode) buffer.read(template.getName(), this.parent, true);
+            int index = nodeParent.binarySearch(nodeParent.keys, newNode.keys.get(0));
             nodeParent.keys.add(index + 1, newNode.keys.get(0));
             nodeParent.pointers.add(index + 1, new int[] {newNode.pageNumber, -1});
         }
@@ -312,53 +312,45 @@ public class BPlusTreeNode implements HardwarePage {
 
     @Override
     public int bytesUsed() {
-        int size = 0;
-        
-        for (Object key : keys) {
-            size += key.toString().getBytes().length;
-        }
-        
-        for (int[] pointer : pointers) {
-            size += pointer.length * Integer.BYTES;
-        }
-
-        return size;
+        int bytesPerKey = template.getMaxPKeySize(); 
+        int totalBytes = keys.size() * bytesPerKey + pointers.size() * 8 + 8; // 8 for key size and pointer size integers
+        return totalBytes;
     }
 
 
-    public byte[] toBytes() {
-        List<Byte> byteList = new ArrayList<>();
+    // public byte[] toBytes() {
+    //     List<Byte> byteList = new ArrayList<>();
 
-        for (Object key : keys) {
-            byte[] keyBytes = key.toString().getBytes();
-            for (byte b : keyBytes) {
-                byteList.add(b);
-            }
-        }
+    //     for (Object key : keys) {
+    //         byte[] keyBytes = key.toString().getBytes();
+    //         for (byte b : keyBytes) {
+    //             byteList.add(b);
+    //         }
+    //     }
 
-        for (int[] pointer : pointers) {
-            for (int value : pointer) {
-                byteList.add((byte) (value >> 24));
-                byteList.add((byte) (value >> 16));
-                byteList.add((byte) (value >> 8));
-                byteList.add((byte) value);
-            }
-        }
+    //     for (int[] pointer : pointers) {
+    //         for (int value : pointer) {
+    //             byteList.add((byte) (value >> 24));
+    //             byteList.add((byte) (value >> 16));
+    //             byteList.add((byte) (value >> 8));
+    //             byteList.add((byte) value);
+    //         }
+    //     }
 
-        byte[] byteArray = new byte[byteList.size()];
-        for (int i = 0; i < byteList.size(); i++) {
-            byteArray[i] = byteList.get(i);
-        }
+    //     byte[] byteArray = new byte[byteList.size()];
+    //     for (int i = 0; i < byteList.size(); i++) {
+    //         byteArray[i] = byteList.get(i);
+    //     }
 
-        return byteArray;
-    }
+    //     return byteArray;
+    // }
 
     @Override
     public byte[] toByte(int max_size) {
         int bytesPerKey = template.getMaxPKeySize(); 
-        int totalBytes = keys.size() * bytesPerKey + pointers.size() * 8 + 8; // 8 for key size and pointer size integers
+        // int totalBytes = bytesUsed();
 
-        ByteBuffer buffer = ByteBuffer.allocate(totalBytes);
+        ByteBuffer buffer = ByteBuffer.allocate(max_size);
 
         buffer.putInt(keys.size());
         for (Object key : keys) {
@@ -399,7 +391,7 @@ public class BPlusTreeNode implements HardwarePage {
         }
     }
 
-    public void merge(int index, Buffer buffer) {
+    public void merge(int index, Buffer buffer) throws Exception {
         if (index != 0) {
             BPlusTreeNode underfull = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index)[0], true);
             BPlusTreeNode mergeNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(index - 1)[0], true);
@@ -408,7 +400,7 @@ public class BPlusTreeNode implements HardwarePage {
             template.addFreePage(underfull.pageNumber);
             if (mergeNode.pointers.size() > maxSize) {
                 if (isLeaf) {
-                    mergeNode.splitLeafNode(buffer, index - 1);
+                    mergeNode.splitLeafNode(buffer);
                 } else {
                     mergeNode.splitInternalNode(buffer, index - 1);
                 }
@@ -421,7 +413,7 @@ public class BPlusTreeNode implements HardwarePage {
             template.addFreePage(underfull.pageNumber);
             if (mergeNode.pointers.size() > maxSize) {
                 if (isLeaf) {
-                    mergeNode.splitLeafNode(buffer, index);
+                    mergeNode.splitLeafNode(buffer);
                 } else {
                     mergeNode.splitInternalNode(buffer, index);
                 }

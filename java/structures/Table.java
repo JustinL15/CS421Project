@@ -181,7 +181,7 @@ public class Table {
                 return 1;
             case Char:
             case Varchar:
-                return pKey.getMaxLength() * Character.BYTES;
+                return (pKey.getMaxLength() * Character.BYTES) + Integer.BYTES;
             default:
                 return -1;
         }
