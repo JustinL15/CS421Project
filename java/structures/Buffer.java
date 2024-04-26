@@ -47,15 +47,7 @@ public class Buffer {
                 return np;
             }
             else {
-                List<Attribute> attributes = table.getAttributes();
-                int keyLength = 0;
-                for (Attribute attribute : attributes) {
-                    if (attribute.isKey()) {
-                        keyLength = attribute.getMaxLength();
-                        break;
-                    }
-                }
-                BPlusTreeNode newNode = new BPlusTreeNode(true, (catalog.getPageSize()/(keyLength + 8)), table);
+                BPlusTreeNode newNode = new BPlusTreeNode(true, (catalog.getPageSize()/(table.getMaxPKeySize() + 8)), table);
                 addPage(newNode);
                 return newNode;
             }
@@ -77,7 +69,7 @@ public class Buffer {
             page = new Page(table, bytes, pageNumber);
         }
         else {
-            page = new BPlusTreeNode(bytes, catalog.getPageSize(), table, pageNumber);
+            page = new BPlusTreeNode(bytes, (catalog.getPageSize()/(table.getMaxPKeySize() + 8)), table, pageNumber);
             page = null;
         }
         addPage(page);
@@ -118,6 +110,7 @@ public class Buffer {
         int pageSize = catalog.getPageSize();
         try {
             tableAccessFile.seek(page.getPageNumber() * pageSize);
+            System.out.println("Page number: " + page.getPageNumber());
             tableAccessFile.write(bytes, 0, bytes.length); // write at page.getPageNumber() * pageSize
             tableAccessFile.close();
         } catch (IOException e) {
@@ -142,13 +135,15 @@ public class Buffer {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }
                     
-                    BPlusTreeNode root = (BPlusTreeNode) read(tableName, table.getRootPage() ,true);
-                    try{
-                    for (int j = 0; j < newPage.getRecords().size(); j++) {
-                        root.updateNodePointer(newPage.getRecords().get(j).getPrimaryKey(),new int[]{newPage.getPageNumber(),j}, this);
-                    }
-                    }catch (Exception e) {
-                        System.err.println(e.getMessage());
+                    if (catalog.getBPlusIndex()) {
+                        BPlusTreeNode root = (BPlusTreeNode) read(tableName, table.getRootPage() ,true);
+                        try{
+                        for (int j = 0; j < newPage.getRecords().size(); j++) {
+                            root.updateNodePointer(newPage.getRecords().get(j).getPrimaryKey(),new int[]{newPage.getPageNumber(),j}, this);
+                        }
+                        }catch (Exception e) {
+                            System.err.println(e.getMessage());
+                        }
                     }
 
                     pagesToSplit.add(cur);
@@ -181,8 +176,11 @@ public class Buffer {
     }
 
     public void purge() {
-        for (HardwarePage page : pages){
-            write(page);
+        // for (HardwarePage page : pages){
+        //     write(page);
+        // }
+        while (!pages.isEmpty()) {
+            write(pages.remove());
         }
         pages = new LinkedList<HardwarePage>();
     }

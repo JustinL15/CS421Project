@@ -120,8 +120,8 @@ public class BPlusTreeNode implements HardwarePage {
                 pointers.add(newPointer);
             } else {
                 if (index == pointers.size() - 1) {
-                    newPointer[0] = pointers.get(index - 1)[0];
-                    newPointer[1] = pointers.get(index - 1)[1] + 1;
+                    newPointer[0] = pointers.get(index)[0];
+                    newPointer[1] = pointers.get(index)[1] + 1;
                 } else {
                     newPointer[0] = pointers.get(index)[0];
                     newPointer[1] = pointers.get(index)[1];
@@ -275,7 +275,7 @@ public class BPlusTreeNode implements HardwarePage {
 
     public int binarySearch(List<Object> arrayList, Object key) throws Exception {
         if (arrayList.isEmpty()) {
-            return -1;
+            return 0;
         }
         int left = 0;
         int right = arrayList.size() - 1;
@@ -382,7 +382,7 @@ public class BPlusTreeNode implements HardwarePage {
 
     public void updatePointers(int startIndex, int PageNumber, Buffer buffer) {
         for (int i = startIndex; i < pointers.size(); i++) {
-            if (pointers.get(i)[1] == -1) {
+            if (pointers.get(i)[0] != -1 && pointers.get(i)[1] == -1) {
                 BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(i)[0], true);
                 nextNode.updatePointers(0, PageNumber, buffer);
             } else if (pointers.get(i)[0] == pageNumber) {

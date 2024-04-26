@@ -15,7 +15,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Main2 {
+public class Main {
     public static void main(String[] args) throws Exception {
         try {
             if (args.length < 4){
@@ -116,7 +116,7 @@ public class Main2 {
             try {
                 Files.createFile(Path.of(path + File.separator + "catalog"));
                 Files.createDirectory(Path.of(path + File.separator + "tables"));
-                initTrees(catalogPath, indexing);
+                initTrees(path, indexing);
             } catch (IOException e) {
                 throw new Exception("IO Exception when creating catalog file and tables directory at " + path);
             }

@@ -22,7 +22,7 @@ public class Table {
         this.freeTreePages = new ArrayList<>();
         this.pageorder = new ArrayList<>();
         this.nextTreePageNum = 0;
-        this.rootLocation = -1;
+        this.rootLocation = 0;
     }
 
     // creates a Table by deserializing a ByteBuffer
