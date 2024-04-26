@@ -112,7 +112,8 @@ public class Table {
         this.number = number;
     }
     public int getPagecount(){
-        return this.pagecount;
+        this.pagecount += 1;
+        return this.pagecount - 1;
     }
     public List<Integer> getPageOrder(){
         return this.pageorder;

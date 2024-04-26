@@ -132,7 +132,7 @@ public class Buffer {
             for (int i = 0; i < numPages; i++) {
                 Page cur = pagesToSplit.poll();
                 if (cur.bytesUsed() > catalog.getPageSize()) {
-                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), table.getNextFreePage());
+                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), table.getPagecount());
                     for (int j = 0; j < cur.getRecords().size() / 2; j++) {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }
@@ -175,6 +175,9 @@ public class Buffer {
         /// for all pages in pages to add assign them a page number at the end of the page list.
         //make a list in table that keeps track of order.   
         //jst insert the page number into index of split page plus 1 + index of page in list?
+        for (Page pageAdd : pagesToAdd) {
+            write(pageAdd);
+        }
     }
 
     public void purge() {
