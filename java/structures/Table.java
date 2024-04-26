@@ -8,6 +8,7 @@ public class Table {
     private int number;
     private List<Attribute> attributes;
     private int pagecount;
+    private int treePageCount;
     private List<Integer> freeTreePages;
     private int nextTreePageNum;
     private int rootLocation;
