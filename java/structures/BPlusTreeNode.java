@@ -74,6 +74,12 @@ public class BPlusTreeNode implements HardwarePage {
             default:
             System.out.println("invalid type for primary key (Bplustree.tobyte)");
         }
+
+        if (pointers.size() > 1 && pointers.get(0)[1] == -1) {
+            this.isLeaf = false;
+        } else {
+            this.isLeaf = true;
+        }
     }
 
     public boolean isLeaf() {
@@ -171,8 +177,8 @@ public class BPlusTreeNode implements HardwarePage {
         } else {
             BPlusTreeNode nodeParent = (BPlusTreeNode) buffer.read(template.getName(), this.parent, true);
             int index = nodeParent.binarySearch(nodeParent.keys, newNode.keys.get(0));
-            nodeParent.keys.add(index + 1, newNode.keys.get(0));
-            nodeParent.pointers.add(index + 1, new int[] {newNode.pageNumber, -1});
+            nodeParent.keys.add(index, newNode.keys.get(0));
+            nodeParent.pointers.add(index, new int[] {newNode.pageNumber, -1});
         }
         buffer.addPage(newNode);
     }

@@ -29,7 +29,7 @@ public class Buffer {
         for (HardwarePage page : pages) {
             if (page.getPageNumber() == pageNumber && page.getTemplate() == table && page.getClass().equals(pageClass)) {
                 pages.remove(page);
-                pages.add(page);
+                addPage(page);
                 return page;
             }
         }
@@ -70,7 +70,7 @@ public class Buffer {
         }
         else {
             page = new BPlusTreeNode(bytes, (catalog.getPageSize()/(table.getMaxPKeySize() + 8)), table, pageNumber);
-            page = null;
+            // page = null;
         }
         addPage(page);
         return page;
@@ -122,6 +122,7 @@ public class Buffer {
     }
 
     public void splitPage(String tableName, Page page) {
+        System.out.println("Split page");
         Deque<Page> pagesToSplit = new ArrayDeque<>();
         pagesToSplit.add(page);
         Table table = catalog.getTableByName(tableName);

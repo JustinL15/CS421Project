@@ -32,7 +32,7 @@ public class StorageManager {
         // if indexing is on, then use the tree to find the record
         if (catalog.getBPlusIndex()) {
             int[] recordPointer = ((BPlusTreeNode)buffer.read(table.getName(), table.getRootPage(), true)).search(primaryKey, buffer);
-            Page page = (Page)buffer.read(table.getName(), recordPointer[0], true);
+            Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
             List<Record> records = page.getRecords();
             return records.get(recordPointer[1]);
         }
