@@ -31,51 +31,48 @@ public class BPlusTreeNode implements HardwarePage {
         this.maxSize = maxSize;
         this.parent = -1;
         this.keys = new ArrayList<>();
+        this.pointers = new ArrayList<>();
 
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
         int keySize = buffer.getInt();
-        Type keyType = template.getAttributes().get(template.getPrimaryKeyIndex()).getDataType();
-
-        for (int i = 0; i < keySize; i++) {
-            switch (keyType) {
-                case Integer:
+        switch(template.getAttributes().get(template.getPrimaryKeyIndex()).getDataType()) {
+            case Integer:
+                for (int i = 0; i < keySize; i++) {
                     this.keys.add(buffer.getInt());
-                    break;
-                case Double:
-                    this.keys.add(buffer.getDouble());
-                    break;
-                case Boolean:
-                    this.keys.add(buffer.get() == 1);
-                    break;
-                case Char:
-                    int clength = template.getAttributes().get(template.getPrimaryKeyIndex()).getMaxLength();
-                    char[] charArr = new char[clength];
-    
-                    for (int j = 0; j < clength; j++) {
-                        charArr[j] = buffer.getChar();
-                    }
-                    this.keys.add(String.valueOf(charArr));
-                    break;
-                case Varchar:
-                    int vlength = template.getAttributes().get(template.getPrimaryKeyIndex()).getMaxLength();
-                    char[] vcharArr = new char[vlength];
-    
-                    for (int j = 0; j < vlength; j++) {
-                        vcharArr[j] = buffer.getChar();
-                    }
-                    this.keys.add(String.valueOf(vcharArr));
-                    break;
+                    this.pointers.add(new int[] {buffer.getInt(), buffer.getInt()});
                 }
-        }
-
-        int pointerSize = buffer.getInt();
-
-        for (int i = 0; i < pointerSize; i++) {
-            int[] pointer = new int[2];
-            pointer[0] = buffer.getInt();
-            pointer[1] = buffer.getInt();
-            pointers.add(pointer);
+                pointers.add(new int[] {buffer.getInt(), buffer.getInt()});
+                break;
+            case Double:
+                for (int i = 0; i < keySize; i++) {
+                    this.keys.add(buffer.getDouble());
+                    pointers.add(new int[] {buffer.getInt(), buffer.getInt()});
+                }
+                pointers.add(new int[] {buffer.getInt(), buffer.getInt()});
+                break;
+            case Boolean:
+                for (int i = 0; i < keySize; i++) {
+                    this.keys.add(buffer.get() == 1);
+                    pointers.add(new int[] {buffer.getInt(), buffer.getInt()});
+                }
+                pointers.add(new int[] {buffer.getInt(), buffer.getInt()});
+                break;
+            case Char:
+            case Varchar:
+                for (int i = 0; i < keySize; i++) {
+                    int stringlength = buffer.getInt();
+                    char[] cl = new char[stringlength];
+                    for (int j = 0; j < stringlength; j++) {
+                        cl[j] = buffer.getChar();
+                    }
+                    this.keys.add(String.valueOf(cl));
+                    pointers.add(new int[] {buffer.getInt(), buffer.getInt()});
+                }
+                pointers.add(new int[] {buffer.getInt(), buffer.getInt()});
+                break;
+            default:
+            System.out.println("invalid type for primary key (Bplustree.tobyte)");
         }
     }
 
@@ -347,29 +344,58 @@ public class BPlusTreeNode implements HardwarePage {
 
     @Override
     public byte[] toByte(int max_size) {
-        int bytesPerKey = template.getMaxPKeySize(); 
-        // int totalBytes = bytesUsed();
-
         ByteBuffer buffer = ByteBuffer.allocate(max_size);
-
         buffer.putInt(keys.size());
-        for (Object key : keys) {
-            String keyString = key.toString();
-            byte[] keyBytes = keyString.getBytes();
-            buffer.put(keyBytes);
-            
-            for (int i = keyBytes.length; i < bytesPerKey; i++) {
-                buffer.put((byte) 0);
-            }
+        switch(template.getAttributes().get(template.getPrimaryKeyIndex()).getDataType()) {
+            case Integer:
+                for (int i = 0; i < keys.size(); i++) {
+                    buffer.putInt((int) this.keys.get(i));
+                    buffer.putInt((int) this.pointers.get(i)[0]);
+                    buffer.putInt((int) this.pointers.get(i)[1]);
+                }
+                buffer.putInt((int) this.pointers.get(this.pointers.size() - 1)[0]);
+                buffer.putInt((int) this.pointers.get(this.pointers.size() - 1)[1]);
+                break;
+            case Double:
+                for (int i = 0; i < keys.size(); i++) {
+                    buffer.putDouble((double) this.keys.get(i));
+                    buffer.putInt((int) this.pointers.get(i)[0]);
+                    buffer.putInt((int) this.pointers.get(i)[1]);
+                }
+                buffer.putInt((int) this.pointers.get(this.pointers.size() - 1)[0]);
+                buffer.putInt((int) this.pointers.get(this.pointers.size() - 1)[1]);
+                break;
+            case Boolean:
+                for (int i = 0; i < keys.size(); i++) {
+                    if ((boolean) this.keys.get(i)) {
+                        buffer.put((byte) 1);
+                    } else {
+                        buffer.put((byte) 0);
+                    }
+                    buffer.putInt((int) this.pointers.get(i)[0]);
+                    buffer.putInt((int) this.pointers.get(i)[1]);
+                }
+                buffer.putInt((int) this.pointers.get(this.pointers.size() - 1)[0]);
+                buffer.putInt((int) this.pointers.get(this.pointers.size() - 1)[1]);
+                break;
+            case Char:
+            case Varchar:
+                for (int i = 0; i < keys.size(); i++) {
+                    String stringChar = (String) this.keys.get(i);
+                    char[] cl = stringChar.toCharArray();
+                    buffer.putInt(cl.length);
+                    for (char c: cl) {
+                        buffer.putChar(c);
+                    }
+                    buffer.putInt((int) this.pointers.get(i)[0]);
+                    buffer.putInt((int) this.pointers.get(i)[1]);
+                }
+                buffer.putInt((int) this.pointers.get(this.pointers.size() - 1)[0]);
+                buffer.putInt((int) this.pointers.get(this.pointers.size() - 1)[1]);
+                break;
+            default:
+            System.out.println("invalid type for primary key (Bplustree.tobyte)");
         }
-        
-        buffer.putInt(pointers.size());
-        for (int[] pointer : pointers) {
-            for (int value : pointer) {
-                buffer.putInt(value);
-            }
-        }
-
         return buffer.array();
     }
 
