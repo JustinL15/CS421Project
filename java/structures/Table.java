@@ -160,7 +160,7 @@ public class Table {
         return -1;
     }
 
-    public int getMaxPKeySize() throws Exception {
+    public int getMaxPKeySize() {
         Attribute pKey = this.attributes.get(getPrimaryKeyIndex());
         switch(pKey.getDataType()) {
             case Integer:
@@ -173,7 +173,7 @@ public class Table {
             case Varchar:
                 return pKey.getMaxLength() * Character.BYTES;
             default:
-                throw new Exception("Invalid Type for Primary key");
+                return -1;
         }
     }
 }
