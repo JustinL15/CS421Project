@@ -137,6 +137,7 @@ public class StorageManager {
             records.add(recordPointer[1], newRecord);
             if (table.getPagecount() == 0) {
                 table.setPageCount(1);
+                table.getPageOrder().add(0);
             }
             return;
         }
@@ -144,6 +145,7 @@ public class StorageManager {
             Page page = (Page)buffer.read(table.getName(), 0, false);
             page.getRecords().add(newRecord);
             table.setPageCount(1);
+            table.getPageOrder().add(0);
             return;
         } else {
             for (int i = 0; i < table.getPagecount(); i++) {
