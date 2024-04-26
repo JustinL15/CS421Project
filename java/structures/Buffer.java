@@ -109,7 +109,8 @@ public class Buffer {
 
         int pageSize = catalog.getPageSize();
         try {
-            System.out.println(pageSize + " * " + page.getPageNumber() + " = " + (page.getPageNumber() * pageSize));
+            // System.out.println(page.getClass().getCanonicalName());
+            // System.out.println(pageSize + " * " + page.getPageNumber() + " = " + (page.getPageNumber() * pageSize));
             tableAccessFile.seek(page.getPageNumber() * pageSize);
             tableAccessFile.write(bytes, 0, bytes.length); // write at page.getPageNumber() * pageSize
             tableAccessFile.close();

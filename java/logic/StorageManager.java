@@ -135,6 +135,9 @@ public class StorageManager {
             Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
             List<Record> records = page.getRecords();
             records.add(recordPointer[1], newRecord);
+            if (table.getPagecount() == 0) {
+                table.setPageCount(1);
+            }
             return;
         }
         if (table.getPagecount() == 0) {

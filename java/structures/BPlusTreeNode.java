@@ -116,7 +116,11 @@ public class BPlusTreeNode implements HardwarePage {
             int index = binarySearch(keys, key);
             keys.add(index, key);
             int[] newPointer = new int[]{0, 0};
-            if (pointers.size() == 0) {
+            // System.out.println(pointers.size());
+            // for (int[] pointer : pointers) {
+            //     System.out.println(pointer[0] + ", " + pointer[1]);
+            // }
+            if (pointers.size() == 1) {
                 pointers.add(newPointer);
             } else {
                 if (index == pointers.size() - 1) {
@@ -127,12 +131,14 @@ public class BPlusTreeNode implements HardwarePage {
                     newPointer[1] = pointers.get(index)[1];
                 }
                 pointers.add(newPointer);
+                // System.out.println(newPointer[0] + ", " + newPointer[1]);
                 updatePointers(index, newPointer[0], buffer);
             }
 
             if (pointers.size() > maxSize) {
                 splitLeafNode(buffer, index);
             }
+            // System.out.println(newPointer[0] + ", " + newPointer[1]);
             return newPointer;
         } else {
             int index = binarySearch(keys, key);
