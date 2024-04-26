@@ -77,8 +77,7 @@ public class Buffer {
             page = new Page(table, bytes, pageNumber);
         }
         else {
-            // TODO replace with decoding constructor
-            // page = new BPlusTreeNode(byte[] byteBuffer);
+            page = new BPlusTreeNode(bytes, catalog.getPageSize(), table, pageNumber);
             page = null;
         }
         addPage(page);

@@ -25,6 +25,60 @@ public class BPlusTreeNode implements HardwarePage {
         this.pageNumber = template.getNextFreePage();
     }
 
+    public BPlusTreeNode(byte[] data, int maxSize, Table template, int pageNumber) {
+        this.pageNumber = pageNumber;
+        this.template = template;
+        this.maxSize = maxSize;
+        this.parent = -1;
+        this.keys = new ArrayList<>();
+
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+
+        int keySize = buffer.getInt();
+        Type keyType = template.getAttributes().get(template.getPrimaryKeyIndex()).getDataType();
+
+        for (int i = 0; i < keySize; i++) {
+            switch (keyType) {
+                case Integer:
+                    this.keys.add(buffer.getInt());
+                    break;
+                case Double:
+                    this.keys.add(buffer.getDouble());
+                    break;
+                case Boolean:
+                    this.keys.add(buffer.get() == 1);
+                    break;
+                case Char:
+                    int clength = template.getAttributes().get(template.getPrimaryKeyIndex()).getMaxLength();
+                    char[] charArr = new char[clength];
+    
+                    for (int j = 0; j < clength; j++) {
+                        charArr[j] = buffer.getChar();
+                    }
+                    this.keys.add(String.valueOf(charArr));
+                    break;
+                case Varchar:
+                    int vlength = template.getAttributes().get(template.getPrimaryKeyIndex()).getMaxLength();
+                    char[] vcharArr = new char[vlength];
+    
+                    for (int j = 0; j < vlength; j++) {
+                        vcharArr[j] = buffer.getChar();
+                    }
+                    this.keys.add(String.valueOf(vcharArr));
+                    break;
+                }
+        }
+
+        int pointerSize = buffer.getInt();
+
+        for (int i = 0; i < pointerSize; i++) {
+            int[] pointer = new int[2];
+            pointer[0] = buffer.getInt();
+            pointer[1] = buffer.getInt();
+            pointers.add(pointer);
+        }
+    }
+
     public boolean isLeaf() {
         return isLeaf;
     }
@@ -295,20 +349,23 @@ public class BPlusTreeNode implements HardwarePage {
 
     @Override
     public byte[] toByte(int max_size) {
-        int bytesPerKey = max_size / keys.size(); 
-        int totalBytes = keys.size() * bytesPerKey + pointers.size() * 4;
+        int bytesPerKey = template.getMaxPKeySize(); 
+        int totalBytes = keys.size() * bytesPerKey + pointers.size() * 8 + 8; // 8 for key size and pointer size integers
 
         ByteBuffer buffer = ByteBuffer.allocate(totalBytes);
+
+        buffer.putInt(keys.size());
         for (Object key : keys) {
             String keyString = key.toString();
             byte[] keyBytes = keyString.getBytes();
             buffer.put(keyBytes);
-        
+            
             for (int i = keyBytes.length; i < bytesPerKey; i++) {
                 buffer.put((byte) 0);
             }
         }
-
+        
+        buffer.putInt(pointers.size());
         for (int[] pointer : pointers) {
             for (int value : pointer) {
                 buffer.putInt(value);
