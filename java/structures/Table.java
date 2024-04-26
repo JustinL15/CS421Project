@@ -159,4 +159,21 @@ public class Table {
         }
         return -1;
     }
+
+    public int getMaxPKeySize() throws Exception {
+        Attribute pKey = this.attributes.get(getPrimaryKeyIndex());
+        switch(pKey.getDataType()) {
+            case Integer:
+                return Integer.BYTES;
+            case Double:
+                return Double.BYTES;
+            case Boolean:
+                return 1;
+            case Char:
+            case Varchar:
+                return pKey.getMaxLength() * Character.BYTES;
+            default:
+                throw new Exception("Invalid Type for Primary key");
+        }
+    }
 }
