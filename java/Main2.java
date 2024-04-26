@@ -56,14 +56,14 @@ public class Main2 {
         if(!on || Files.exists(Path.of(path.toString() + File.separator + "trees"))){
         }
         else{
-            System.out.println("Creating B-Tree");
+            System.out.println("Creating B-Tree Directory");
             //create  B-Tree
             try {
                 Files.createDirectory((Path.of(path + File.separator + "trees")));
             } catch (IOException e) {
                 throw new Exception("IO Exception when creating trees directory at " + path);
             }
-            System.out.println("New B-Tree created successfully");
+            System.out.println("New B-Tree Directory created successfully");
         }
     }
 
@@ -116,6 +116,7 @@ public class Main2 {
             try {
                 Files.createFile(Path.of(path + File.separator + "catalog"));
                 Files.createDirectory(Path.of(path + File.separator + "tables"));
+                initTrees(catalogPath, indexing);
             } catch (IOException e) {
                 throw new Exception("IO Exception when creating catalog file and tables directory at " + path);
             }

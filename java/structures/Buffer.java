@@ -129,20 +129,28 @@ public class Buffer {
     public void splitPage(String tableName, Page page) {
         Deque<Page> pagesToSplit = new ArrayDeque<>();
         pagesToSplit.add(page);
+        Table table = catalog.getTableByName(tableName);
         int pageNumber = page.getPageNumber();
+
         while (pagesToSplit.peekFirst().bytesUsed() > catalog.getPageSize()) {
             int numPages = pagesToSplit.size();
             for (int i = 0; i < numPages; i++) {
                 Page cur = pagesToSplit.poll();
                 if (cur.bytesUsed() > catalog.getPageSize()) {
-                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), pageNumber);
+                    Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), table.getNextFreePage());
                     for (int j = 0; j < cur.getRecords().size() / 2; j++) {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }
-                    List<Record> updatedRecords = newPage.getRecords();
-                    // do a for loop
-                    // Update the pointer for removed all records in newPage
-                    // pointer int[2] {0, 0} pagenumber, index
+                    
+                    BPlusTreeNode root = (BPlusTreeNode) read(tableName, table.getRootPage() ,true);
+                    try{
+                    for (int j = 0; j < newPage.getRecords().size(); j++) {
+                        root.updateNodePointer(newPage.getRecords().get(j).getPrimaryKey(),new int[]{newPage.getPageNumber(),j}, this);
+                    }
+                    }catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
+
                     pagesToSplit.add(cur);
                     pagesToSplit.add(newPage);
                 } else {
@@ -151,18 +159,21 @@ public class Buffer {
             }
         }
 
-        Table table = catalog.getTableByName(tableName);
         List<Page> pagesToAdd = new ArrayList<>(pagesToSplit);
-        /// scrap this section
-        for (int i = pageNumber + 1; i < table.getPagecount(); i++) {
-            Page next = (Page)read(tableName, i, false);
-            next.setPageNumber(i + pagesToAdd.size() - 1);
+        List<Integer> x = table.getPageOrder();
+        
+        int pageordernum = -1;
+        for (int i = 0; i < x.size(); i++){
+            if(x.get(i) == pageNumber){
+                pageordernum = i;
+                break;
+            }
         }
-        for (int i = 0; i < pagesToAdd.size(); i++) {
-            pagesToAdd.get(i).setPageNumber(pageNumber + i);
-            write(pagesToAdd.get(i));
-            table.setPageCount(table.getPagecount() + pagesToAdd.size() - 1);
+        
+        for (int i = 1; i < pagesToAdd.size(); i++) {
+            x.add(pageordernum + i, pagesToAdd.get(i).getPageNumber());
         }
+
         ///
         /// for all pages in pages to add assign them a page number at the end of the page list.
         //make a list in table that keeps track of order.   
