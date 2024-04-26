@@ -135,7 +135,7 @@ public class BPlusTreeNode implements HardwarePage {
                 }
                 pointers.add(index, newPointer);
                 // System.out.println(newPointer[0] + ", " + newPointer[1]);
-                updatePointers(index, newPointer[0], buffer);
+                updatePointers(index + 1, newPointer[0], buffer);
             }
 
             if (pointers.size() > maxSize) {
@@ -293,7 +293,7 @@ public class BPlusTreeNode implements HardwarePage {
             Object midValue = arrayList.get(mid);
             int comparison = compareVals(midValue, key);
             if (comparison == 0) {
-                return mid;
+                return mid + 1;
             } else if (comparison < 0) {
                 left = mid + 1;
             } else {
@@ -301,6 +301,27 @@ public class BPlusTreeNode implements HardwarePage {
             }
         }
         return left;
+    }
+
+    public int binarySearchObject(List<Object> arrayList, Object key) throws Exception {
+        if (arrayList.isEmpty()) {
+            return -1;
+        }
+        int left = 0;
+        int right = arrayList.size() - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            Object midValue = arrayList.get(mid);
+            int comparison = compareVals(midValue, key);
+            if (comparison == 0) {
+                return mid;
+            } else if (comparison < 0) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -473,7 +494,6 @@ public class BPlusTreeNode implements HardwarePage {
         if (isLeaf) {
             int index = keys.indexOf(key);
             if (index != -1) {
-                keys.set(index, key);
                 pointers.set(index, pointer);
             } else {
                 throw new Exception("Key not found.");
