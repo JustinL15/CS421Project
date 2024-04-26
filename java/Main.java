@@ -183,6 +183,7 @@ public class Main {
                         parseInsert(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
+                        e.printStackTrace();
                     }
                     break;
                 case ("display"):

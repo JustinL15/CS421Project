@@ -121,7 +121,7 @@ public class BPlusTreeNode implements HardwarePage {
             //     System.out.println(pointer[0] + ", " + pointer[1]);
             // }
             if (pointers.size() == 1) {
-                pointers.add(newPointer);
+                pointers.add(0, newPointer);
             } else {
                 if (index == pointers.size() - 1) {
                     newPointer[0] = pointers.get(index)[0];
@@ -297,7 +297,7 @@ public class BPlusTreeNode implements HardwarePage {
                 right = mid - 1;
             }
         }
-        return -(left + 1);
+        return left;
     }
 
     @Override
