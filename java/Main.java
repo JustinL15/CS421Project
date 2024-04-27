@@ -131,8 +131,8 @@ public class Main {
     public static void startParsing(Scanner scanner, Parser parser) throws Exception {
         String command = "";
         boolean breakflag = false;
+        System.out.print("\nDB>");
         while (!breakflag) { //program loop
-            // System.out.print("\nDB>");
             String input = scanner.nextLine();
             if(!input.endsWith(";")) {
                 input += " ";
@@ -212,6 +212,7 @@ public class Main {
                     break;
             }
             command = "";
+            System.out.print("\nDB>");
         }
     }
 

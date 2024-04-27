@@ -248,7 +248,7 @@ public class Parser {
             if (tableCol.get(i).isKey()) {
                 int res;
                 if (sM.catalog.getBPlusIndex()) {
-                    res = sM.BTreecheckPrimaryKeyUnique(table, values);
+                    res = sM.BTreecheckPrimaryKeyUnique(table, table.transformStringPrimaryKey(values.get(i)));
                 } else {
                     res = sM.checkUnique(table, i, cVals.get(i));
                 }
@@ -348,7 +348,21 @@ public class Parser {
 
 
     public void select_statment(List<Table> tables, List<String> columns,String where, String order) throws Exception{
-        List<Record> allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
+        LogicNode logicTree = LogicNode.build(where, false);
+
+        List<Record> allrec = null;
+        if (sM.catalog.getBPlusIndex() && logicTree.value.equals("=") && (!logicTree.left.operation.equals("Attribute") || !logicTree.right.operation.equals("Attribute"))) {
+            Object primaryKey = null;
+            if (!logicTree.left.operation.equals("Attribute")) {
+                primaryKey = tables.get(0).transformStringPrimaryKey(logicTree.left.value);
+            } else {
+                primaryKey = tables.get(0).transformStringPrimaryKey(logicTree.right.value);
+            }
+            allrec = new ArrayList<Record>();
+            allrec.add(sM.getRecordByPrimaryKey(tables.get(0), primaryKey));
+        } else {
+            allrec =  sM.getRecords_tablenumber(tables.get(0).getNumber());
+        }
         List<Attribute> new_attr = new ArrayList<Attribute>();; 
         Table newtemplate = tables.get(0);
         List<Record> new_rec = new ArrayList<Record>();

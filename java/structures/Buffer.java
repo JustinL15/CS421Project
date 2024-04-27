@@ -124,7 +124,7 @@ public class Buffer {
     }
 
     public void splitPage(String tableName, Page page) {
-        System.out.println("Split page");
+        // System.out.println("Split page");
         Deque<Page> pagesToSplit = new ArrayDeque<>();
         pagesToSplit.add(page);
         Table table = catalog.getTableByName(tableName);
