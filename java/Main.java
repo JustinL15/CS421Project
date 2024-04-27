@@ -379,21 +379,21 @@ public class Main {
                     datalength = Integer.parseInt( arguments[5].substring(arguments[5].indexOf("(")+1,arguments[5].indexOf(")")) );
                     attrtype1 = Type.Char;
                 }
-                else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("double") == 0){     
+                else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("double") == 0 || arguments[5].compareTo("double") == 0 ){     
                     attrtype1 = Type.Double;
                 }
-                else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("integer") == 0){
+                else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("integer") == 0 || arguments[5].compareTo("integer") == 0 ){
                     attrtype1 = Type.Integer;
                 }
-                else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("boolean") == 0){
+                else if(arguments[5].substring(0, arguments[5].length() - 1).compareTo("boolean") == 0 || arguments[5].compareTo("boolean") == 0){
                     attrtype1 = Type.Boolean;
                 }
                 else {
                     System.out.println("Invalid data type " + arguments[5].substring(0, arguments[5].length() - 1));
                 }
                 Attribute addattr = new Attribute(arguments[4],attrtype1,datalength,true,false,false); // doesn't account for unique, notnull, key
-                if (arguments.length == 8) {
-                    defaultval = arguments[7];
+                if (arguments.length == 8 && arguments[6].compareTo("default") == 0) {
+                    defaultval = arguments[7].substring(0, arguments[7].indexOf(";"));
                 }
                 parser.add_table_column(myCatalog.getTableByName(arguments[2]), addattr,defaultval);
 
