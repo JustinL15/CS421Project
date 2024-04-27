@@ -314,7 +314,9 @@ public class StorageManager {
 
     public void add_table_column(Table table, Attribute newAttr, Object defaultval) throws Exception {
         int pageCount = table.getPagecount();
-
+        List<Attribute> attrlist =  table.getAttributes();
+        attrlist.add(newAttr);
+        table.setAttributes(attrlist);
         List<Record> recordsToUpdate = new ArrayList<>();
         for (int i = 0; i < pageCount; i++) {
             Page page = (Page)buffer.read(table.getName(), i, false);
@@ -333,9 +335,7 @@ public class StorageManager {
         for (Record r: recordsToUpdate) {
             insertSingleRecord(table, r);
         }
-        List<Attribute> attrlist =  table.getAttributes();
-        attrlist.add(newAttr);
-        table.setAttributes(attrlist);
+        
     }
 
     public void delete_table_column(Table table, String deleteAttribute, int index) {
