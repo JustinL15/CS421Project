@@ -178,7 +178,7 @@ public class Buffer {
         //make a list in table that keeps track of order.   
         //jst insert the page number into index of split page plus 1 + index of page in list?
         for (Page pageAdd : pagesToAdd) {
-            write(pageAdd);
+            addPage(pageAdd);
         }
     }
 
