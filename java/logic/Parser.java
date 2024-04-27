@@ -399,14 +399,29 @@ public class Parser {
 
     // This is the delete command for the table
     public void delete_statment(Table table, String conditions) throws Exception {
-        // We start by gathering all the records in the table
-        List<Record> tableRecords = sM.getRecords_tablenumber(table.getNumber());
-        // Then we collect the attributes
-        List<Attribute> attr = table.getAttributes();
+        List<Record> tableRecords = new ArrayList<>();
 
-        // Goes through each record for the condition
-        if (conditions != null) {
-            tableRecords = where(tableRecords, conditions,false);
+        LogicNode logicTree = LogicNode.build(conditions, false);
+
+        if (logicTree.value.equals("=") && (!logicTree.left.operation.equals("Attribute") || !logicTree.right.operation.equals("Attribute"))) {
+            System.out.println("match");
+            Object primaryKey = null;
+            if (!logicTree.left.operation.equals("Attribute")) {
+                primaryKey = LogicNode.resolve(records.get(0), logicTree.left);
+            } else {
+                primaryKey = LogicNode.resolve(records.get(0), logicTree.right);
+            }
+            tableRecords.add(sM.getRecordByPrimaryKey(table, primaryKey));
+        } else {
+            // We start by gathering all the records in the table
+            tableRecords = sM.getRecords_tablenumber(table.getNumber());
+            // Then we collect the attributes
+            List<Attribute> attr = table.getAttributes();
+
+            // Goes through each record for the condition
+            if (conditions != null) {
+                tableRecords = where(tableRecords, conditions,false);
+            }
         }
 
         // This iterates through all the records
