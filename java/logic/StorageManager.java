@@ -78,15 +78,20 @@ public class StorageManager {
             return allRecords;
         }
 
-        int pageCount = table.getPagecount();
+        // int pageCount = table.getPagecount();
 
-        for (int i = 0; i < pageCount; i++) {
-            Page page = (Page)buffer.read(table.getName(), i, false);
+        // for (int i = 0; i < pageCount; i++) {
+        //     Page page = (Page)buffer.read(table.getName(), i, false);
 
-            if (page == null) {
-                continue;
-            }
+        //     if (page == null) {
+        //         continue;
+        //     }
 
+        //     allRecords.addAll(page.getRecords());
+        // }
+
+        for (Integer pageNumber : table.getPageOrder()) {
+            Page page = (Page)buffer.read(table.getName(), pageNumber, false);
             allRecords.addAll(page.getRecords());
         }
 
