@@ -178,7 +178,7 @@ public class BPlusTreeNode implements HardwarePage {
             BPlusTreeNode nodeParent = (BPlusTreeNode) buffer.read(template.getName(), this.parent, true);
             int index = nodeParent.binarySearch(nodeParent.keys, newNode.keys.get(0));
             nodeParent.keys.add(index, newNode.keys.get(0));
-            nodeParent.pointers.add(index, new int[] {newNode.pageNumber, -1});
+            nodeParent.pointers.add(index+1, new int[] {newNode.pageNumber, -1});
         }
         buffer.addPage(newNode);
     }
@@ -303,7 +303,7 @@ public class BPlusTreeNode implements HardwarePage {
         return left;
     }
 
-    public int binarySearchObject(List<Object> arrayList, Object key) throws Exception {
+    public int binarySearchTraversal(List<Object> arrayList, Object key) throws Exception {
         if (arrayList.isEmpty()) {
             return -1;
         }
@@ -321,7 +321,10 @@ public class BPlusTreeNode implements HardwarePage {
                 right = mid - 1;
             }
         }
-        return -1;
+        // if (left == 0) {
+        //     return -1;
+        // }
+        return left;
     }
 
     @Override
@@ -496,10 +499,15 @@ public class BPlusTreeNode implements HardwarePage {
             if (index != -1) {
                 pointers.set(index, pointer);
             } else {
+                System.out.println("Leaf Keys: " + keys.toString());
+                System.out.println("Looking for: " + key);
                 throw new Exception("Key not found.");
             }
         } else {
             int newIndex = binarySearch(keys, key);
+            System.out.println("Keys: " + keys.toString());
+            System.out.println("Looking for: " + key);
+            System.out.println("Choose index: " + newIndex);
             BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(newIndex)[0], true);
             nextNode.parent = this.pageNumber;
             nextNode.updateNodePointer(key, pointer, buffer);
