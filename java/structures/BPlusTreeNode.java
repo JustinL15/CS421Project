@@ -149,7 +149,7 @@ public class BPlusTreeNode implements HardwarePage {
             retrievedNode.parent = pageNumber;
             int[] newPointer = retrievedNode.insert(key, buffer);
             if (pointers.size() > maxSize) {
-                splitInternalNode(buffer, index);
+                splitInternalNode(buffer);
             }
             return newPointer;
         }
@@ -183,11 +183,11 @@ public class BPlusTreeNode implements HardwarePage {
         buffer.addPage(newNode);
     }
 
-    private void splitInternalNode(Buffer buffer, int index) {
+    private void splitInternalNode(Buffer buffer) throws Exception {
         int splitIndex = keys.size() / 2;
         Object midVal = keys.get(splitIndex);
-        List<Object> newKeys = keys.subList(splitIndex + 1, keys.size());
-        List<int[]> newPointers = pointers.subList(splitIndex, pointers.size());
+        List<Object> newKeys = new ArrayList<>(keys.subList(splitIndex + 1, keys.size()));
+        List<int[]> newPointers = new ArrayList<>(pointers.subList(splitIndex + 1, pointers.size()));
         keys.subList(splitIndex, keys.size()).clear();
         pointers.subList(splitIndex, pointers.size()).clear();
         BPlusTreeNode newNode = new BPlusTreeNode(false, maxSize, template);
@@ -204,8 +204,9 @@ public class BPlusTreeNode implements HardwarePage {
             buffer.addPage(newRoot);
         } else {
             BPlusTreeNode nodeParent = (BPlusTreeNode) buffer.read(template.getName(), this.parent, true);
-            nodeParent.keys.add(index + 1, newNode.keys.get(0));
-            nodeParent.pointers.add(index + 1, new int[] {newNode.pageNumber, -1});
+            int index = nodeParent.binarySearch(nodeParent.keys, midVal);
+            nodeParent.keys.add(index , newNode.keys.get(0));
+            nodeParent.pointers.add(index+1, new int[] {newNode.pageNumber, -1});
         }
         buffer.addPage(newNode);
     }
@@ -458,7 +459,7 @@ public class BPlusTreeNode implements HardwarePage {
                 if (isLeaf) {
                     mergeNode.splitLeafNode(buffer);
                 } else {
-                    mergeNode.splitInternalNode(buffer, index - 1);
+                    mergeNode.splitInternalNode(buffer);
                 }
             }
         } else {
@@ -471,7 +472,7 @@ public class BPlusTreeNode implements HardwarePage {
                 if (isLeaf) {
                     mergeNode.splitLeafNode(buffer);
                 } else {
-                    mergeNode.splitInternalNode(buffer, index);
+                    mergeNode.splitInternalNode(buffer);
                 }
             }
         }
@@ -499,6 +500,7 @@ public class BPlusTreeNode implements HardwarePage {
             if (index != -1) {
                 pointers.set(index, pointer);
             } else {
+                BPlusTreeNode newNo = (BPlusTreeNode) buffer.read(this.template.getName(), 23, true);
                 // System.out.println("Leaf Keys: " + keys.toString());
                 // System.out.println("Looking for: " + key);
                 throw new Exception("Key not found.");
