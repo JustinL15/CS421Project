@@ -157,6 +157,7 @@ public class BPlusTreeNode implements HardwarePage {
     }
 
     private void splitLeafNode(Buffer buffer) throws Exception {
+        System.out.println("Split leaf node");
         int splitIndex = (keys.size() + 1)  / 2;
         List<Object> newKeys = new ArrayList<>(keys.subList(splitIndex, keys.size()));
         List<int[]> newPointers = new ArrayList<>(pointers.subList(splitIndex, pointers.size()));
@@ -180,11 +181,15 @@ public class BPlusTreeNode implements HardwarePage {
             int index = nodeParent.binarySearch(nodeParent.keys, newNode.keys.get(0));
             nodeParent.keys.add(index, newNode.keys.get(0));
             nodeParent.pointers.add(index+1, new int[] {newNode.pageNumber, -1});
+            if (nodeParent.pointers.size() > maxSize) {
+                nodeParent.splitInternalNode(buffer);
+            }
         }
         buffer.addPage(newNode);
     }
 
     private void splitInternalNode(Buffer buffer) throws Exception {
+        System.out.println("Split internal node");
         int splitIndex = (keys.size() + 1) / 2;
         List<Object> newKeys = new ArrayList<>(keys.subList(splitIndex, keys.size()));
         List<int[]> newPointers = new ArrayList<>(pointers.subList(splitIndex, pointers.size()));
@@ -213,6 +218,9 @@ public class BPlusTreeNode implements HardwarePage {
             int index = nodeParent.binarySearch(nodeParent.keys, midVal);
             nodeParent.keys.add(index , midVal);
             nodeParent.pointers.add(index+1, new int[] {newNode.pageNumber, -1});
+            if (nodeParent.pointers.size() > maxSize) {
+                nodeParent.splitInternalNode(buffer);
+            }
         }
         buffer.addPage(newNode);
     }
