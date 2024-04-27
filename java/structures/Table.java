@@ -186,4 +186,19 @@ public class Table {
                 return -1;
         }
     }
+
+    public Object transformStringPrimaryKey(String str) {
+        switch(getAttributes().get(getPrimaryKeyIndex()).getDataType()) {
+            case Integer:
+                return Integer.parseInt(str);
+            case Double:
+                return Double.parseDouble(str);
+            case Boolean:
+                return (str.toLowerCase() == "true");
+            case Char:
+            case Varchar:
+                return str;
+        }
+        return null;
+    }
 }
