@@ -23,7 +23,7 @@ public class Buffer {
     }
 
     public HardwarePage read(String tableName, int pageNumber, boolean readingNode) {
-        System.out.println("Read");
+        //System.out.println("Read");
         Object pageClass = readingNode ? BPlusTreeNode.class : Page.class;
         Table table = catalog.getTableByName(tableName);
         for (HardwarePage page : pages) {
@@ -47,7 +47,7 @@ public class Buffer {
                 return np;
             }
             else {
-                BPlusTreeNode newNode = new BPlusTreeNode(true, (catalog.getPageSize()/(table.getMaxPKeySize() + 8)), table);
+                BPlusTreeNode newNode = new BPlusTreeNode(true, ((catalog.getPageSize() - 17)/(table.getMaxPKeySize() + 8)), table);
                 addPage(newNode);
                 return newNode;
             }
@@ -71,7 +71,7 @@ public class Buffer {
             page = new Page(table, bytes, pageNumber);
         }
         else {
-            page = new BPlusTreeNode(bytes, (catalog.getPageSize()/(table.getMaxPKeySize() + 8)), table, pageNumber);
+            page = new BPlusTreeNode(bytes, ((catalog.getPageSize() - 17)/(table.getMaxPKeySize() + 8)), table, pageNumber);
             // page = null;
         }
         addPage(page);
