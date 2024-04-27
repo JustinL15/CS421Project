@@ -451,13 +451,15 @@ public class BPlusTreeNode implements HardwarePage {
         }
     }
 
-    public void updatePointersPageNumber(int startIndex, int PageNumber,  int updatedPageNumber, Buffer buffer) {
+    public void updatePointersPageNumber(int startIndex, int PageNumber,  int[] updatedPointer, Buffer buffer) {
         for (int i = startIndex; i < pointers.size(); i++) {
             if (pointers.get(i)[0] != -1 && pointers.get(i)[1] == -1) {
                 BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(i)[0], true);
                 nextNode.updatePointers(0, PageNumber, buffer);
             } else if (pointers.get(i)[0] == PageNumber) {
-                pointers.get(i)[0] = updatedPageNumber;
+                updatedPointer[1] += 1;
+                pointers.get(i)[0] = updatedPointer[0];
+                pointers.get(i)[1] = 1;
             } else {
                 return;
             }
@@ -517,7 +519,7 @@ public class BPlusTreeNode implements HardwarePage {
             if (index != -1) {
                 int oldPageNumber = pointers.get(index)[0];
                 pointers.set(index, pointer);
-                updatePointersPageNumber(index + 1, oldPageNumber, pointer[0], buffer);
+                updatePointersPageNumber(index + 1, oldPageNumber, pointer, buffer);
             } else {
                 // System.out.println("Leaf Keys: " + keys.toString());
                 // System.out.println("Looking for: " + key);
