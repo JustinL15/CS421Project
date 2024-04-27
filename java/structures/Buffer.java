@@ -144,9 +144,7 @@ public class Buffer {
                     if (catalog.getBPlusIndex()) {
                         BPlusTreeNode root = (BPlusTreeNode) read(tableName, table.getRootPage() ,true);
                         try{
-                        for (int j = 0; j < newPage.getRecords().size(); j++) {
-                            root.updateNodePointer(newPage.getRecords().get(j).getPrimaryKey(),new int[]{newPage.getPageNumber(),j}, this);
-                        }
+                            root.updateNodePointer(newPage.getRecords().get(0).getPrimaryKey(),new int[]{newPage.getPageNumber(),0}, this);
                         }catch (Exception e) {
                             System.err.println(e.getMessage());
                         }
