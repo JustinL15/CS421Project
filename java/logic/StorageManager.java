@@ -147,6 +147,9 @@ public class StorageManager {
                 table.setPageCount(1);
                 table.getPageOrder().add(0);
             }
+            if (page.bytesUsed() > catalog.getPageSize()) {
+                buffer.write(page);
+            }
             return;
         }
         if (table.getPagecount() == 0) {
@@ -166,11 +169,17 @@ public class StorageManager {
                 for (int j = 0; j < records.size(); j++) {
                     if (insertRecord_table_helper(table, newRecord, records.get(j))) {
                         page.getRecords().add(j, newRecord);
+                        if (page.bytesUsed() > catalog.getPageSize()) {
+                            buffer.write(page);
+                        }
                         return;
                     }
                 }
                 if (i + 1 == table.getPagecount()) {
                     page.getRecords().add(newRecord);
+                    if (page.bytesUsed() > catalog.getPageSize()) {
+                        buffer.write(page);
+                    }
                     return;
                 }
             }
