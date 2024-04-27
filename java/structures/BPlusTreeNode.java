@@ -156,7 +156,7 @@ public class BPlusTreeNode implements HardwarePage {
     }
 
     private void splitLeafNode(Buffer buffer) throws Exception {
-        int splitIndex = keys.size() / 2;
+        int splitIndex = (keys.size() + 1)  / 2;
         List<Object> newKeys = new ArrayList<>(keys.subList(splitIndex, keys.size()));
         List<int[]> newPointers = new ArrayList<>(pointers.subList(splitIndex, pointers.size()));
         keys.subList(splitIndex, keys.size()).clear();
@@ -184,15 +184,20 @@ public class BPlusTreeNode implements HardwarePage {
     }
 
     private void splitInternalNode(Buffer buffer) throws Exception {
-        int splitIndex = keys.size() / 2;
-        Object midVal = keys.get(splitIndex);
-        List<Object> newKeys = new ArrayList<>(keys.subList(splitIndex + 1, keys.size()));
-        List<int[]> newPointers = new ArrayList<>(pointers.subList(splitIndex + 1, pointers.size()));
+        int splitIndex = (keys.size() + 1) / 2;
+        List<Object> newKeys = new ArrayList<>(keys.subList(splitIndex, keys.size()));
+        List<int[]> newPointers = new ArrayList<>(pointers.subList(splitIndex, pointers.size()));
         keys.subList(splitIndex, keys.size()).clear();
         pointers.subList(splitIndex, pointers.size()).clear();
         BPlusTreeNode newNode = new BPlusTreeNode(false, maxSize, template);
         newNode.setKeys(newKeys);
         newNode.setPointers(newPointers);
+        Object midVal;
+        if (newNode.keys.size() < this.keys.size()) {
+            midVal = this.keys.remove(this.keys.size() - 1);
+        } else {
+            midVal = newNode.keys.remove(0);
+        }
         if (this.parent == -1) {
             BPlusTreeNode newRoot = new BPlusTreeNode(false, maxSize, template);
             newRoot.keys.add(midVal);
