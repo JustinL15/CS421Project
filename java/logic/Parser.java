@@ -404,7 +404,6 @@ public class Parser {
         LogicNode logicTree = LogicNode.build(conditions, false);
 
         if (logicTree.value.equals("=") && (!logicTree.left.operation.equals("Attribute") || !logicTree.right.operation.equals("Attribute"))) {
-            System.out.println("match");
             Object primaryKey = null;
             if (!logicTree.left.operation.equals("Attribute")) {
                 primaryKey = LogicNode.resolve(records.get(0), logicTree.left);
@@ -477,10 +476,23 @@ public class Parser {
         if (table == null) {
             throw new Exception("Table of name " + tableName + " does not exist");
         }
+        List<Record> records = new ArrayList<>();
 
-        List<Record> records = sM.getRecords_tablenumber(table.getNumber());
-        if (conditions.length() > 0) {
-            records = where(records, conditions,false);
+        LogicNode logicTree = LogicNode.build(conditions, false);
+
+        if (logicTree.value.equals("=") && (!logicTree.left.operation.equals("Attribute") || !logicTree.right.operation.equals("Attribute"))) {
+            Object primaryKey = null;
+            if (!logicTree.left.operation.equals("Attribute")) {
+                primaryKey = LogicNode.resolve(records.get(0), logicTree.left);
+            } else {
+                primaryKey = LogicNode.resolve(records.get(0), logicTree.right);
+            }
+            records.add(sM.getRecordByPrimaryKey(table, primaryKey));
+        } else {
+            records = sM.getRecords_tablenumber(table.getNumber());
+            if (conditions.length() > 0) {
+                records = where(records, conditions,false);
+            }
         }
 
         List<Attribute> attributes = table.getAttributes();
