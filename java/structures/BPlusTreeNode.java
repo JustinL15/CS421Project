@@ -127,8 +127,8 @@ public class BPlusTreeNode implements HardwarePage {
                 pointers.add(0, newPointer);
             } else {
                 if (index == pointers.size() - 1) {
-                    newPointer[0] = pointers.get(index)[0];
-                    newPointer[1] = pointers.get(index)[1] + 1;
+                    newPointer[0] = pointers.get(index - 1)[0];
+                    newPointer[1] = pointers.get(index - 1)[1] + 1;
                 } else {
                     newPointer[0] = pointers.get(index)[0];
                     newPointer[1] = pointers.get(index)[1];

@@ -136,7 +136,8 @@ public class Buffer {
                 Page cur = pagesToSplit.poll();
                 if (cur.bytesUsed() > catalog.getPageSize()) {
                     Page newPage = new Page(cur.getTemplate(), new ArrayList<>(), table.getNextPageCount());
-                    for (int j = 0; j < cur.getRecords().size() / 2; j++) {
+                    int halfCurr = cur.getRecords().size()/2;
+                    for (int j = 0; j < halfCurr; j++) {
                         newPage.getRecords().add(0, cur.getRecords().remove(cur.getRecords().size() - 1));
                     }
                     
