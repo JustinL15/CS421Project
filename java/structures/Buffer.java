@@ -23,7 +23,7 @@ public class Buffer {
     }
 
     public HardwarePage read(String tableName, int pageNumber, boolean readingNode) {
-        //System.out.println("Read");
+        System.out.println("Read");
         Object pageClass = readingNode ? BPlusTreeNode.class : Page.class;
         Table table = catalog.getTableByName(tableName);
         for (HardwarePage page : pages) {
