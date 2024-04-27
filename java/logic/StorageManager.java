@@ -369,6 +369,15 @@ public class StorageManager {
  
     }
 
+    public int BTreecheckPrimaryKeyUnique(Table table, Object value) {
+        try {
+            getRecordByPrimaryKey(table, value);
+            return 1;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         Catalog catalog = new Catalog(4, 40, new ArrayList<Table>(),false);
         StorageManager sM = new StorageManager(catalog, "resources");

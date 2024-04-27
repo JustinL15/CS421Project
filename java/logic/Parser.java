@@ -246,7 +246,12 @@ public class Parser {
         }
         for (int i = 0; i < cVals.size(); i++) {
             if (tableCol.get(i).isKey()) {
-                int res = sM.checkUnique(table, i, cVals.get(i));
+                int res;
+                if (sM.catalog.getBPlusIndex()) {
+                    res = sM.BTreecheckPrimaryKeyUnique(table, values);
+                } else {
+                    res = sM.checkUnique(table, i, cVals.get(i));
+                }
                 if (res != -1) {
                     StringBuilder er = new StringBuilder();
                     er.append("Duplicate primary key for row(");
