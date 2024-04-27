@@ -37,9 +37,13 @@ public class Page implements HardwarePage {
 
     public int bytesUsed() {
         int used = 4;
-        for (Record record: records) {
-            used += record.spacedUsed();
+        // for (Record record: records) {
+        //     used += record.spacedUsed();
+        // }
+        if (records.size() == 0) {
+            return used;
         }
+        used += records.get(0).maxSpaceUsed() * records.size();
         return used;
     }
 
