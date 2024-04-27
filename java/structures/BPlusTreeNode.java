@@ -263,7 +263,7 @@ public class BPlusTreeNode implements HardwarePage {
     // returns pointer [-1, -1] if key does not exist in the tree
     public int[] search(Object key, Buffer buffer) throws Exception {
         if (isLeaf) {
-            int index = binarySearch(keys, key);
+            int index = binarySearchObject(keys, key);
             if (index != -1) {
                 return pointers.get(index);
             } else {
@@ -303,7 +303,7 @@ public class BPlusTreeNode implements HardwarePage {
         return left;
     }
 
-    public int binarySearchTraversal(List<Object> arrayList, Object key) throws Exception {
+    public int binarySearchObject(List<Object> arrayList, Object key) throws Exception {
         if (arrayList.isEmpty()) {
             return -1;
         }
@@ -321,10 +321,7 @@ public class BPlusTreeNode implements HardwarePage {
                 right = mid - 1;
             }
         }
-        // if (left == 0) {
-        //     return -1;
-        // }
-        return left;
+        return -1;
     }
 
     @Override

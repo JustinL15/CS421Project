@@ -180,6 +180,9 @@ public class StorageManager {
         if (catalog.getBPlusIndex()) {
             BPlusTreeNode tree = (BPlusTreeNode)buffer.read(table.getName(), table.getRootPage(), true);
             int[] recordPointer = tree.search(primaryKey, buffer);
+            if (recordPointer[0] == -1) {
+                throw new Exception("Record with primary key " + primaryKey.toString() + " does not exist.");
+            }
             Page page = (Page)buffer.read(table.getName(), recordPointer[0], false);
             List<Record> records = page.getRecords();
             records.remove(recordPointer[1]);
