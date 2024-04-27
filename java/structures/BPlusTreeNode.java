@@ -29,12 +29,12 @@ public class BPlusTreeNode implements HardwarePage {
         this.pageNumber = pageNumber;
         this.template = template;
         this.maxSize = maxSize;
-        this.parent = -1;
         this.keys = new ArrayList<>();
         this.pointers = new ArrayList<>();
 
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
+        this.parent = buffer.getInt();
         int keySize = buffer.getInt();
         switch(template.getAttributes().get(template.getPrimaryKeyIndex()).getDataType()) {
             case Integer:
@@ -343,7 +343,7 @@ public class BPlusTreeNode implements HardwarePage {
     @Override
     public int bytesUsed() {
         int bytesPerKey = template.getMaxPKeySize(); 
-        int totalBytes = keys.size() * bytesPerKey + pointers.size() * 8 + 8; // 8 for key size and pointer size integers
+        int totalBytes = keys.size() * bytesPerKey + pointers.size() * 8 + 12; // 12 for key size and pointer size and parent integers
         return totalBytes;
     }
 
@@ -378,6 +378,7 @@ public class BPlusTreeNode implements HardwarePage {
     @Override
     public byte[] toByte(int max_size) {
         ByteBuffer buffer = ByteBuffer.allocate(max_size);
+        buffer.putInt(this.parent);
         buffer.putInt(keys.size());
         switch(template.getAttributes().get(template.getPrimaryKeyIndex()).getDataType()) {
             case Integer:
@@ -502,16 +503,15 @@ public class BPlusTreeNode implements HardwarePage {
             if (index != -1) {
                 pointers.set(index, pointer);
             } else {
-                BPlusTreeNode newNo = (BPlusTreeNode) buffer.read(this.template.getName(), 23, true);
-                // System.out.println("Leaf Keys: " + keys.toString());
-                // System.out.println("Looking for: " + key);
+                System.out.println("Leaf Keys: " + keys.toString());
+                System.out.println("Looking for: " + key);
                 throw new Exception("Key not found.");
             }
         } else {
             int newIndex = binarySearch(keys, key);
-            // System.out.println("Keys: " + keys.toString());
-            // System.out.println("Looking for: " + key);
-            // System.out.println("Choose index: " + newIndex);
+            System.out.println("Keys: " + keys.toString());
+            System.out.println("Looking for: " + key);
+            System.out.println("Choose index: " + newIndex);
             BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(newIndex)[0], true);
             nextNode.parent = this.pageNumber;
             nextNode.updateNodePointer(key, pointer, buffer);

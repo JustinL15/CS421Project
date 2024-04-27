@@ -404,7 +404,6 @@ public class Parser {
         LogicNode logicTree = LogicNode.build(conditions, false);
 
         if (logicTree.value.equals("=") && (!logicTree.left.operation.equals("Attribute") || !logicTree.right.operation.equals("Attribute"))) {
-            System.out.println("shortcut");
             Object primaryKey = null;
             if (!logicTree.left.operation.equals("Attribute")) {
                 primaryKey = table.transformStringPrimaryKey(logicTree.left.value);
@@ -482,7 +481,6 @@ public class Parser {
         LogicNode logicTree = LogicNode.build(conditions, false);
 
         if (logicTree.value.equals("=") && (!logicTree.left.operation.equals("Attribute") || !logicTree.right.operation.equals("Attribute"))) {
-            System.out.println("shortcut");
             Object primaryKey = null;
             if (!logicTree.left.operation.equals("Attribute")) {
                 primaryKey = table.transformStringPrimaryKey(logicTree.left.value);

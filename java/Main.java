@@ -132,7 +132,7 @@ public class Main {
         String command = "";
         boolean breakflag = false;
         while (!breakflag) { //program loop
-            System.out.print("\nDB>");
+            // System.out.print("\nDB>");
             String input = scanner.nextLine();
             if(!input.endsWith(";")) {
                 input += " ";
@@ -141,7 +141,7 @@ public class Main {
             if(!input.endsWith(";"))
                 continue;
             input = command;
-            System.out.println(input);
+            // System.out.println(input);
             String[] arguments = input.split(" ");
 
             switch (arguments[0]) {
