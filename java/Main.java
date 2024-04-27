@@ -198,7 +198,6 @@ public class Main {
                         parseUpdate(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 case "delete":
@@ -206,7 +205,6 @@ public class Main {
                         parseDelete(arguments, parser);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 default:

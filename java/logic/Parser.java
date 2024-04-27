@@ -404,11 +404,12 @@ public class Parser {
         LogicNode logicTree = LogicNode.build(conditions, false);
 
         if (logicTree.value.equals("=") && (!logicTree.left.operation.equals("Attribute") || !logicTree.right.operation.equals("Attribute"))) {
+            System.out.println("shortcut");
             Object primaryKey = null;
             if (!logicTree.left.operation.equals("Attribute")) {
-                primaryKey = LogicNode.resolve(records.get(0), logicTree.left);
+                primaryKey = table.transformStringPrimaryKey(logicTree.left.value);
             } else {
-                primaryKey = LogicNode.resolve(records.get(0), logicTree.right);
+                primaryKey = table.transformStringPrimaryKey(logicTree.right.value);
             }
             tableRecords.add(sM.getRecordByPrimaryKey(table, primaryKey));
         } else {
@@ -481,11 +482,12 @@ public class Parser {
         LogicNode logicTree = LogicNode.build(conditions, false);
 
         if (logicTree.value.equals("=") && (!logicTree.left.operation.equals("Attribute") || !logicTree.right.operation.equals("Attribute"))) {
+            System.out.println("shortcut");
             Object primaryKey = null;
             if (!logicTree.left.operation.equals("Attribute")) {
-                primaryKey = LogicNode.resolve(records.get(0), logicTree.left);
+                primaryKey = table.transformStringPrimaryKey(logicTree.left.value);
             } else {
-                primaryKey = LogicNode.resolve(records.get(0), logicTree.right);
+                primaryKey = table.transformStringPrimaryKey(logicTree.right.value);
             }
             records.add(sM.getRecordByPrimaryKey(table, primaryKey));
         } else {
