@@ -499,15 +499,15 @@ public class BPlusTreeNode implements HardwarePage {
             if (index != -1) {
                 pointers.set(index, pointer);
             } else {
-                System.out.println("Leaf Keys: " + keys.toString());
-                System.out.println("Looking for: " + key);
+                // System.out.println("Leaf Keys: " + keys.toString());
+                // System.out.println("Looking for: " + key);
                 throw new Exception("Key not found.");
             }
         } else {
             int newIndex = binarySearch(keys, key);
-            System.out.println("Keys: " + keys.toString());
-            System.out.println("Looking for: " + key);
-            System.out.println("Choose index: " + newIndex);
+            // System.out.println("Keys: " + keys.toString());
+            // System.out.println("Looking for: " + key);
+            // System.out.println("Choose index: " + newIndex);
             BPlusTreeNode nextNode = (BPlusTreeNode) buffer.read(template.getName(), pointers.get(newIndex)[0], true);
             nextNode.parent = this.pageNumber;
             nextNode.updateNodePointer(key, pointer, buffer);

@@ -56,11 +56,13 @@ public class Buffer {
         int pageSize = catalog.getPageSize();
         byte[] bytes = new byte[pageSize];
         try {
+            // System.out.println(pageNumber);
             tableAccessFile.seek(pageSize * pageNumber);
             tableAccessFile.read(bytes, 0, pageSize); // different way to specify where in file (pagesize * pagenumber)
             tableAccessFile.close();
         } catch (IOException e) {
             System.out.println("IOException when reading from table " + tableNumber);
+            e.printStackTrace();
             return null;
         }
 
@@ -122,7 +124,7 @@ public class Buffer {
     }
 
     public void splitPage(String tableName, Page page) {
-        System.out.println("Split page");
+        // System.out.println("Split page");
         Deque<Page> pagesToSplit = new ArrayDeque<>();
         pagesToSplit.add(page);
         Table table = catalog.getTableByName(tableName);
@@ -177,7 +179,7 @@ public class Buffer {
         //make a list in table that keeps track of order.   
         //jst insert the page number into index of split page plus 1 + index of page in list?
         for (Page pageAdd : pagesToAdd) {
-            write(pageAdd);
+            addPage(pageAdd);
         }
     }
 
